@@ -1,0 +1,257 @@
+<?php
+
+use Drupal\node\Entity\NodeType;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\field\Entity\FieldConfig;
+
+/**
+ * Implements hook_install().
+ */
+function employment_details_install() {
+  // Create 'employment_details' content type.
+  if (!NodeType::load('employment_details')) {
+    $type = NodeType::create([
+      'type' => 'employment_details',
+      'name' => 'Employment Details',
+      'description' => 'Stores employment details for applications.',
+    ]);
+    $type->save();
+  }
+
+  // Employer/Organisation
+  FieldStorageConfig::create([
+    'field_name' => 'field_employer',
+    'entity_type' => 'node',
+    'type' => 'string',
+    'cardinality' => 1,
+  ])->save();
+  FieldConfig::create([
+    'field_name' => 'field_employer',
+    'entity_type' => 'node',
+    'bundle' => 'employment_details',
+    'label' => 'Employer/Organisation',
+    'required' => TRUE,
+  ])->save();
+
+  // Type of employment (List)
+  FieldStorageConfig::create([
+    'field_name' => 'field_employment_type',
+    'entity_type' => 'node',
+    'type' => 'list_string',
+    'settings' => [
+      'allowed_values' => [
+        'Regular' => 'Regular',
+        'Ad-hoc' => 'Ad-hoc',
+        'Temporary' => 'Temporary',
+        'Contract' => 'Contract',
+        'Other' => 'Other',
+      ],
+    ],
+    'cardinality' => 1,
+  ])->save();
+  FieldConfig::create([
+    'field_name' => 'field_employment_type',
+    'entity_type' => 'node',
+    'bundle' => 'employment_details',
+    'label' => 'Type of Employment',
+    'required' => TRUE,
+  ])->save();
+
+  // Other (Type of employment)
+  FieldStorageConfig::create([
+    'field_name' => 'field_employment_type_other',
+    'entity_type' => 'node',
+    'type' => 'string',
+    'cardinality' => 1,
+  ])->save();
+  FieldConfig::create([
+    'field_name' => 'field_employment_type_other',
+    'entity_type' => 'node',
+    'bundle' => 'employment_details',
+    'label' => 'Other (Type of Employment)',
+    'required' => FALSE,
+  ])->save();
+
+  // Type of work (List)
+  FieldStorageConfig::create([
+    'field_name' => 'field_work_type',
+    'entity_type' => 'node',
+    'type' => 'list_string',
+    'settings' => [
+      'allowed_values' => [
+        'R&D' => 'R&D',
+        'Teaching' => 'Teaching',
+        'Scientific Administration' => 'Scientific Administration',
+        'Other' => 'Other',
+      ],
+    ],
+    'cardinality' => 1,
+  ])->save();
+  FieldConfig::create([
+    'field_name' => 'field_work_type',
+    'entity_type' => 'node',
+    'bundle' => 'employment_details',
+    'label' => 'Type of Work',
+    'required' => TRUE,
+  ])->save();
+
+  // Other (Type of work)
+  FieldStorageConfig::create([
+    'field_name' => 'field_work_type_other',
+    'entity_type' => 'node',
+    'type' => 'string',
+    'cardinality' => 1,
+  ])->save();
+  FieldConfig::create([
+    'field_name' => 'field_work_type_other',
+    'entity_type' => 'node',
+    'bundle' => 'employment_details',
+    'label' => 'Other (Type of Work)',
+    'required' => FALSE,
+  ])->save();
+
+  // Designation
+  FieldStorageConfig::create([
+    'field_name' => 'field_designation',
+    'entity_type' => 'node',
+    'type' => 'string',
+    'cardinality' => 1,
+  ])->save();
+  FieldConfig::create([
+    'field_name' => 'field_designation',
+    'entity_type' => 'node',
+    'bundle' => 'employment_details',
+    'label' => 'Designation',
+    'required' => TRUE,
+  ])->save();
+
+  // Nature of Job
+  FieldStorageConfig::create([
+    'field_name' => 'field_nature_job',
+    'entity_type' => 'node',
+    'type' => 'string',
+    'cardinality' => 1,
+  ])->save();
+  FieldConfig::create([
+    'field_name' => 'field_nature_job',
+    'entity_type' => 'node',
+    'bundle' => 'employment_details',
+    'label' => 'Nature of Job',
+    'required' => TRUE,
+  ])->save();
+
+  // Pay Band & Grade Pay OR Consolidated Salary
+  FieldStorageConfig::create([
+    'field_name' => 'field_salary',
+    'entity_type' => 'node',
+    'type' => 'string',
+    'cardinality' => 1,
+  ])->save();
+  FieldConfig::create([
+    'field_name' => 'field_salary',
+    'entity_type' => 'node',
+    'bundle' => 'employment_details',
+    'label' => 'Pay Band & Grade Pay OR Consolidated Salary',
+    'required' => TRUE,
+  ])->save();
+
+  // From - Month/Year
+  FieldStorageConfig::create([
+    'field_name' => 'field_from_date',
+    'entity_type' => 'node',
+    'type' => 'datetime',
+    'settings' => [
+      'datetime_type' => 'date',
+    ],
+    'cardinality' => 1,
+  ])->save();
+  FieldConfig::create([
+    'field_name' => 'field_from_date',
+    'entity_type' => 'node',
+    'bundle' => 'employment_details',
+    'label' => 'From (Month/Year)',
+    'required' => TRUE,
+  ])->save();
+
+  // To - Month/Year
+  FieldStorageConfig::create([
+    'field_name' => 'field_to_date',
+    'entity_type' => 'node',
+    'type' => 'datetime',
+    'settings' => [
+      'datetime_type' => 'date',
+    ],
+    'cardinality' => 1,
+  ])->save();
+  FieldConfig::create([
+    'field_name' => 'field_to_date',
+    'entity_type' => 'node',
+    'bundle' => 'employment_details',
+    'label' => 'To (Month/Year)',
+    'required' => TRUE,
+  ])->save();
+
+  // Experience (calculated, not user input)
+  FieldStorageConfig::create([
+    'field_name' => 'field_experience',
+    'entity_type' => 'node',
+    'type' => 'string',
+    'cardinality' => 1,
+  ])->save();
+  FieldConfig::create([
+    'field_name' => 'field_experience',
+    'entity_type' => 'node',
+    'bundle' => 'employment_details',
+    'label' => 'Experience (calculated)',
+    'required' => FALSE,
+    'description' => 'Total number of experience (auto-calculated).',
+  ])->save();
+
+  // Brief explanation on experience and nature of job
+  FieldStorageConfig::create([
+    'field_name' => 'field_explanation',
+    'entity_type' => 'node',
+    'type' => 'text_long',
+    'cardinality' => 1,
+  ])->save();
+  FieldConfig::create([
+    'field_name' => 'field_explanation',
+    'entity_type' => 'node',
+    'bundle' => 'employment_details',
+    'label' => 'Brief explanation on experience and nature of job',
+    'required' => FALSE,
+  ])->save();
+
+  // Delete - Boolean
+  FieldStorageConfig::create([
+    'field_name' => 'field_delete',
+    'entity_type' => 'node',
+    'type' => 'boolean',
+    'cardinality' => 1,
+  ])->save();
+  FieldConfig::create([
+    'field_name' => 'field_delete',
+    'entity_type' => 'node',
+    'bundle' => 'employment_details',
+    'label' => 'Delete',
+    'required' => FALSE,
+  ])->save();
+
+  // Application - Entity Reference (Node)
+  FieldStorageConfig::create([
+    'field_name' => 'field_application',
+    'entity_type' => 'node',
+    'type' => 'entity_reference',
+    'settings' => [
+      'target_type' => 'node',
+    ],
+    'cardinality' => 1,
+  ])->save();
+  FieldConfig::create([
+    'field_name' => 'field_application',
+    'entity_type' => 'node',
+    'bundle' => 'employment_details',
+    'label' => 'Application',
+    'required' => FALSE,
+  ])->save();
+}

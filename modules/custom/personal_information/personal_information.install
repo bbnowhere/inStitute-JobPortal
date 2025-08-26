@@ -1,0 +1,123 @@
+<?php
+
+use Drupal\node\Entity\NodeType;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\field\Entity\FieldConfig;
+
+/**
+ * Implements hook_install().
+ */
+function personal_information_install() {
+  // Create content type.
+  if (!NodeType::load('personal_information')) {
+    $type = NodeType::create([
+      'type' => 'personal_information',
+      'name' => 'Personal Information',
+    ]);
+    $type->save();
+  }
+
+  // Helper to add string field.
+  function add_string_field($field_name, $label, $required = TRUE, $max_length = 255) {
+    if (!FieldStorageConfig::loadByName('node', $field_name)) {
+      FieldStorageConfig::create([
+        'field_name' => $field_name,
+        'entity_type' => 'node',
+        'type' => 'string',
+        'settings' => ['max_length' => $max_length],
+        'cardinality' => 1,
+      ])->save();
+      FieldConfig::create([
+        'field_name' => $field_name,
+        'entity_type' => 'node',
+        'bundle' => 'personal_information',
+        'label' => $label,
+        'required' => $required,
+      ])->save();
+    }
+  }
+
+  // Helper to add list field.
+  function add_list_field($field_name, $label, $allowed_values, $required = TRUE) {
+    if (!FieldStorageConfig::loadByName('node', $field_name)) {
+      FieldStorageConfig::create([
+        'field_name' => $field_name,
+        'entity_type' => 'node',
+        'type' => 'list_string',
+        'settings' => ['allowed_values' => $allowed_values],
+        'cardinality' => 1,
+      ])->save();
+      FieldConfig::create([
+        'field_name' => $field_name,
+        'entity_type' => 'node',
+        'bundle' => 'personal_information',
+        'label' => $label,
+        'required' => $required,
+      ])->save();
+    }
+  }
+
+  // Helper to add file/image field.
+  function add_file_field($field_name, $label, $type = 'file', $required = TRUE, $extensions = 'pdf jpg jpeg png') {
+    if (!FieldStorageConfig::loadByName('node', $field_name)) {
+      FieldStorageConfig::create([
+        'field_name' => $field_name,
+        'entity_type' => 'node',
+        'type' => $type,
+        'settings' => [
+          'uri_scheme' => 'public',
+          'file_extensions' => $extensions,
+        ],
+        'cardinality' => 1,
+      ])->save();
+      FieldConfig::create([
+        'field_name' => $field_name,
+        'entity_type' => 'node',
+        'bundle' => 'personal_information',
+        'label' => $label,
+        'required' => $required,
+      ])->save();
+    }
+  }
+
+  // Existing fields...
+  add_string_field('field_full_name', 'Full Name');
+  add_string_field('field_email', 'Email');
+  add_string_field('field_mobile_number', 'Mobile Number');
+  add_list_field('field_gender', 'Gender', [
+    'male' => 'Male',
+    'female' => 'Female',
+    'other' => 'Other',
+  ]);
+
+  // New fields as per your request:
+  add_string_field('field_father_mother_spouse_name', 'Father/Mother/Spouse Name', TRUE);
+  add_string_field('field_alternate_phone', 'Alternate Phone Number', TRUE, 10);
+  add_list_field('field_category', 'Category', [
+    'general' => 'General|UR',
+    'obc' => 'OBC|OBC',
+    'sc' => 'SC|SC',
+    'st' => 'ST|ST',
+    'ews' => 'Economically Weaker|EWS',
+  ], TRUE);
+  add_file_field('field_category_certificate', 'Category Certificate', 'file', FALSE, 'pdf jpg jpeg png');
+  add_list_field('field_departmental_candidate', 'Are you a Departmental Candidate for the last 5 years or more as on 28th February, 2020', [
+    'yes' => 'Yes',
+    'no' => 'No',
+  ], FALSE);
+  add_list_field('field_pwd_category', 'PWD Category', [
+    'hh' => 'HH',
+    'oh' => 'OH',
+    'vh' => 'VH',
+  ], FALSE);
+  add_list_field('field_marital_status', 'Marital Status', [
+    'single' => 'Single',
+    'married' => 'Married',
+    'other' => 'Other',
+  ], TRUE);
+  add_string_field('field_nationality', 'Nationality', TRUE);
+  add_string_field('field_permanent_address', 'Permanent Address', FALSE, 255);
+  add_string_field('field_correspondence_address', 'Correspondence Address', FALSE, 255);
+  add_file_field('field_photo', 'Photo', 'image', TRUE, 'jpg jpeg png');
+  add_file_field('field_signature', 'Signature', 'image', TRUE, 'jpg jpeg png');
+}

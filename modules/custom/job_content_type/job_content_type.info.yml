@@ -1,0 +1,5 @@
+name: Job Content Type
+type: module
+description: 'Provides a custom content type for Job with specific fields.'
+core_version_requirement: ^10 || ^11
+package: Custom

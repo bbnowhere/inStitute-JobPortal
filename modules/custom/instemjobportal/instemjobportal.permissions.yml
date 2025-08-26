@@ -1,0 +1,4 @@
+create content via job link:
+  title: 'Create application content via job link'
+  description: 'Allow users to create subsidiary application nodes when accessing via the job apply link.'
+  restrict access: FALSE

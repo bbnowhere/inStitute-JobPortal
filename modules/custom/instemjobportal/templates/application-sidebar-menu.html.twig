@@ -1,0 +1,9 @@
+<ul class="application-sidebar">
+  {% for item in items %}
+    <li class="{{ item.active ? 'active' : '' }}">
+      {# item.link is a render array produced by Link::toRenderable() #}
+      {{ item.link }}
+      <span class="status"> {{ item.status }} </span>
+    </li>
+  {% endfor %}
+</ul>

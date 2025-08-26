@@ -1,0 +1,5 @@
+name: Job Portal Functionality
+type: module
+description: 'Functions, Themes and Validations'
+core_version_requirement: ^10 || ^11
+package: Custom

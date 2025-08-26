@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * @file
+ * Additional Information Module - Content type and fields are created via .install file.
+ */
+
+// No custom entity or schema needed. All logic is in additional_information_module.install.

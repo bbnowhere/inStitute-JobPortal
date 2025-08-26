@@ -1,0 +1,284 @@
+<?php
+function job_content_type_uninstall() 
+{
+
+}
+/**
+ * Implements hook_install().
+ */
+function job_content_type_install() {
+  // Create Job content type.
+  $type = [
+    'type' => 'job',
+    'name' => 'Job',
+    'description' => 'Job content type.',
+    'status' => TRUE,
+    'third_party_settings' => [],
+  ];
+  \Drupal\node\Entity\NodeType::create($type)->save();
+
+  // Add fields to Job content type.
+  $fields = [
+    // Advertisement Number - Taxonomy Term.
+    'field_advertisement_number' => [
+      'type' => 'entity_reference',
+      'settings' => [
+        'target_type' => 'taxonomy_term',
+        'handler' => 'default',
+      ],
+      'label' => 'Advertisement Number',
+    ],
+    // Job Title - Text.
+    'field_job_title' => [
+      'type' => 'string',
+      'label' => 'Job Title',
+      'settings' => ['max_length' => 255],
+    ],
+    // Job Code - Text.
+    'field_job_code' => [
+      'type' => 'string',
+      'label' => 'Job Code',
+      'settings' => ['max_length' => 255],
+    ],
+    // Employment Type - List.
+    'field_employment_type' => [
+      'type' => 'list_string',
+      'label' => 'Employment Type',
+      'settings' => [
+        'allowed_values' => [
+          'Regular/Deputation' => 'Regular/Deputation',
+          'Temporary' => 'Temporary',
+        ],
+      ],
+    ],
+    // Application Type - List.
+    'field_application_type' => [
+      'type' => 'list_string',
+      'label' => 'Application Type',
+      'settings' => [
+        'allowed_values' => [
+          'Online' => 'Online',
+          'Walkin' => 'Walkin',
+          'External' => 'External',
+        ],
+      ],
+    ],
+    // External Link.
+    'field_external_link' => [
+      'type' => 'link',
+      'label' => 'External Link',
+    ],
+    // Category Reservation? - Yes/No.
+    'field_category_reservation' => [
+      'type' => 'boolean',
+      'label' => 'Category Reservation?',
+      'settings' => [
+        'on_label' => 'Yes',
+        'off_label' => 'No',
+      ],
+    ],
+    // Category - List.
+    'field_category' => [
+      'type' => 'list_string',
+      'label' => 'Category',
+      'settings' => [
+        'allowed_values' => [
+          'SC' => 'SC',
+          'ST' => 'ST',
+          'OBC' => 'OBC',
+          'Economically Weaker' => 'Economically Weaker',
+        ],
+      ],
+    ],
+    // Other Category - List.
+    'field_other_category' => [
+      'type' => 'list_string',
+      'label' => 'Other Category',
+      'settings' => [
+        'allowed_values' => [
+          'Ex. Serviceman' => 'Ex. Serviceman',
+          'PWD' => 'PWD',
+        ],
+      ],
+    ],
+    // PWD categories - List.
+    'field_pwd_categories' => [
+      'type' => 'list_string',
+      'label' => 'PWD Categories',
+      'settings' => [
+        'allowed_values' => [
+          'VH' => 'VH',
+          'OH' => 'OH',
+          'HH' => 'HH',
+        ],
+      ],
+    ],
+    // Employment Type (Recruitment) - List.
+    'field_employment_recruitment' => [
+      'type' => 'list_string',
+      'label' => 'Employment Type (Recruitment)',
+      'settings' => [
+        'allowed_values' => [
+          'Direct Recruitment' => 'Direct Recruitment',
+          'Deputation' => 'Deputation',
+          'Temporary' => 'Temporary',
+        ],
+      ],
+    ],
+    // Cutoff Required - Yes/No.
+    'field_cutoff_required' => [
+      'type' => 'boolean',
+      'label' => 'Cutoff Required',
+      'settings' => [
+        'on_label' => 'Yes',
+        'off_label' => 'No',
+      ],
+    ],
+    // Minimum % of marks - Number.
+    'field_minimum_marks' => [
+      'type' => 'decimal',
+      'label' => 'Minimum % of marks',
+      'settings' => [
+        'precision' => 5,
+        'scale' => 2,
+      ],
+    ],
+    // Age Limit (in Years) - Number.
+    'field_age_limit' => [
+      'type' => 'integer',
+      'label' => 'Age Limit (in Years)',
+    ],
+    // Salary Offered - Text.
+    'field_salary_offered' => [
+      'type' => 'string',
+      'label' => 'Salary Offered',
+      'settings' => ['max_length' => 255],
+    ],
+    // Minimum Experience Required (in Years) - Number.
+    'field_min_experience' => [
+      'type' => 'integer',
+      'label' => 'Minimum Experience Required (in Years)',
+    ],
+    // Maximum Experience Required (in Years) - Number.
+    'field_max_experience' => [
+      'type' => 'integer',
+      'label' => 'Maximum Experience Required (in Years)',
+    ],
+    // Number of Vacancies - Number.
+    'field_number_of_vacancies' => [
+      'type' => 'integer',
+      'label' => 'Number of Vacancies',
+    ],
+    // Last Date to Apply/Date of Walking - Date.
+    'field_last_date' => [
+      'type' => 'datetime',
+      'label' => 'Last Date to Apply/Date of Walking',
+      'settings' => [
+        'datetime_type' => 'date',
+      ],
+    ],
+    // Job advertisement upload - PDF - 5MB.
+    'field_job_advertisement_upload' => [
+      'type' => 'file',
+      'label' => 'Job Advertisement Upload',
+      'settings' => [
+        'file_extensions' => 'pdf',
+        'max_filesize' => '5 MB',
+      ],
+    ],
+    // Job Description - Long Text.
+    'field_job_description' => [
+      'type' => 'text_long',
+      'label' => 'Job Description',
+    ],
+    // Users allowed for screening - User Reference.
+    'field_users_screening' => [
+      'type' => 'entity_reference',
+      'label' => 'Users allowed for screening',
+      'settings' => [
+        'target_type' => 'user',
+        'handler' => 'default',
+      ],
+    ],
+    // Press Release - PDF - 5MB.
+    'field_press_release' => [
+      'type' => 'file',
+      'label' => 'Press Release',
+      'settings' => [
+        'file_extensions' => 'pdf',
+        'max_filesize' => '5 MB',
+      ],
+    ],
+    // Result - Long Text.
+    'field_result' => [
+      'type' => 'text_long',
+      'label' => 'Result',
+    ],
+    // Result Upload - PDF - 5MB.
+    'field_result_upload' => [
+      'type' => 'file',
+      'label' => 'Result Upload',
+      'settings' => [
+        'file_extensions' => 'pdf',
+        'max_filesize' => '5 MB',
+      ],
+    ],
+    // Upload shortlisted candidates - PDF - 5MB.
+    'field_shortlisted_candidates' => [
+      'type' => 'file',
+      'label' => 'Upload Shortlisted Candidates',
+      'settings' => [
+        'file_extensions' => 'pdf',
+        'max_filesize' => '5 MB',
+      ],
+    ],
+    // Upload selected candidate - PDF - 5MB.
+    'field_selected_candidate' => [
+      'type' => 'file',
+      'label' => 'Upload Selected Candidate',
+      'settings' => [
+        'file_extensions' => 'pdf',
+        'max_filesize' => '5 MB',
+      ],
+    ],
+    // Announcement - Long Text.
+    'field_announcement' => [
+      'type' => 'text_long',
+      'label' => 'Announcement',
+    ],
+    // Job Status - List.
+    'field_job_status' => [
+      'type' => 'list_string',
+      'label' => 'Job Status',
+      'settings' => [
+        'allowed_values' => [
+          'In Process' => 'In Process',
+          'Completed' => 'Completed',
+          'Cancelled' => 'Cancelled',
+        ],
+      ],
+    ],
+  ];
+
+  foreach ($fields as $field_name => $field_info) {
+    // Create field storage.
+    if (!\Drupal\field\Entity\FieldStorageConfig::loadByName('node', $field_name)) {
+      \Drupal\field\Entity\FieldStorageConfig::create([
+        'field_name' => $field_name,
+        'entity_type' => 'node',
+        'type' => $field_info['type'],
+        'settings' => isset($field_info['settings']) ? $field_info['settings'] : [],
+      ])->save();
+    }
+    // Create field instance.
+    if (!\Drupal\field\Entity\FieldConfig::loadByName('node', 'job', $field_name)) {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_name' => $field_name,
+        'entity_type' => 'node',
+        'bundle' => 'job',
+        'label' => $field_info['label'],
+        'settings' => isset($field_info['settings']) ? $field_info['settings'] : [],
+      ])->save();
+    }
+  }
+}

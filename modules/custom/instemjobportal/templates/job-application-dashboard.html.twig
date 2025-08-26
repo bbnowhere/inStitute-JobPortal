@@ -1,0 +1,24 @@
+<div class="dashboard">
+  <h2>{{ 'Apply for'|t }} {{ job.label }}</h2>
+
+  <div class="dashboard-layout">
+    <aside class="dashboard-sidebar">
+      {# Sidebar is a render array passed from controller as '#sidebar' #}
+      {{ sidebar }}
+    </aside>
+
+    <main class="dashboard-main">
+      <p>{{ 'Select a section from the sidebar to begin your application.'|t }}</p>
+
+      {# Example: iterate sections and show completion - optional #}
+      <ul class="dashboard-sections">
+        {% for machine, label in sections %}
+          <li>
+            {{ label }} - {{ completion[machine] ? 'Completed'|t : 'Pending'|t }}
+          </li>
+        {% endfor %}
+      </ul>
+    </main>
+  </div>
+</div>
+

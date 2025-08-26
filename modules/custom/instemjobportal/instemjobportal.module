@@ -1,0 +1,105 @@
+<?php
+use Drupal\block\Entity\Block;
+use Drupal\user\UserInterface;
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_theme().
+ */
+function instemjobportal_theme($existing, $type, $theme, $path) {
+  return [
+    'job_application_dashboard' => [
+      'variables' => [
+        'job' => NULL,
+        'sections' => [],
+        'completion' => [],
+      ],
+      'template' => 'job-application-dashboard',
+    ],
+    'application_sidebar_menu' => [
+      'variables' => [
+        'items' => [],
+      ],
+      'template' => 'application-sidebar-menu',
+    ],
+  ];
+}
+
+/**
+ * Assign 'applicant' role to newly registered users.
+ */
+function instemjobportal_user_insert(UserInterface $account) {
+  // Ensure role exists.
+  $role_id = 'applicant';
+  $role = \Drupal\user\Entity\Role::load($role_id);
+  if (!$role) {
+    // Create a bare role; permissions can be granted later via admin or permissions.yml.
+    $role = \Drupal\user\Entity\Role::create(['id' => $role_id, 'label' => 'Applicant']);
+    $role->save();
+  }
+
+  // Assign role to new user.
+  $account->addRole($role_id);
+  $account->save();
+}
+
+/**
+ * Remove revision UI elements from node edit/add forms for application bundles.
+ *
+ * This hides the "Revision information / log message" tab and fields on the form.
+ */
+function instemjobportal_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $node = $form_state->getFormObject()->getEntity();
+  if (!$node) {
+    return;
+  }
+
+  // Machine names of your six application content types.
+  $application_bundles = [
+    'personal_information',
+    'education',
+    'employment_details',
+    'referee',
+    'additional_information',
+    'file_upload',
+  ];
+
+  if (in_array($node->bundle(), $application_bundles, TRUE)) {
+    // Remove the revision vertical tab and log elements if present.
+    if (isset($form['revision_information'])) {
+      unset($form['revision_information']);
+    }
+    if (isset($form['revision'])) {
+      unset($form['revision']);
+    }
+    if (isset($form['revision_log'])) {
+      unset($form['revision_log']);
+    }
+    // Also remove the "Create new revision" checkbox if present.
+    if (isset($form['revision_information']['revision'])) {
+      unset($form['revision_information']['revision']);
+    }
+  }
+}
+
+/**
+ * Remove revision-related local tasks (tabs) so revision links do not show.
+ *
+ * This hides local task tabs whose route names contain "revision".
+ */
+function instemjobportal_menu_local_tasks_alter(&$data, $route_name) {
+  foreach ($data as $context => $tasks) {
+    foreach ($tasks as $delta => $task) {
+      if (!empty($task['#link']['route_name'])) {
+        $rname = $task['#link']['route_name'];
+        if (str_contains($rname, 'revision') || str_contains($rname, 'revisions')) {
+          unset($data[$context][$delta]);
+        }
+      }
+    }
+    // Reindex numeric arrays to avoid gaps.
+    if (isset($data[$context]) && is_array($data[$context])) {
+      $data[$context] = array_values($data[$context]);
+    }
+  }
+}

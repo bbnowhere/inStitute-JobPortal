@@ -1,0 +1,41 @@
+<?php
+use Drupal\Core\Form\FormStateInterface;
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function personal_information_form_node_personal_information_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  // Add custom validation handlers.
+  $form['#validate'][] = 'personal_information_category_certificate_validate';
+  $form['#validate'][] = 'personal_information_phone_number_validate';
+}
+
+/**
+ * Custom validation for Category Certificate field.
+ */
+function personal_information_category_certificate_validate($form, FormStateInterface $form_state) {
+  $category = $form_state->getValue('field_category')[0]['value'] ?? '';
+  $certificate = $form_state->getValue('field_category_certificate');
+  // If category is not General, certificate is required.
+  if ($category !== 'general' && empty($certificate)) {
+    $form_state->setErrorByName('field_category_certificate', t('Category Certificate is required for selected category.'));
+  }
+}
+
+/**
+ * Custom validation for phone number fields.
+ */
+function personal_information_phone_number_validate($form, FormStateInterface $form_state) {
+  $mobile = $form_state->getValue('field_mobile_number')[0]['value'] ?? '';
+  $alternate = $form_state->getValue('field_alternate_phone')[0]['value'] ?? '';
+
+  // Validate Mobile Number
+  if (empty($mobile) || !preg_match('/^\d{10}$/', $mobile)) {
+    $form_state->setErrorByName('field_mobile_number', t('Mobile Number must be exactly 10 digits.'));
+  }
+
+  // Validate Alternate Phone Number
+  if (empty($alternate) || !preg_match('/^\d{10}$/', $alternate)) {
+    $form_state->setErrorByName('field_alternate_phone', t('Alternate Phone Number must be exactly 10 digits.'));
+  }
+}

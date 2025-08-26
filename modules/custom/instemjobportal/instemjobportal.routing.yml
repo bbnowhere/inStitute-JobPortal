@@ -1,0 +1,13 @@
+instemjobportal.dashboard:
+  path: '/apply/{job}'
+  defaults:
+    _controller: '\Drupal\instemjobportal\Controller\DashboardController::dashboard'
+  requirements:
+    _permission: 'access content'
+
+instemjobportal.add_node:
+  path: '/apply/{job}/add/{node_type}'
+  defaults:
+    _controller: '\Drupal\instemjobportal\Controller\DashboardController::addNode'
+  requirements:
+    _permission: 'access content'

@@ -1,0 +1,84 @@
+<?php
+
+use Drupal\node\Entity\NodeType;
+use Drupal\field\Entity\FieldStorageConfig;
+use Drupal\field\Entity\FieldConfig;
+
+/**
+ * Implements hook_install().
+ */
+function additional_information_module_install() {
+  // Create the Additional Information content type.
+  if (!NodeType::load('additional_information')) {
+    $type = NodeType::create([
+      'type' => 'additional_information',
+      'name' => 'Additional Information',
+      'description' => 'Additional Information content type.',
+    ]);
+    $type->save();
+  }
+
+  // Helper function to create fields.
+  function _additional_information_module_add_field($field_name, $type, $label, $settings = [], $required = FALSE) {
+    if (!FieldStorageConfig::loadByName('node', $field_name)) {
+      FieldStorageConfig::create([
+        'field_name' => $field_name,
+        'entity_type' => 'node',
+        'type' => $type,
+        'settings' => $settings,
+      ])->save();
+    }
+    if (!FieldConfig::loadByName('node', 'additional_information', $field_name)) {
+      FieldConfig::create([
+        'field_name' => $field_name,
+        'entity_type' => 'node',
+        'bundle' => 'additional_information',
+        'label' => $label,
+        'required' => $required,
+        'settings' => $settings,
+      ])->save();
+    }
+  }
+
+  // Time required for joining (integer).
+  _additional_information_module_add_field('field_joining_time_days', 'integer', 'Time required for joining from the date of receiving offer letter (in days)', [], FALSE);
+
+  // Significant contributions (long text).
+  _additional_information_module_add_field('field_significant_contributions', 'text_long', 'Kindly describe significant contributions where you have worked?', [], FALSE);
+
+  // Suitability for the post (long text, max 500 words).
+  _additional_information_module_add_field('field_suitability', 'text_long', 'What makes you suitable for the post you have applied? (Please describe in maximum 500 words)', [], FALSE);
+
+  // Yes/No list field settings.
+  $yes_no_settings = [
+    'allowed_values' => [
+      'yes' => 'Yes',
+      'no' => 'No',
+    ],
+  ];
+
+  // Debarred or punished for unfair means.
+  _additional_information_module_add_field('field_debarred_unfair_means', 'list_string', 'Have you been debarred or punished for adopting unfair means in any Examination by the Institution/Board/University?', $yes_no_settings, TRUE);
+  _additional_information_module_add_field('field_debarred_d', 'text_long', 'If Yes (Details)', [], FALSE);
+
+  // Administrative malpractice.
+  _additional_information_module_add_field('field_admin_malpractice', 'list_string', 'Have you ever been involved in any administrative malpractice?', $yes_no_settings, TRUE);
+  _additional_information_module_add_field('field_admin_malpractice_d', 'text_long', 'If Yes (Details)', [], FALSE);
+
+  // Financial irregularity.
+  _additional_information_module_add_field('field_financial_irregularity', 'list_string', 'Have you ever been involved in any financial irregularity?', $yes_no_settings, TRUE);
+  _additional_information_module_add_field('field_financial_irregularity_d', 'text_long', 'If Yes (Details)', [], FALSE);
+
+  // Discharged or dismissed from previous employment.
+  _additional_information_module_add_field('field_discharged_employment', 'list_string', 'Were you ever discharged or dismissed from any previous employment?', $yes_no_settings, TRUE);
+  _additional_information_module_add_field('field_discharged_employment_d', 'text_long', 'If Yes (Details)', [], FALSE);
+
+  // Pending or contemplated disciplinary proceedings.
+  _additional_information_module_add_field('field_disciplinary_proceedings', 'list_string', 'Is there any pending or contemplated disciplinary proceedings against you?', $yes_no_settings, TRUE);
+  _additional_information_module_add_field('field_disciplinary_proceedings_d', 'text_long', 'If Yes (Details)', [], FALSE);
+
+  // Application entity reference field.
+  _additional_information_module_add_field('field_application', 'entity_reference', 'Application', [
+    'target_type' => 'node',
+  ], FALSE);
+}
