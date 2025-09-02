@@ -11,3 +11,10 @@ instemjobportal.add_node:
     _controller: '\Drupal\instemjobportal\Controller\DashboardController::addNode'
   requirements:
     _permission: 'access content'
+instemjobportal.preview_submit:
+  path: '/apply/{job}/preview'
+  defaults:
+    _form: 'Drupal\instemjobportal\Form\PreviewSubmitForm'
+    _title: 'Preview and Submit'
+  requirements:
+    _permission: 'access content'

@@ -1,9 +1,16 @@
 <ul class="application-sidebar">
   {% for item in items %}
     <li class="{{ item.active ? 'active' : '' }}">
-      {# item.link is a render array produced by Link::toRenderable() #}
+      {# Render the main link (add or edit depending on block logic) #}
       {{ item.link }}
-      <span class="status"> {{ item.status }} </span>
+      {# Show a check icon when status indicates completion; otherwise a clock. #}
+      <span class="status"> {% if item.status == '✅' %} <strong>✅</strong> {% else %} 🕒 {% endif %} </span>
+      {# If the URL is an edit route, show a small 'Edit' hint. We detect that
+         by checking if url route name contains 'entity.node.edit_form' which
+         the block sets for existing nodes. #}
+      {% if item.url is defined and item.url.getRouteName() == 'entity.node.edit_form' %}
+        <span class="edit-hint"> — <a href="{{ item.url.toString() }}">Edit</a></span>
+      {% endif %}
     </li>
   {% endfor %}
 </ul>
