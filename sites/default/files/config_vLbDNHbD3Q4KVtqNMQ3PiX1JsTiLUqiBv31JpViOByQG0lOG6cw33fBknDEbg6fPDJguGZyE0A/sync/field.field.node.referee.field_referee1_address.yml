@@ -1,0 +1,22 @@
+uuid: bf46c28e-24fc-4832-8cb1-6b0f849c9e6d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_referee1_address
+    - node.type.referee
+  module:
+    - text
+id: node.referee.field_referee1_address
+field_name: field_referee1_address
+entity_type: node
+bundle: referee
+label: 'Referee 1 Address'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

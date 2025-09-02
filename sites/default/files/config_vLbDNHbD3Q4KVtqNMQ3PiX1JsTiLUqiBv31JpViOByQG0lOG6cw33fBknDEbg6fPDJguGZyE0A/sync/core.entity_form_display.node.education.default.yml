@@ -1,0 +1,180 @@
+uuid: ed903c6f-902a-465c-8180-2edf84886238
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.education.field_10th_certificate
+    - field.field.node.education.field_10th_country
+    - field.field.node.education.field_10th_gpa
+    - field.field.node.education.field_10th_marks_percentage
+    - field.field.node.education.field_10th_qualification_name
+    - field.field.node.education.field_10th_specialization
+    - field.field.node.education.field_10th_university
+    - field.field.node.education.field_10th_year_of_passing
+    - field.field.node.education.field_12th_certificate
+    - field.field.node.education.field_12th_country
+    - field.field.node.education.field_12th_gpa
+    - field.field.node.education.field_12th_marks_percentage
+    - field.field.node.education.field_12th_qualification_name
+    - field.field.node.education.field_12th_specialization
+    - field.field.node.education.field_12th_university
+    - field.field.node.education.field_12th_year_of_passing
+    - field.field.node.education.field_application
+    - field.field.node.education.field_grad_cert
+    - field.field.node.education.field_grad_country
+    - field.field.node.education.field_grad_gpa
+    - field.field.node.education.field_grad_marks
+    - field.field.node.education.field_grad_qual_name
+    - field.field.node.education.field_grad_spec
+    - field.field.node.education.field_grad_univ
+    - field.field.node.education.field_grad_year
+    - field.field.node.education.field_pg_cert
+    - field.field.node.education.field_pg_country
+    - field.field.node.education.field_pg_gpa
+    - field.field.node.education.field_pg_marks
+    - field.field.node.education.field_pg_qual_name
+    - field.field.node.education.field_pg_spec
+    - field.field.node.education.field_pg_univ
+    - field.field.node.education.field_pg_year
+    - field.field.node.education.field_phd_cert
+    - field.field.node.education.field_phd_country
+    - field.field.node.education.field_phd_gpa
+    - field.field.node.education.field_phd_marks
+    - field.field.node.education.field_phd_qual_name
+    - field.field.node.education.field_phd_spec
+    - field.field.node.education.field_phd_univ
+    - field.field.node.education.field_phd_year
+    - field.field.node.education.field_tenth_cert
+    - field.field.node.education.field_tenth_country
+    - field.field.node.education.field_tenth_gpa
+    - field.field.node.education.field_tenth_marks
+    - field.field.node.education.field_tenth_qual_name
+    - field.field.node.education.field_tenth_spec
+    - field.field.node.education.field_tenth_univ
+    - field.field.node.education.field_tenth_year
+    - field.field.node.education.field_twelfth_cert
+    - field.field.node.education.field_twelfth_country
+    - field.field.node.education.field_twelfth_gpa
+    - field.field.node.education.field_twelfth_marks
+    - field.field.node.education.field_twelfth_qual_name
+    - field.field.node.education.field_twelfth_spec
+    - field.field.node.education.field_twelfth_univ
+    - field.field.node.education.field_twelfth_year
+    - node.type.education
+id: node.education.default
+targetEntityType: node
+bundle: education
+mode: default
+content:
+  created:
+    type: datetime_timestamp
+    weight: 10
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_application:
+    type: entity_reference_autocomplete
+    weight: 121
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  promote:
+    type: boolean_checkbox
+    weight: 15
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  status:
+    type: boolean_checkbox
+    weight: 120
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  sticky:
+    type: boolean_checkbox
+    weight: 16
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  title:
+    type: string_textfield
+    weight: -5
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  uid:
+    type: entity_reference_autocomplete
+    weight: 5
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  field_10th_certificate: true
+  field_10th_country: true
+  field_10th_gpa: true
+  field_10th_marks_percentage: true
+  field_10th_qualification_name: true
+  field_10th_specialization: true
+  field_10th_university: true
+  field_10th_year_of_passing: true
+  field_12th_certificate: true
+  field_12th_country: true
+  field_12th_gpa: true
+  field_12th_marks_percentage: true
+  field_12th_qualification_name: true
+  field_12th_specialization: true
+  field_12th_university: true
+  field_12th_year_of_passing: true
+  field_grad_cert: true
+  field_grad_country: true
+  field_grad_gpa: true
+  field_grad_marks: true
+  field_grad_qual_name: true
+  field_grad_spec: true
+  field_grad_univ: true
+  field_grad_year: true
+  field_pg_cert: true
+  field_pg_country: true
+  field_pg_gpa: true
+  field_pg_marks: true
+  field_pg_qual_name: true
+  field_pg_spec: true
+  field_pg_univ: true
+  field_pg_year: true
+  field_phd_cert: true
+  field_phd_country: true
+  field_phd_gpa: true
+  field_phd_marks: true
+  field_phd_qual_name: true
+  field_phd_spec: true
+  field_phd_univ: true
+  field_phd_year: true
+  field_tenth_cert: true
+  field_tenth_country: true
+  field_tenth_gpa: true
+  field_tenth_marks: true
+  field_tenth_qual_name: true
+  field_tenth_spec: true
+  field_tenth_univ: true
+  field_tenth_year: true
+  field_twelfth_cert: true
+  field_twelfth_country: true
+  field_twelfth_gpa: true
+  field_twelfth_marks: true
+  field_twelfth_qual_name: true
+  field_twelfth_spec: true
+  field_twelfth_univ: true
+  field_twelfth_year: true

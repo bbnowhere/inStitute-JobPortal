@@ -1,0 +1,22 @@
+uuid: 7eec15e3-0d07-4583-98ee-15a3d1713f7b
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_explanation
+    - node.type.employment_details
+  module:
+    - text
+id: node.employment_details.field_explanation
+field_name: field_explanation
+entity_type: node
+bundle: employment_details
+label: 'Brief explanation on experience and nature of job'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

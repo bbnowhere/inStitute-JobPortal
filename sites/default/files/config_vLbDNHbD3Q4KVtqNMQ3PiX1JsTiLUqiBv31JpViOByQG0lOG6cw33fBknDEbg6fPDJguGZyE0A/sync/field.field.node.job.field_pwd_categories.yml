@@ -1,0 +1,21 @@
+uuid: 712d7123-c28a-41d9-a9fc-fa2e1b8f0a4a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pwd_categories
+    - node.type.job
+  module:
+    - options
+id: node.job.field_pwd_categories
+field_name: field_pwd_categories
+entity_type: node
+bundle: job
+label: 'PWD Categories'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

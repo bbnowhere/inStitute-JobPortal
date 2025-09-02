@@ -1,0 +1,23 @@
+uuid: 0bf6d187-0a53-4ae3-b806-e262d91c0c17
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_tenth_gpa
+    - node.type.education
+id: node.education.field_tenth_gpa
+field_name: field_tenth_gpa
+entity_type: node
+bundle: education
+label: '10th GPA'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

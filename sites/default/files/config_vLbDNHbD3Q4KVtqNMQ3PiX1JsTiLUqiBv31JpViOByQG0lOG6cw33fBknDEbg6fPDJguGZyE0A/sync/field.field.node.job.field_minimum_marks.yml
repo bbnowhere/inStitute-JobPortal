@@ -1,0 +1,23 @@
+uuid: f2454e52-fe9a-4e2c-a8b8-0114e4a7292f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_minimum_marks
+    - node.type.job
+id: node.job.field_minimum_marks
+field_name: field_minimum_marks
+entity_type: node
+bundle: job
+label: 'Minimum % of marks'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

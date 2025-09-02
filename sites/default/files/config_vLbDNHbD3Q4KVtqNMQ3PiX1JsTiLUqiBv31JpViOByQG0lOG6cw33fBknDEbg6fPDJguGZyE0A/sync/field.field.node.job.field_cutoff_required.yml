@@ -1,0 +1,21 @@
+uuid: 5e3cd35e-1d9e-460c-9bf7-eb0ba8df2989
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_cutoff_required
+    - node.type.job
+id: node.job.field_cutoff_required
+field_name: field_cutoff_required
+entity_type: node
+bundle: job
+label: 'Cutoff Required'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

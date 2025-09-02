@@ -1,0 +1,19 @@
+uuid: adb6bdcf-7b6f-404b-bbfd-560d3687a3fe
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_twelfth_country
+    - node.type.education
+id: node.education.field_twelfth_country
+field_name: field_twelfth_country
+entity_type: node
+bundle: education
+label: '12th Country'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

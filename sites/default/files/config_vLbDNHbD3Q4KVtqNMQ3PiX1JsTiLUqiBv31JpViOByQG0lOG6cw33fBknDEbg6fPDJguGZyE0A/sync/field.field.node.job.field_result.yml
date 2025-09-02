@@ -1,0 +1,22 @@
+uuid: 7d95a8ac-586d-46ac-a4d6-2bd77cd90287
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_result
+    - node.type.job
+  module:
+    - text
+id: node.job.field_result
+field_name: field_result
+entity_type: node
+bundle: job
+label: Result
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

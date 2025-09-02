@@ -1,0 +1,27 @@
+uuid: b369478a-1df1-4b88-b7f4-8ed1cc6b19ba
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_resume
+    - node.type.file_upload
+  module:
+    - file
+id: node.file_upload.field_resume
+field_name: field_resume
+entity_type: node
+bundle: file_upload
+label: Resume
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: '[date:custom:Y]-[date:custom:m]'
+  file_extensions: pdf
+  max_filesize: '5 MB'
+  description_field: false
+field_type: file

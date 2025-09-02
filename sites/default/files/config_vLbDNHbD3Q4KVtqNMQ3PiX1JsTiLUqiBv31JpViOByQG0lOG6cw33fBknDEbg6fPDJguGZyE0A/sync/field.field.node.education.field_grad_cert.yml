@@ -1,0 +1,27 @@
+uuid: fc4cf5a5-841a-4d5c-8a07-258cad825c30
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_grad_cert
+    - node.type.education
+  module:
+    - file
+id: node.education.field_grad_cert
+field_name: field_grad_cert
+entity_type: node
+bundle: education
+label: 'graduation Certificate Upload'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: '[date:custom:Y]-[date:custom:m]'
+  file_extensions: txt
+  max_filesize: ''
+  description_field: false
+field_type: file

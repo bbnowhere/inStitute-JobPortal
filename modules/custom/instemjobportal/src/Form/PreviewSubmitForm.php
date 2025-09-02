@@ -165,6 +165,21 @@ class PreviewSubmitForm extends FormBase {
         }
         $pnode->save();
 
+        // Add personal information node to field_applicants of the job node.
+        if ($job && $personal_nid) {
+          $job_node = \Drupal\node\Entity\Node::load($job);
+          if ($job_node && $job_node->hasField('field_applicants')) {
+            $applicants = $job_node->get('field_applicants')->getValue();
+            // Prevent duplicates.
+            $existing_ids = array_column($applicants, 'target_id');
+            if (!in_array($personal_nid, $existing_ids)) {
+              $applicants[] = ['target_id' => $personal_nid];
+              $job_node->set('field_applicants', $applicants);
+              $job_node->save();
+            }
+          }
+        }
+
         // Invalidate per-job-per-user cache tag so sidebar updates.
         if ($job && $current_user && $current_user->isAuthenticated()) {
           \Drupal::service('cache_tags.invalidator')->invalidateTags(['instemjobportal_app:job:' . $job . ':user:' . $current_user->id()]);

@@ -1,0 +1,22 @@
+uuid: 752098cc-9d8e-44d0-a9ef-b5ffee52923c
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_announcement
+    - node.type.job
+  module:
+    - text
+id: node.job.field_announcement
+field_name: field_announcement
+entity_type: node
+bundle: job
+label: Announcement
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

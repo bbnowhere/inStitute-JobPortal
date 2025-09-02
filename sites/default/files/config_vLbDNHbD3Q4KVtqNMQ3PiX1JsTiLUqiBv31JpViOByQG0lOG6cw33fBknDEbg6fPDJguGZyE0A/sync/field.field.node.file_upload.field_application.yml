@@ -1,0 +1,29 @@
+uuid: 61455339-58f1-462f-b630-8af5bfe08649
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_application
+    - node.type.file_upload
+    - node.type.job
+id: node.file_upload.field_application
+field_name: field_application
+entity_type: node
+bundle: file_upload
+label: Application
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      job: job
+    sort:
+      field: title
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

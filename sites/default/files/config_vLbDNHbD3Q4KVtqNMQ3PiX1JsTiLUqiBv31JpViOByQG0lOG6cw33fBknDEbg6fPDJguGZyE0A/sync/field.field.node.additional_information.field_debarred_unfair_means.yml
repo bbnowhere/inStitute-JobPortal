@@ -1,0 +1,21 @@
+uuid: 3fa14d7b-822d-43ce-ad3e-7e977ee70173
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_debarred_unfair_means
+    - node.type.additional_information
+  module:
+    - options
+id: node.additional_information.field_debarred_unfair_means
+field_name: field_debarred_unfair_means
+entity_type: node
+bundle: additional_information
+label: 'Have you been debarred or punished for adopting unfair means in any Examination by the Institution/Board/University?'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

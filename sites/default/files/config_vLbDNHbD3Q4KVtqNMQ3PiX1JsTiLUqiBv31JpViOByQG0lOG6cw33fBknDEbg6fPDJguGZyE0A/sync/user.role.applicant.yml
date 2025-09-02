@@ -1,0 +1,24 @@
+uuid: e01c227f-04d1-4713-956b-ffb322b5ebc1
+langcode: en
+status: true
+dependencies:
+  config:
+    - node.type.additional_information
+    - node.type.education
+    - node.type.employment_details
+    - node.type.file_upload
+    - node.type.personal_information
+    - node.type.referee
+  module:
+    - node
+id: applicant
+label: applicant
+weight: 3
+is_admin: false
+permissions:
+  - 'create additional_information content'
+  - 'create education content'
+  - 'create employment_details content'
+  - 'create file_upload content'
+  - 'create personal_information content'
+  - 'create referee content'

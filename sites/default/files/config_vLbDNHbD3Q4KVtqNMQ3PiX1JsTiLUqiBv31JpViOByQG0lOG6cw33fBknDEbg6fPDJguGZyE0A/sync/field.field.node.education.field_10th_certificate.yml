@@ -1,0 +1,27 @@
+uuid: 1145a149-d477-400b-a0ff-9a14c886b0d7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_10th_certificate
+    - node.type.education
+  module:
+    - file
+id: node.education.field_10th_certificate
+field_name: field_10th_certificate
+entity_type: node
+bundle: education
+label: '10th Certificate Upload'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: '[date:custom:Y]-[date:custom:m]'
+  file_extensions: txt
+  max_filesize: ''
+  description_field: false
+field_type: file

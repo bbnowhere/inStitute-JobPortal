@@ -1,0 +1,20 @@
+uuid: b207181c-3fb8-49c4-b651-d8c6751a396a
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_twelfth_gpa
+field_name: field_twelfth_gpa
+entity_type: node
+type: decimal
+settings:
+  precision: 3
+  scale: 1
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

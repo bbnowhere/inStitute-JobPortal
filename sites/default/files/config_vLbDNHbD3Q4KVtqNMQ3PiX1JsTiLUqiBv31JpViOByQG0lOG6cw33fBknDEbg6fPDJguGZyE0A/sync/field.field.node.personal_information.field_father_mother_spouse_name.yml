@@ -1,0 +1,19 @@
+uuid: 7d5b74f7-e3a3-483b-a3f5-9afa1ed215c8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_father_mother_spouse_name
+    - node.type.personal_information
+id: node.personal_information.field_father_mother_spouse_name
+field_name: field_father_mother_spouse_name
+entity_type: node
+bundle: personal_information
+label: 'Father/Mother/Spouse Name'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

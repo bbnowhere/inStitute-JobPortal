@@ -1,0 +1,11 @@
+uuid: bcd16869-fdba-4d38-ae18-62a6d76754fe
+langcode: en
+status: true
+dependencies: {  }
+name: Education
+type: education
+description: 'Stores educational qualifications from 10th to PhD.'
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: true

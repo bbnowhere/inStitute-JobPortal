@@ -1,0 +1,19 @@
+uuid: cee81b3b-f96c-4370-8baa-a06616f280e7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_phd_univ
+    - node.type.education
+id: node.education.field_phd_univ
+field_name: field_phd_univ
+entity_type: node
+bundle: education
+label: 'phd University/Institute'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

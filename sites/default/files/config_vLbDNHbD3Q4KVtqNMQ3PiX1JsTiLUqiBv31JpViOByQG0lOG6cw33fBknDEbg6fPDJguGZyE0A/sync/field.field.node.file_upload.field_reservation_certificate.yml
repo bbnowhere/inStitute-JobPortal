@@ -1,0 +1,27 @@
+uuid: 5ab34b63-01d9-459c-9b0a-9089a4cd8fa7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_reservation_certificate
+    - node.type.file_upload
+  module:
+    - file
+id: node.file_upload.field_reservation_certificate
+field_name: field_reservation_certificate
+entity_type: node
+bundle: file_upload
+label: 'Reservation Certificate / Additional information'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: '[date:custom:Y]-[date:custom:m]'
+  file_extensions: pdf
+  max_filesize: '5 MB'
+  description_field: false
+field_type: file

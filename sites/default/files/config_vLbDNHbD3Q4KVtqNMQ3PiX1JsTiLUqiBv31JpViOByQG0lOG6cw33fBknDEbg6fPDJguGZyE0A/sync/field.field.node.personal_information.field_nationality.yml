@@ -1,0 +1,19 @@
+uuid: 62623cce-7f20-4e7c-95f4-20c409d1b9fc
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_nationality
+    - node.type.personal_information
+id: node.personal_information.field_nationality
+field_name: field_nationality
+entity_type: node
+bundle: personal_information
+label: Nationality
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

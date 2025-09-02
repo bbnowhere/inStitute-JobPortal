@@ -1,0 +1,23 @@
+uuid: d164038e-824b-43c8-9e0c-578edf403e0e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_tenth_marks
+    - node.type.education
+id: node.education.field_tenth_marks
+field_name: field_tenth_marks
+entity_type: node
+bundle: education
+label: '10th % of Marks'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

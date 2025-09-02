@@ -1,0 +1,21 @@
+uuid: 21ef1362-5e01-4641-bc47-372c4329ae30
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_category_reservation
+    - node.type.job
+id: node.job.field_category_reservation
+field_name: field_category_reservation
+entity_type: node
+bundle: job
+label: 'Category Reservation?'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: 'Yes'
+  off_label: 'No'
+field_type: boolean

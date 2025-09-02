@@ -1,0 +1,82 @@
+uuid: a10ed2c4-5390-413b-8eeb-3bbbf60fff23
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.file_upload.field_application
+    - field.field.node.file_upload.field_experience_certificates
+    - field.field.node.file_upload.field_noc_file
+    - field.field.node.file_upload.field_noc_option
+    - field.field.node.file_upload.field_pan_passport_dl_voter
+    - field.field.node.file_upload.field_reservation_certificate
+    - field.field.node.file_upload.field_resume
+    - field.field.node.file_upload.field_transaction_details
+    - node.type.file_upload
+id: node.file_upload.default
+targetEntityType: node
+bundle: file_upload
+mode: default
+content:
+  created:
+    type: datetime_timestamp
+    weight: 2
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_application:
+    type: entity_reference_autocomplete
+    weight: 6
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  promote:
+    type: boolean_checkbox
+    weight: 3
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  status:
+    type: boolean_checkbox
+    weight: 5
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  sticky:
+    type: boolean_checkbox
+    weight: 4
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  title:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  uid:
+    type: entity_reference_autocomplete
+    weight: 1
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  field_experience_certificates: true
+  field_noc_file: true
+  field_noc_option: true
+  field_pan_passport_dl_voter: true
+  field_reservation_certificate: true
+  field_resume: true
+  field_transaction_details: true

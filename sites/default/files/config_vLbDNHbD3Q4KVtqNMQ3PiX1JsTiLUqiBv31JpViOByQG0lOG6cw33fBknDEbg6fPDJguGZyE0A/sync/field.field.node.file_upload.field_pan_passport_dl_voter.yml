@@ -1,0 +1,27 @@
+uuid: fe8392df-6d73-4f63-bc5d-3e7a9f850b27
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pan_passport_dl_voter
+    - node.type.file_upload
+  module:
+    - file
+id: node.file_upload.field_pan_passport_dl_voter
+field_name: field_pan_passport_dl_voter
+entity_type: node
+bundle: file_upload
+label: 'PAN/Passport/DL/Voter ID'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: '[date:custom:Y]-[date:custom:m]'
+  file_extensions: pdf
+  max_filesize: '5 MB'
+  description_field: false
+field_type: file

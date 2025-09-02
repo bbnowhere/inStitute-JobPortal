@@ -1,0 +1,23 @@
+uuid: bec7cf17-51e2-4c21-80fa-55878e5ff672
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_joining_time_days
+    - node.type.additional_information
+id: node.additional_information.field_joining_time_days
+field_name: field_joining_time_days
+entity_type: node
+bundle: additional_information
+label: 'Time required for joining from the date of receiving offer letter (in days)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

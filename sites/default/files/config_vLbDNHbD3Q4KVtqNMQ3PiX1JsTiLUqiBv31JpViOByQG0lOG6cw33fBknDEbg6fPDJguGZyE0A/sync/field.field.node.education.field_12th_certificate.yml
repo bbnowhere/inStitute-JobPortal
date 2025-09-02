@@ -1,0 +1,27 @@
+uuid: bfef00fa-fdc7-41c7-9306-b3a45807f6ee
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_12th_certificate
+    - node.type.education
+  module:
+    - file
+id: node.education.field_12th_certificate
+field_name: field_12th_certificate
+entity_type: node
+bundle: education
+label: '12th Certificate Upload'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: '[date:custom:Y]-[date:custom:m]'
+  file_extensions: txt
+  max_filesize: ''
+  description_field: false
+field_type: file

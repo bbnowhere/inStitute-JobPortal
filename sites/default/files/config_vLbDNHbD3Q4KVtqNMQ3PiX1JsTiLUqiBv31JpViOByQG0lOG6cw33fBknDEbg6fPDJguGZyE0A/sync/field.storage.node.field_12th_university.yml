@@ -1,0 +1,21 @@
+uuid: 2e9ad008-50e3-485d-9583-fa927b120dce
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_12th_university
+field_name: field_12th_university
+entity_type: node
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

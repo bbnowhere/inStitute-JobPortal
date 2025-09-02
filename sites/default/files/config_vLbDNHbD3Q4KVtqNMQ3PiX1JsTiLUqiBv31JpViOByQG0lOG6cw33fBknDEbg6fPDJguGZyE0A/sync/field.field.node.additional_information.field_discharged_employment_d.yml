@@ -1,0 +1,22 @@
+uuid: cc90ee61-9df1-4cb1-87d8-3efb85d8978a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_discharged_employment_d
+    - node.type.additional_information
+  module:
+    - text
+id: node.additional_information.field_discharged_employment_d
+field_name: field_discharged_employment_d
+entity_type: node
+bundle: additional_information
+label: 'If Yes (Details)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

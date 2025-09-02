@@ -11,3 +11,8 @@ global-styling:
   dependencies:
     - core/jquery
     - core/drupal
+application:
+  css:
+    theme:
+      css/application.css: {}
+  js: {}

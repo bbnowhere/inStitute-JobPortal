@@ -1,0 +1,19 @@
+uuid: a9e7b25b-a4bf-47eb-8a5a-02a8d1210279
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_salary_offered
+    - node.type.job
+id: node.job.field_salary_offered
+field_name: field_salary_offered
+entity_type: node
+bundle: job
+label: 'Salary Offered'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

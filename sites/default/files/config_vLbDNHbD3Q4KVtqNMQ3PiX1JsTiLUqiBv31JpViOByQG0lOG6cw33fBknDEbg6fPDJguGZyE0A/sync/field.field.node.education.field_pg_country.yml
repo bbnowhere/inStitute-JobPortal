@@ -1,0 +1,19 @@
+uuid: 0e963064-b4b1-490d-8052-e8dc332f0759
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pg_country
+    - node.type.education
+id: node.education.field_pg_country
+field_name: field_pg_country
+entity_type: node
+bundle: education
+label: 'post_graduation Country'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

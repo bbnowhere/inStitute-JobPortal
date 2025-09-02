@@ -1,0 +1,21 @@
+uuid: 9aff6fc3-4577-4ae8-a486-32ccb160e432
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_departmental_candidate
+    - node.type.personal_information
+  module:
+    - options
+id: node.personal_information.field_departmental_candidate
+field_name: field_departmental_candidate
+entity_type: node
+bundle: personal_information
+label: 'Are you a Departmental Candidate for the last 5 years or more as on 28th February, 2020'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

@@ -1,0 +1,23 @@
+uuid: 0e036235-08f6-4336-a833-b98a95f6ba7a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_grad_marks
+    - node.type.education
+id: node.education.field_grad_marks
+field_name: field_grad_marks
+entity_type: node
+bundle: education
+label: 'graduation % of Marks'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

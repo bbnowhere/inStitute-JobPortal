@@ -1,0 +1,44 @@
+uuid: ef4cb0ad-8896-487c-af05-61a84df76f1d
+langcode: en
+status: true
+dependencies:
+  config:
+    - filter.format.html
+    - node.type.job
+  module:
+    - field_permissions
+    - filter
+    - node
+id: hr
+label: hr
+weight: 4
+is_admin: false
+permissions:
+  - 'create field_result'
+  - 'create field_result_upload'
+  - 'create field_selected_candidate'
+  - 'create field_shortlisted_candidates'
+  - 'create field_users_screening'
+  - 'create job content'
+  - 'edit any job content'
+  - 'edit field_result'
+  - 'edit field_result_upload'
+  - 'edit field_selected_candidate'
+  - 'edit field_shortlisted_candidates'
+  - 'edit field_users_screening'
+  - 'edit own field_result'
+  - 'edit own field_result_upload'
+  - 'edit own field_selected_candidate'
+  - 'edit own field_shortlisted_candidates'
+  - 'edit own field_users_screening'
+  - 'use text format html'
+  - 'view field_result'
+  - 'view field_result_upload'
+  - 'view field_selected_candidate'
+  - 'view field_shortlisted_candidates'
+  - 'view field_users_screening'
+  - 'view own field_result'
+  - 'view own field_result_upload'
+  - 'view own field_selected_candidate'
+  - 'view own field_shortlisted_candidates'
+  - 'view own field_users_screening'

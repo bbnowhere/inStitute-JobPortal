@@ -1,0 +1,78 @@
+uuid: fde4e807-c9e5-47cb-928e-10988cc03221
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.personal_information.field_alternate_phone
+    - field.field.node.personal_information.field_application
+    - field.field.node.personal_information.field_application_id
+    - field.field.node.personal_information.field_category
+    - field.field.node.personal_information.field_category_certificate
+    - field.field.node.personal_information.field_correspondence_address
+    - field.field.node.personal_information.field_departmental_candidate
+    - field.field.node.personal_information.field_email
+    - field.field.node.personal_information.field_father_mother_spouse_name
+    - field.field.node.personal_information.field_full_name
+    - field.field.node.personal_information.field_gender
+    - field.field.node.personal_information.field_job_status
+    - field.field.node.personal_information.field_marital_status
+    - field.field.node.personal_information.field_mobile_number
+    - field.field.node.personal_information.field_nationality
+    - field.field.node.personal_information.field_permanent_address
+    - field.field.node.personal_information.field_photo
+    - field.field.node.personal_information.field_pwd_category
+    - field.field.node.personal_information.field_signature
+    - node.type.personal_information
+  module:
+    - options
+    - user
+id: node.personal_information.default
+targetEntityType: node
+bundle: personal_information
+mode: default
+content:
+  field_application:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 101
+    region: content
+  field_application_id:
+    type: string
+    label: above
+    settings:
+      link_to_entity: false
+    third_party_settings: {  }
+    weight: 103
+    region: content
+  field_job_status:
+    type: list_default
+    label: above
+    settings: {  }
+    third_party_settings: {  }
+    weight: 102
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  field_alternate_phone: true
+  field_category: true
+  field_category_certificate: true
+  field_correspondence_address: true
+  field_departmental_candidate: true
+  field_email: true
+  field_father_mother_spouse_name: true
+  field_full_name: true
+  field_gender: true
+  field_marital_status: true
+  field_mobile_number: true
+  field_nationality: true
+  field_permanent_address: true
+  field_photo: true
+  field_pwd_category: true
+  field_signature: true

@@ -1,0 +1,21 @@
+uuid: 25786b63-52e7-45f7-ae64-642954554db4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_noc_option
+    - node.type.file_upload
+  module:
+    - options
+id: node.file_upload.field_noc_option
+field_name: field_noc_option
+entity_type: node
+bundle: file_upload
+label: 'No Objection Certificate'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

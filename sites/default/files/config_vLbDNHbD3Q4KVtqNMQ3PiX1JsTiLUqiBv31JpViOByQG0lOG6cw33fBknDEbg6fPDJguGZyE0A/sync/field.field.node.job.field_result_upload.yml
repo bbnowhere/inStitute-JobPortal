@@ -1,0 +1,27 @@
+uuid: cba0cdde-80c0-4900-a407-af09c3496ba5
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_result_upload
+    - node.type.job
+  module:
+    - file
+id: node.job.field_result_upload
+field_name: field_result_upload
+entity_type: node
+bundle: job
+label: 'Result Upload'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: '[date:custom:Y]-[date:custom:m]'
+  file_extensions: pdf
+  max_filesize: '5 MB'
+  description_field: false
+field_type: file

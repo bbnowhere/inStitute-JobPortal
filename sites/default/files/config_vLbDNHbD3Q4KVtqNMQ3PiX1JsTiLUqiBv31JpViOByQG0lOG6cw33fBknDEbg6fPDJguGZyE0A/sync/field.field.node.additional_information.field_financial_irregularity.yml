@@ -1,0 +1,21 @@
+uuid: b115242f-c0b0-403e-bb13-edeba2f03892
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_financial_irregularity
+    - node.type.additional_information
+  module:
+    - options
+id: node.additional_information.field_financial_irregularity
+field_name: field_financial_irregularity
+entity_type: node
+bundle: additional_information
+label: 'Have you ever been involved in any financial irregularity?'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

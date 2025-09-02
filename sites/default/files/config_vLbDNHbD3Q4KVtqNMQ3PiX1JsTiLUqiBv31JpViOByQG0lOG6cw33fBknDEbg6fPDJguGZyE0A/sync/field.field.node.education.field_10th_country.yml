@@ -1,0 +1,19 @@
+uuid: 7068325d-a368-485c-96c2-b3f8336bc30f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_10th_country
+    - node.type.education
+id: node.education.field_10th_country
+field_name: field_10th_country
+entity_type: node
+bundle: education
+label: '10th Country'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

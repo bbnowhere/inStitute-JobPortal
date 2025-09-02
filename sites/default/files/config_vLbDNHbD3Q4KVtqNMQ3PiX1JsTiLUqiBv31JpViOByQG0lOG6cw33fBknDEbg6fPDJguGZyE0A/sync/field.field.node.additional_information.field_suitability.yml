@@ -1,0 +1,22 @@
+uuid: b2c859f8-3cff-45d7-a822-68840a0fa2fa
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_suitability
+    - node.type.additional_information
+  module:
+    - text
+id: node.additional_information.field_suitability
+field_name: field_suitability
+entity_type: node
+bundle: additional_information
+label: 'What makes you suitable for the post you have applied? (Please describe in maximum 500 words)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

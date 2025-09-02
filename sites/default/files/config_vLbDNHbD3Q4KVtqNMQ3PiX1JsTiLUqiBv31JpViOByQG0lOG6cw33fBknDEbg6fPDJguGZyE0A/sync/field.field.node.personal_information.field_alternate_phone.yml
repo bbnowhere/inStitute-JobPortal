@@ -1,0 +1,19 @@
+uuid: fbc24d78-2d3e-4d36-8525-ae85ec7bf5c2
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_alternate_phone
+    - node.type.personal_information
+id: node.personal_information.field_alternate_phone
+field_name: field_alternate_phone
+entity_type: node
+bundle: personal_information
+label: 'Alternate Phone Number'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

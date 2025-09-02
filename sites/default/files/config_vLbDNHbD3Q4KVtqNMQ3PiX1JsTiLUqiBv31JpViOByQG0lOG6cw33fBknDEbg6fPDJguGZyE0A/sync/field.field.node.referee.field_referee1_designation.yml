@@ -1,0 +1,19 @@
+uuid: d9e1534a-e180-4c65-9c9d-29fb488f6b29
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_referee1_designation
+    - node.type.referee
+id: node.referee.field_referee1_designation
+field_name: field_referee1_designation
+entity_type: node
+bundle: referee
+label: 'Referee 1 Designation'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

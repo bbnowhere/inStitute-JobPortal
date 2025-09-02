@@ -1,0 +1,27 @@
+uuid: 05cce58c-c66b-448f-8e6b-1fde2db96090
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_other_category
+field_name: field_other_category
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: 'Ex. Serviceman'
+      label: 'Ex. Serviceman'
+    -
+      value: PWD
+      label: PWD
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

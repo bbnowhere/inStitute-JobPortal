@@ -1,0 +1,23 @@
+uuid: b052677f-e00a-432c-b6b3-7ccda312f7ee
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_phd_year
+    - node.type.education
+id: node.education.field_phd_year
+field_name: field_phd_year
+entity_type: node
+bundle: education
+label: 'phd Year of Passing'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

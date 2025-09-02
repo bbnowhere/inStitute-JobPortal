@@ -1,0 +1,80 @@
+uuid: 0f46ab27-51db-4cd7-9674-d3e10ddb181e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.job.field_advertisement_number
+    - field.field.node.job.field_age_limit
+    - field.field.node.job.field_announcement
+    - field.field.node.job.field_applicants
+    - field.field.node.job.field_application_type
+    - field.field.node.job.field_category
+    - field.field.node.job.field_category_reservation
+    - field.field.node.job.field_cutoff_required
+    - field.field.node.job.field_employment_recruitment
+    - field.field.node.job.field_external_link
+    - field.field.node.job.field_job_advertisement_upload
+    - field.field.node.job.field_job_code
+    - field.field.node.job.field_job_description
+    - field.field.node.job.field_job_status
+    - field.field.node.job.field_last_date
+    - field.field.node.job.field_min_experience
+    - field.field.node.job.field_minimum_marks
+    - field.field.node.job.field_number_of_vacancies
+    - field.field.node.job.field_other_category
+    - field.field.node.job.field_press_release
+    - field.field.node.job.field_pwd_categories
+    - field.field.node.job.field_result
+    - field.field.node.job.field_result_upload
+    - field.field.node.job.field_salary_offered
+    - field.field.node.job.field_selected_candidate
+    - field.field.node.job.field_shortlisted_candidates
+    - field.field.node.job.field_users_screening
+    - node.type.job
+  module:
+    - user
+id: node.job.default
+targetEntityType: node
+bundle: job
+mode: default
+content:
+  field_applicants:
+    type: entity_reference_label
+    label: above
+    settings:
+      link: true
+    third_party_settings: {  }
+    weight: 101
+    region: content
+  links:
+    settings: {  }
+    third_party_settings: {  }
+    weight: 100
+    region: content
+hidden:
+  field_advertisement_number: true
+  field_age_limit: true
+  field_announcement: true
+  field_application_type: true
+  field_category: true
+  field_category_reservation: true
+  field_cutoff_required: true
+  field_employment_recruitment: true
+  field_external_link: true
+  field_job_advertisement_upload: true
+  field_job_code: true
+  field_job_description: true
+  field_job_status: true
+  field_last_date: true
+  field_min_experience: true
+  field_minimum_marks: true
+  field_number_of_vacancies: true
+  field_other_category: true
+  field_press_release: true
+  field_pwd_categories: true
+  field_result: true
+  field_result_upload: true
+  field_salary_offered: true
+  field_selected_candidate: true
+  field_shortlisted_candidates: true
+  field_users_screening: true

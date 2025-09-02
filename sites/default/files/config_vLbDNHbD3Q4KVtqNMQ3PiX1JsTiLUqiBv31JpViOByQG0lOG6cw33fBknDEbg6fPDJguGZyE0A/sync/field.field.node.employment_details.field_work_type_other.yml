@@ -1,0 +1,19 @@
+uuid: 94bc793a-e97f-4da6-bbfa-fa595cf9d73a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_work_type_other
+    - node.type.employment_details
+id: node.employment_details.field_work_type_other
+field_name: field_work_type_other
+entity_type: node
+bundle: employment_details
+label: 'Other (Type of Work)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,27 @@
+uuid: 7c8b1674-c3cd-4aec-ab07-1dee20d53136
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_job_advertisement_upload
+    - node.type.job
+  module:
+    - file
+id: node.job.field_job_advertisement_upload
+field_name: field_job_advertisement_upload
+entity_type: node
+bundle: job
+label: 'Job Advertisement Upload'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: '[date:custom:Y]-[date:custom:m]'
+  file_extensions: pdf
+  max_filesize: '5 MB'
+  description_field: false
+field_type: file

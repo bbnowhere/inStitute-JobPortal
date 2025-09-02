@@ -1,0 +1,22 @@
+uuid: 64761d15-e73c-48f6-8449-f299ab759ef1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_admin_malpractice_d
+    - node.type.additional_information
+  module:
+    - text
+id: node.additional_information.field_admin_malpractice_d
+field_name: field_admin_malpractice_d
+entity_type: node
+bundle: additional_information
+label: 'If Yes (Details)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

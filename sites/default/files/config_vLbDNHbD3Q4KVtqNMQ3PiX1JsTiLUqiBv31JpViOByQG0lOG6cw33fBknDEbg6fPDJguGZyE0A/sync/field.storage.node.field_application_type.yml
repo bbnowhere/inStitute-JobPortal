@@ -1,0 +1,30 @@
+uuid: 8afd992f-e1e5-4042-b90d-fdc118780cf3
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_application_type
+field_name: field_application_type
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: Online
+      label: Online
+    -
+      value: Walkin
+      label: Walkin
+    -
+      value: External
+      label: External
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

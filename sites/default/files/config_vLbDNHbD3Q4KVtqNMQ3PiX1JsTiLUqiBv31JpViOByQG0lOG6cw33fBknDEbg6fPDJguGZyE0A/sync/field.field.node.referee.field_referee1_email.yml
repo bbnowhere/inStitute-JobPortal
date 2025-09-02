@@ -1,0 +1,19 @@
+uuid: e688ab7d-8d19-44e2-81d9-b786b2a65f95
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_referee1_email
+    - node.type.referee
+id: node.referee.field_referee1_email
+field_name: field_referee1_email
+entity_type: node
+bundle: referee
+label: 'Referee 1 Email'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: email

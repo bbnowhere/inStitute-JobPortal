@@ -1,0 +1,23 @@
+uuid: d2f91976-d7d1-424a-ba0a-954c4bb0def4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_grad_year
+    - node.type.education
+id: node.education.field_grad_year
+field_name: field_grad_year
+entity_type: node
+bundle: education
+label: 'graduation Year of Passing'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

@@ -1,0 +1,18 @@
+uuid: 72320fcd-b334-4a9a-91dc-b965cf2ad258
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_category_reservation
+field_name: field_category_reservation
+entity_type: node
+type: boolean
+settings: {  }
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

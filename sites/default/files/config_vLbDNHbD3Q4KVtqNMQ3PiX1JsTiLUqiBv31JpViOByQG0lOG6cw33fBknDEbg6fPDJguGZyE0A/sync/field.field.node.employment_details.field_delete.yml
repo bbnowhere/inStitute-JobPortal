@@ -1,0 +1,21 @@
+uuid: b3dfe223-7504-4875-a79a-9b649f7eb31a
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_delete
+    - node.type.employment_details
+id: node.employment_details.field_delete
+field_name: field_delete
+entity_type: node
+bundle: employment_details
+label: Delete
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  on_label: 'On'
+  off_label: 'Off'
+field_type: boolean

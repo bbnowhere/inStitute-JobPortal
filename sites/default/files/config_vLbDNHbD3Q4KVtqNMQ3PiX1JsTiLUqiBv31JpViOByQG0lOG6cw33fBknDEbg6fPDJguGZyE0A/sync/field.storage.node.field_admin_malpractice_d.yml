@@ -1,0 +1,19 @@
+uuid: ae8c4e7b-020d-49cb-aab6-dd58652a8dc5
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - text
+id: node.field_admin_malpractice_d
+field_name: field_admin_malpractice_d
+entity_type: node
+type: text_long
+settings: {  }
+module: text
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

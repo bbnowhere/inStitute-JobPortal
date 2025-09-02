@@ -1,0 +1,21 @@
+uuid: 76dd93e0-e018-4003-97cd-d5fe9d7ea70f
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_application_type
+    - node.type.job
+  module:
+    - options
+id: node.job.field_application_type
+field_name: field_application_type
+entity_type: node
+bundle: job
+label: 'Application Type'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

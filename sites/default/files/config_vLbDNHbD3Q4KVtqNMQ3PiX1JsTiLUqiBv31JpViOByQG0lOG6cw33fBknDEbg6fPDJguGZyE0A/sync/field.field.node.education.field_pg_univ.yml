@@ -1,0 +1,19 @@
+uuid: 6ea1cb89-9796-45bc-87aa-9f3f04bf4b00
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pg_univ
+    - node.type.education
+id: node.education.field_pg_univ
+field_name: field_pg_univ
+entity_type: node
+bundle: education
+label: 'post_graduation University/Institute'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

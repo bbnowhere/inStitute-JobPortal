@@ -1,0 +1,30 @@
+uuid: 662fb3f4-8676-4f3e-bb58-7020a326268a
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_pwd_category
+field_name: field_pwd_category
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: hh
+      label: HH
+    -
+      value: oh
+      label: OH
+    -
+      value: vh
+      label: VH
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

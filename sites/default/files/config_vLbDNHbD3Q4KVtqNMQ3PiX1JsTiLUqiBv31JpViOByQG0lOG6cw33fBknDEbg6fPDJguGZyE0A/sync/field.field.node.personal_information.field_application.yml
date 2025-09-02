@@ -1,0 +1,29 @@
+uuid: 1ee3a7ac-cd4c-4a31-9b53-00815cc8788e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_application
+    - node.type.job
+    - node.type.personal_information
+id: node.personal_information.field_application
+field_name: field_application
+entity_type: node
+bundle: personal_information
+label: Application
+description: ''
+required: false
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:node'
+  handler_settings:
+    target_bundles:
+      job: job
+    sort:
+      field: title
+      direction: ASC
+    auto_create: false
+    auto_create_bundle: ''
+field_type: entity_reference

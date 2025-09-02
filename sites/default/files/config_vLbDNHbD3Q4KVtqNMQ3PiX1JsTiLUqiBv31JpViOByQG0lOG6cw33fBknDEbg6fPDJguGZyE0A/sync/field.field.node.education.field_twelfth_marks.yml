@@ -1,0 +1,23 @@
+uuid: b369fe5a-b16a-441a-ba8c-893b99b765e5
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_twelfth_marks
+    - node.type.education
+id: node.education.field_twelfth_marks
+field_name: field_twelfth_marks
+entity_type: node
+bundle: education
+label: '12th % of Marks'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

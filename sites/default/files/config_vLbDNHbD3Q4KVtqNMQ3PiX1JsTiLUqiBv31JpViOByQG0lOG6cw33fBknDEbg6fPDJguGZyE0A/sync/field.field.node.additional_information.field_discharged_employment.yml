@@ -1,0 +1,21 @@
+uuid: de8cbcfc-3fb3-4d1e-b5b5-fc95d7458629
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_discharged_employment
+    - node.type.additional_information
+  module:
+    - options
+id: node.additional_information.field_discharged_employment
+field_name: field_discharged_employment
+entity_type: node
+bundle: additional_information
+label: 'Were you ever discharged or dismissed from any previous employment?'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

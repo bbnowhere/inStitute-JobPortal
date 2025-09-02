@@ -1,0 +1,21 @@
+uuid: e6be2106-53d5-4de4-b08e-4679fc7e68d2
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_category
+    - node.type.personal_information
+  module:
+    - options
+id: node.personal_information.field_category
+field_name: field_category
+entity_type: node
+bundle: personal_information
+label: Category
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

@@ -1,0 +1,21 @@
+uuid: 8deb4861-b6db-47b5-bf1d-25c7acd5af90
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_to_date
+    - node.type.employment_details
+  module:
+    - datetime
+id: node.employment_details.field_to_date
+field_name: field_to_date
+entity_type: node
+bundle: employment_details
+label: 'To (Month/Year)'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

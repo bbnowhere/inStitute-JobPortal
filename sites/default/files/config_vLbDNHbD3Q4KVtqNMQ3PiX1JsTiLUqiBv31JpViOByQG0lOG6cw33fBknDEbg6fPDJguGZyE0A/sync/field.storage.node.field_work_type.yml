@@ -1,0 +1,33 @@
+uuid: cf62921c-88b7-4842-b6bc-32aaba35a832
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_work_type
+field_name: field_work_type
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: 'R&D'
+      label: 'R&D'
+    -
+      value: Teaching
+      label: Teaching
+    -
+      value: 'Scientific Administration'
+      label: 'Scientific Administration'
+    -
+      value: Other
+      label: Other
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

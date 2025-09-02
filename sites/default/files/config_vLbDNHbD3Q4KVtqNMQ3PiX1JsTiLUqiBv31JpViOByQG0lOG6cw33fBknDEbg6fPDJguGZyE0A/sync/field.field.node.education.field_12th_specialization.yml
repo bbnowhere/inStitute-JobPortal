@@ -1,0 +1,19 @@
+uuid: 4c039fc2-b7d7-4e08-9380-9288dea71d92
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_12th_specialization
+    - node.type.education
+id: node.education.field_12th_specialization
+field_name: field_12th_specialization
+entity_type: node
+bundle: education
+label: '12th Specialization/Main Subjects'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

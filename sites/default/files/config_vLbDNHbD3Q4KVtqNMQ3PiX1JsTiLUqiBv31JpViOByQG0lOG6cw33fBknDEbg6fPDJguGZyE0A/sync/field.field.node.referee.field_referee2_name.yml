@@ -1,0 +1,19 @@
+uuid: 1cd9f272-3d6e-47a4-998f-0662c26fb624
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_referee2_name
+    - node.type.referee
+id: node.referee.field_referee2_name
+field_name: field_referee2_name
+entity_type: node
+bundle: referee
+label: 'Referee 2 Name'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

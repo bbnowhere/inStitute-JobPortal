@@ -1,0 +1,11 @@
+uuid: aee5ad8d-ff7b-4992-9685-95228e022315
+langcode: en
+status: true
+dependencies: {  }
+name: Referee
+type: referee
+description: 'Referee content type.'
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: true

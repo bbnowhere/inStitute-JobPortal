@@ -1,0 +1,19 @@
+uuid: 09fe4d35-a1fd-46bc-9981-d2ffa43b32ee
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_full_name
+    - node.type.personal_information
+id: node.personal_information.field_full_name
+field_name: field_full_name
+entity_type: node
+bundle: personal_information
+label: 'Full Name'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

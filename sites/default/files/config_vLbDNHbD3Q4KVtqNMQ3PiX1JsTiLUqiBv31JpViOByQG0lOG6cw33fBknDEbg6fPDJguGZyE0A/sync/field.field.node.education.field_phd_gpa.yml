@@ -1,0 +1,23 @@
+uuid: 1e9d8b9e-1232-4794-9423-772ac5767efc
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_phd_gpa
+    - node.type.education
+id: node.education.field_phd_gpa
+field_name: field_phd_gpa
+entity_type: node
+bundle: education
+label: 'phd GPA'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

@@ -1,0 +1,94 @@
+uuid: 7180e19c-02d5-4df2-a493-9a1d10d5a8a3
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.employment_details.field_application
+    - field.field.node.employment_details.field_delete
+    - field.field.node.employment_details.field_designation
+    - field.field.node.employment_details.field_employer
+    - field.field.node.employment_details.field_employment_type
+    - field.field.node.employment_details.field_employment_type_other
+    - field.field.node.employment_details.field_experience
+    - field.field.node.employment_details.field_explanation
+    - field.field.node.employment_details.field_from_date
+    - field.field.node.employment_details.field_nature_job
+    - field.field.node.employment_details.field_salary
+    - field.field.node.employment_details.field_to_date
+    - field.field.node.employment_details.field_work_type
+    - field.field.node.employment_details.field_work_type_other
+    - node.type.employment_details
+id: node.employment_details.default
+targetEntityType: node
+bundle: employment_details
+mode: default
+content:
+  created:
+    type: datetime_timestamp
+    weight: 2
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_application:
+    type: entity_reference_autocomplete
+    weight: 6
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  promote:
+    type: boolean_checkbox
+    weight: 3
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  status:
+    type: boolean_checkbox
+    weight: 5
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  sticky:
+    type: boolean_checkbox
+    weight: 4
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  title:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  uid:
+    type: entity_reference_autocomplete
+    weight: 1
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  field_delete: true
+  field_designation: true
+  field_employer: true
+  field_employment_type: true
+  field_employment_type_other: true
+  field_experience: true
+  field_explanation: true
+  field_from_date: true
+  field_nature_job: true
+  field_salary: true
+  field_to_date: true
+  field_work_type: true
+  field_work_type_other: true

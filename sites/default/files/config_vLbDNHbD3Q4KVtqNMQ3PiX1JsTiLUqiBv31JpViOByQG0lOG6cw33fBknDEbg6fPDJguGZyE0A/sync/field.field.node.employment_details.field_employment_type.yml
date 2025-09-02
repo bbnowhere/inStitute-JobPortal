@@ -1,0 +1,21 @@
+uuid: a623fd98-2495-4d0f-bf25-e6f1ca04e65d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_employment_type
+    - node.type.employment_details
+  module:
+    - options
+id: node.employment_details.field_employment_type
+field_name: field_employment_type
+entity_type: node
+bundle: employment_details
+label: 'Type of Employment'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

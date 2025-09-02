@@ -1,0 +1,23 @@
+uuid: 5ca8852d-67aa-4585-9cb7-f13808e5bdbd
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_grad_gpa
+    - node.type.education
+id: node.education.field_grad_gpa
+field_name: field_grad_gpa
+entity_type: node
+bundle: education
+label: 'graduation GPA'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

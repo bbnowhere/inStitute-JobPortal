@@ -1,0 +1,22 @@
+uuid: 7386b55b-4b63-4893-bc86-1099d459eeba
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_debarred_details
+    - node.type.additional_information
+  module:
+    - text
+id: node.additional_information.field_debarred_details
+field_name: field_debarred_details
+entity_type: node
+bundle: additional_information
+label: 'If Yes (Details)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

@@ -1,0 +1,20 @@
+uuid: 07ee7c07-5892-44ec-b59b-bc5a2ff78391
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_tenth_year
+field_name: field_tenth_year
+entity_type: node
+type: integer
+settings:
+  unsigned: false
+  size: normal
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

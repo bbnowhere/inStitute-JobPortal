@@ -1,0 +1,21 @@
+uuid: 694d7427-47d8-4f87-a769-8ca0ee8b6aa5
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_12th_specialization
+field_name: field_12th_specialization
+entity_type: node
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

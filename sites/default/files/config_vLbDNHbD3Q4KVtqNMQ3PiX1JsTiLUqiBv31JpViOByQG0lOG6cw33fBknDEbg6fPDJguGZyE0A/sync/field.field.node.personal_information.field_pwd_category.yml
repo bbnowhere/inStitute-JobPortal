@@ -1,0 +1,21 @@
+uuid: 1e26d327-08b1-49a0-8e91-4d7317ed5c40
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pwd_category
+    - node.type.personal_information
+  module:
+    - options
+id: node.personal_information.field_pwd_category
+field_name: field_pwd_category
+entity_type: node
+bundle: personal_information
+label: 'PWD Category'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

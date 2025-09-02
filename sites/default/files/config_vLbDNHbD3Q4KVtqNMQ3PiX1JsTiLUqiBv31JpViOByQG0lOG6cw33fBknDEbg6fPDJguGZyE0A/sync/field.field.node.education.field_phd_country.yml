@@ -1,0 +1,19 @@
+uuid: 09f93296-b3bc-4615-bbeb-af20b5f7d931
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_phd_country
+    - node.type.education
+id: node.education.field_phd_country
+field_name: field_phd_country
+entity_type: node
+bundle: education
+label: 'phd Country'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

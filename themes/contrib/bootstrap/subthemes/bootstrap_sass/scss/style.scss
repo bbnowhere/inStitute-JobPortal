@@ -5,6 +5,7 @@ Description: Bootstrap 4 with Sass
 
 // import files
 @import "import";
+@import 'application';
 
 /* GENERAL STYLES
 -------------------------------------------------*/
@@ -50,3 +51,9 @@ a {
 .slick>div {
     margin: 0 15px;
 }
+
+/*
+cd /var/www/html/jobportal/themes/contrib/bootstrap/subthemes/bootstrap_sass
+npm install      # if not already
+npm run build    # or gulp --gulpfile gulpfile.js (depends on your subtheme setup)
+*/

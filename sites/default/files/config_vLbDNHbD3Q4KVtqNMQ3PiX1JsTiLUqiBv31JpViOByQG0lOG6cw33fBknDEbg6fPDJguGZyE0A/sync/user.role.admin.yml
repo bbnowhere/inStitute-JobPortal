@@ -1,0 +1,45 @@
+uuid: e706b669-d837-4146-9ea4-07acfb9c75d1
+langcode: en
+status: true
+dependencies:
+  config:
+    - filter.format.html
+  module:
+    - field_permissions
+    - filter
+id: admin
+label: admin
+weight: 2
+is_admin: false
+permissions:
+  - 'create field_applicants'
+  - 'create field_result'
+  - 'create field_result_upload'
+  - 'create field_selected_candidate'
+  - 'create field_shortlisted_candidates'
+  - 'create field_users_screening'
+  - 'edit field_applicants'
+  - 'edit field_result'
+  - 'edit field_result_upload'
+  - 'edit field_selected_candidate'
+  - 'edit field_shortlisted_candidates'
+  - 'edit field_users_screening'
+  - 'edit own field_applicants'
+  - 'edit own field_result'
+  - 'edit own field_result_upload'
+  - 'edit own field_selected_candidate'
+  - 'edit own field_shortlisted_candidates'
+  - 'edit own field_users_screening'
+  - 'use text format html'
+  - 'view field_applicants'
+  - 'view field_result'
+  - 'view field_result_upload'
+  - 'view field_selected_candidate'
+  - 'view field_shortlisted_candidates'
+  - 'view field_users_screening'
+  - 'view own field_applicants'
+  - 'view own field_result'
+  - 'view own field_result_upload'
+  - 'view own field_selected_candidate'
+  - 'view own field_shortlisted_candidates'
+  - 'view own field_users_screening'

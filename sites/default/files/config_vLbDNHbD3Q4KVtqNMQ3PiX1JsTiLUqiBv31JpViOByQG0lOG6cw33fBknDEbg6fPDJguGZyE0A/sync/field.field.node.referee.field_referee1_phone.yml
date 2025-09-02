@@ -1,0 +1,19 @@
+uuid: 813529ed-6a2b-40a0-a657-471a37bf4258
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_referee1_phone
+    - node.type.referee
+id: node.referee.field_referee1_phone
+field_name: field_referee1_phone
+entity_type: node
+bundle: referee
+label: 'Referee 1 Phone'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,23 @@
+uuid: a59253e1-a700-4b4e-aac0-6409cce30b40
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_phd_marks
+    - node.type.education
+id: node.education.field_phd_marks
+field_name: field_phd_marks
+entity_type: node
+bundle: education
+label: 'phd % of Marks'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

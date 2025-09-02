@@ -1,0 +1,11 @@
+uuid: 525f9e84-bee6-4975-ae27-b3c926a6455c
+langcode: en
+status: true
+dependencies: {  }
+name: 'Additional Information'
+type: additional_information
+description: 'Additional Information content type.'
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: true

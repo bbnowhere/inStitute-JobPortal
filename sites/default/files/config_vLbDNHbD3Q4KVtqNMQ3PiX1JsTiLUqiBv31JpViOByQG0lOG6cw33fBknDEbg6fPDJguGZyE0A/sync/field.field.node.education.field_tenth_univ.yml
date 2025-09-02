@@ -1,0 +1,19 @@
+uuid: caa73219-0821-4a5e-b772-6850c7d1fe82
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_tenth_univ
+    - node.type.education
+id: node.education.field_tenth_univ
+field_name: field_tenth_univ
+entity_type: node
+bundle: education
+label: '10th University/Institute'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

@@ -1,0 +1,27 @@
+uuid: 581f9ce8-fe36-47f0-bd5e-03efc6704d56
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_noc_file
+    - node.type.file_upload
+  module:
+    - file
+id: node.file_upload.field_noc_file
+field_name: field_noc_file
+entity_type: node
+bundle: file_upload
+label: 'No Objection Certificate File'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: '[date:custom:Y]-[date:custom:m]'
+  file_extensions: pdf
+  max_filesize: '5 MB'
+  description_field: false
+field_type: file

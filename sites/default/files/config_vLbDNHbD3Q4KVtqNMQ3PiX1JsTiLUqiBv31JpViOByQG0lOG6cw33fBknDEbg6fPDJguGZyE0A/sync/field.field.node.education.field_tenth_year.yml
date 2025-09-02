@@ -1,0 +1,23 @@
+uuid: 75291306-4e6d-4d13-bfd5-e6963821fb22
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_tenth_year
+    - node.type.education
+id: node.education.field_tenth_year
+field_name: field_tenth_year
+entity_type: node
+bundle: education
+label: '10th Year of Passing'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: integer

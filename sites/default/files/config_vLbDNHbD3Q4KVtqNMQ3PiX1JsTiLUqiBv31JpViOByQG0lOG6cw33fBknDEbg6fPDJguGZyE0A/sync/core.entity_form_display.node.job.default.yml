@@ -1,0 +1,389 @@
+uuid: f3c257c8-cd18-4f2b-9dff-a7248cfd1f09
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.job.field_advertisement_number
+    - field.field.node.job.field_age_limit
+    - field.field.node.job.field_announcement
+    - field.field.node.job.field_applicants
+    - field.field.node.job.field_application_type
+    - field.field.node.job.field_category
+    - field.field.node.job.field_category_reservation
+    - field.field.node.job.field_cutoff_required
+    - field.field.node.job.field_employment_recruitment
+    - field.field.node.job.field_external_link
+    - field.field.node.job.field_job_advertisement_upload
+    - field.field.node.job.field_job_code
+    - field.field.node.job.field_job_description
+    - field.field.node.job.field_job_status
+    - field.field.node.job.field_last_date
+    - field.field.node.job.field_min_experience
+    - field.field.node.job.field_minimum_marks
+    - field.field.node.job.field_number_of_vacancies
+    - field.field.node.job.field_other_category
+    - field.field.node.job.field_press_release
+    - field.field.node.job.field_pwd_categories
+    - field.field.node.job.field_result
+    - field.field.node.job.field_result_upload
+    - field.field.node.job.field_salary_offered
+    - field.field.node.job.field_selected_candidate
+    - field.field.node.job.field_shortlisted_candidates
+    - field.field.node.job.field_users_screening
+    - node.type.job
+  module:
+    - conditional_fields
+    - datetime
+    - field_group
+    - file
+    - link
+    - text
+third_party_settings:
+  field_group:
+    group_job_profile:
+      children:
+        - field_advertisement_number
+        - title
+        - field_job_code
+        - field_employment_recruitment
+        - field_application_type
+        - field_external_link
+        - field_age_limit
+        - field_category_reservation
+        - field_category
+        - field_other_category
+        - field_pwd_categories
+        - field_salary_offered
+        - field_cutoff_required
+        - field_minimum_marks
+        - field_min_experience
+        - field_number_of_vacancies
+        - field_last_date
+      label: 'Job Profile'
+      region: content
+      parent_name: ''
+      weight: 0
+      format_type: tab
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: true
+        formatter: open
+        description: ''
+        required_fields: true
+    group_job_description:
+      children:
+        - field_job_advertisement_upload
+        - field_job_description
+      label: 'Job Description'
+      region: content
+      parent_name: ''
+      weight: 1
+      format_type: tab
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: true
+        formatter: open
+        description: ''
+        required_fields: true
+    group_screening_and_results:
+      children:
+        - field_users_screening
+        - field_press_release
+        - field_result
+        - field_result_upload
+        - field_shortlisted_candidates
+        - field_selected_candidate
+        - field_announcement
+        - field_job_status
+      label: 'Screening and Results'
+      region: content
+      parent_name: ''
+      weight: 2
+      format_type: tab
+      format_settings:
+        classes: ''
+        show_empty_fields: false
+        id: ''
+        label_as_html: false
+        formatter: closed
+        description: ''
+        required_fields: true
+id: node.job.default
+targetEntityType: node
+bundle: job
+mode: default
+content:
+  field_advertisement_number:
+    type: entity_reference_autocomplete
+    weight: 1
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_age_limit:
+    type: number
+    weight: 7
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_announcement:
+    type: text_textarea
+    weight: 10
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_applicants:
+    type: entity_reference_autocomplete
+    weight: 4
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_application_type:
+    type: options_select
+    weight: 5
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_category:
+    type: options_select
+    weight: 9
+    region: content
+    settings: {  }
+    third_party_settings:
+      conditional_fields:
+        aecfdf27-2030-4962-b2e8-325c9d26c320:
+          entity_type: node
+          bundle: job
+          dependee: field_category_reservation
+          settings:
+            state: visible
+            reset: false
+            condition: checked
+            grouping: AND
+            values_set: 1
+            value: ''
+            values: {  }
+            value_form:
+              value: 1
+            effect: show
+            effect_options: {  }
+            selector: ''
+  field_category_reservation:
+    type: boolean_checkbox
+    weight: 8
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  field_cutoff_required:
+    type: boolean_checkbox
+    weight: 13
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  field_employment_recruitment:
+    type: options_select
+    weight: 4
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_external_link:
+    type: link_default
+    weight: 6
+    region: content
+    settings:
+      placeholder_url: ''
+      placeholder_title: ''
+    third_party_settings: {  }
+  field_job_advertisement_upload:
+    type: file_generic
+    weight: 2
+    region: content
+    settings:
+      progress_indicator: throbber
+    third_party_settings: {  }
+  field_job_code:
+    type: string_textfield
+    weight: 3
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_job_description:
+    type: text_textarea
+    weight: 3
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_job_status:
+    type: options_select
+    weight: 11
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_last_date:
+    type: datetime_default
+    weight: 17
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_min_experience:
+    type: number
+    weight: 15
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_minimum_marks:
+    type: number
+    weight: 14
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_number_of_vacancies:
+    type: number
+    weight: 16
+    region: content
+    settings:
+      placeholder: ''
+    third_party_settings: {  }
+  field_other_category:
+    type: options_select
+    weight: 10
+    region: content
+    settings: {  }
+    third_party_settings:
+      conditional_fields:
+        2d57f513-596f-40ac-ab88-1849b7a02452:
+          entity_type: node
+          bundle: job
+          dependee: field_category_reservation
+          settings:
+            state: visible
+            reset: false
+            condition: checked
+            grouping: OR
+            values_set: 1
+            value: ''
+            values: {  }
+            value_form:
+              value: 1
+            effect: show
+            effect_options: {  }
+            selector: ''
+  field_press_release:
+    type: file_generic
+    weight: 5
+    region: content
+    settings:
+      progress_indicator: throbber
+    third_party_settings: {  }
+  field_pwd_categories:
+    type: options_select
+    weight: 11
+    region: content
+    settings: {  }
+    third_party_settings:
+      conditional_fields:
+        93b0dd95-57cc-4ceb-8ca1-a711babbbee4:
+          entity_type: node
+          bundle: job
+          dependee: field_other_category
+          settings:
+            state: visible
+            reset: false
+            condition: value
+            grouping: AND
+            values_set: 1
+            value: ''
+            values: {  }
+            value_form: {  }
+            effect: show
+            effect_options: {  }
+            selector: ''
+  field_result:
+    type: text_textarea
+    weight: 6
+    region: content
+    settings:
+      rows: 5
+      placeholder: ''
+    third_party_settings: {  }
+  field_result_upload:
+    type: file_generic
+    weight: 7
+    region: content
+    settings:
+      progress_indicator: throbber
+    third_party_settings: {  }
+  field_salary_offered:
+    type: string_textfield
+    weight: 12
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  field_selected_candidate:
+    type: file_generic
+    weight: 9
+    region: content
+    settings:
+      progress_indicator: throbber
+    third_party_settings: {  }
+  field_shortlisted_candidates:
+    type: file_generic
+    weight: 8
+    region: content
+    settings:
+      progress_indicator: throbber
+    third_party_settings: {  }
+  field_users_screening:
+    type: entity_reference_autocomplete
+    weight: 4
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  promote:
+    type: boolean_checkbox
+    weight: 3
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  title:
+    type: string_textfield
+    weight: 2
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  created: true
+  status: true
+  sticky: true
+  uid: true

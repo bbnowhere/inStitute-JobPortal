@@ -1,0 +1,22 @@
+uuid: aed2804d-f8b4-4f23-bf01-2d9e0c7303e2
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_disciplinary_proceedings_d
+    - node.type.additional_information
+  module:
+    - text
+id: node.additional_information.field_disciplinary_proceedings_d
+field_name: field_disciplinary_proceedings_d
+entity_type: node
+bundle: additional_information
+label: 'If Yes (Details)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

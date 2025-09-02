@@ -1,0 +1,19 @@
+uuid: 32e99405-75b1-479a-b035-18514692eb57
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_salary
+    - node.type.employment_details
+id: node.employment_details.field_salary
+field_name: field_salary
+entity_type: node
+bundle: employment_details
+label: 'Pay Band & Grade Pay OR Consolidated Salary'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

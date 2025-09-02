@@ -1,0 +1,21 @@
+uuid: b4a07c31-e7b8-4e03-8f91-8f28e090fbb8
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_employment_recruitment
+    - node.type.job
+  module:
+    - options
+id: node.job.field_employment_recruitment
+field_name: field_employment_recruitment
+entity_type: node
+bundle: job
+label: 'Employment Type (Recruitment)'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

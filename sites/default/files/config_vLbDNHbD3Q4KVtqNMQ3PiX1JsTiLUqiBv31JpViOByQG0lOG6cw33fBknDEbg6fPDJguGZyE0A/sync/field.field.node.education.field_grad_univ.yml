@@ -1,0 +1,19 @@
+uuid: b36d1648-4a4b-41c8-b98a-9ece1af4d9bc
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_grad_univ
+    - node.type.education
+id: node.education.field_grad_univ
+field_name: field_grad_univ
+entity_type: node
+bundle: education
+label: 'graduation University/Institute'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

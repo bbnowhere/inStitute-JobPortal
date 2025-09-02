@@ -1,0 +1,23 @@
+uuid: 77abdfa7-acd3-495c-9395-1edd100b12f7
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_twelfth_gpa
+    - node.type.education
+id: node.education.field_twelfth_gpa
+field_name: field_twelfth_gpa
+entity_type: node
+bundle: education
+label: '12th GPA'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

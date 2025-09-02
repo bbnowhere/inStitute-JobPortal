@@ -1,0 +1,21 @@
+uuid: 859baea1-4cce-4484-841b-562a2166b561
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_last_date
+    - node.type.job
+  module:
+    - datetime
+id: node.job.field_last_date
+field_name: field_last_date
+entity_type: node
+bundle: job
+label: 'Last Date to Apply/Date of Walking'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: datetime

@@ -1,0 +1,9 @@
+uuid: 93af1435-33c3-42af-a540-3c91c7d2d1db
+langcode: en
+status: true
+dependencies: {  }
+name: 'Advertisement Number'
+vid: advertisement_number
+description: null
+weight: 0
+new_revision: false

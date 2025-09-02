@@ -1,0 +1,30 @@
+{# filepath: /var/www/html/jobportal/themes/custom/instem_theme/templates/node--job.html.twig #}
+{# Beautiful Bootstrap SASS template for Job content type #}
+
+<div class="card shadow-sm my-4">
+  <div class="card-header bg-primary text-white">
+    <h2 class="mb-0">{{ label }}</h2>
+  </div>
+  <div class="card-body">
+    {% set pdf_files = node.field_job_advertisement_upload %}
+    {% if pdf_files|length > 0 and pdf_files.0.entity is defined %}
+      {% set pdf_file = pdf_files.0.entity %}
+      {% set pdf_url = file_url(pdf_file.uri.value) %}
+
+      <div class="mb-4">
+        <h5 class="card-title">Job Advertisement</h5>
+        <embed src="{{ pdf_url }}" type="application/pdf" width="100%" height="600px" class="mb-3 border rounded" />
+        <a href="{{ pdf_url }}" class="btn btn-success mt-2" download>
+          <i class="bi bi-download"></i> Download PDF
+        </a>
+      </div>
+    {% else %}
+      <div class="mb-4">
+        <h5 class="card-title">Job Description</h5>
+        <div class="card-text">
+          {{ content.field_job_description }}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>

@@ -1,0 +1,19 @@
+uuid: f464890b-f2b0-48e0-8dec-0e1aa5fbdc84
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_tenth_qual_name
+    - node.type.education
+id: node.education.field_tenth_qual_name
+field_name: field_tenth_qual_name
+entity_type: node
+bundle: education
+label: '10th Qualification Name'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

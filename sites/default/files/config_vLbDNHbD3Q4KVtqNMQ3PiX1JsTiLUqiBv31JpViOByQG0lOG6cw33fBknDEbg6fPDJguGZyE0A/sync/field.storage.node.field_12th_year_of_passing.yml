@@ -1,0 +1,20 @@
+uuid: d8df1062-c02b-434a-87b7-27585030c897
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_12th_year_of_passing
+field_name: field_12th_year_of_passing
+entity_type: node
+type: integer
+settings:
+  unsigned: false
+  size: normal
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

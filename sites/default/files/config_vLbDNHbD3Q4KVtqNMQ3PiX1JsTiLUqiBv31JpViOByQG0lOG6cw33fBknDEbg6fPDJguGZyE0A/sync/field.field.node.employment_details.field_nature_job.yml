@@ -1,0 +1,19 @@
+uuid: 7cd5bb0a-3f23-4024-ae37-8fdd42838899
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_nature_job
+    - node.type.employment_details
+id: node.employment_details.field_nature_job
+field_name: field_nature_job
+entity_type: node
+bundle: employment_details
+label: 'Nature of Job'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

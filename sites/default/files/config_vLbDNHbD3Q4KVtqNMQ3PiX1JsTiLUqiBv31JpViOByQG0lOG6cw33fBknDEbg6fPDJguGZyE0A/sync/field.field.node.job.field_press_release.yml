@@ -1,0 +1,27 @@
+uuid: 0173c869-2d36-4ede-a488-a075561c44d2
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_press_release
+    - node.type.job
+  module:
+    - file
+id: node.job.field_press_release
+field_name: field_press_release
+entity_type: node
+bundle: job
+label: 'Press Release'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: '[date:custom:Y]-[date:custom:m]'
+  file_extensions: pdf
+  max_filesize: '5 MB'
+  description_field: false
+field_type: file

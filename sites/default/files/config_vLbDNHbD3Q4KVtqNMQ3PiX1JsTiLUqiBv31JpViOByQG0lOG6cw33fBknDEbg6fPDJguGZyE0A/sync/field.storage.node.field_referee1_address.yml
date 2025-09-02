@@ -1,0 +1,19 @@
+uuid: b7bbc3e5-edcd-42a3-a2c5-a1ce0621dded
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - text
+id: node.field_referee1_address
+field_name: field_referee1_address
+entity_type: node
+type: text_long
+settings: {  }
+module: text
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

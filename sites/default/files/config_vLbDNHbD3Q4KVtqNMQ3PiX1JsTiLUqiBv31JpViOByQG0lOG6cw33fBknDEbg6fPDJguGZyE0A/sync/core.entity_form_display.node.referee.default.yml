@@ -1,0 +1,88 @@
+uuid: 6337131f-47cf-4025-bb70-faa08e0a59a0
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.referee.field_application
+    - field.field.node.referee.field_referee1_address
+    - field.field.node.referee.field_referee1_designation
+    - field.field.node.referee.field_referee1_email
+    - field.field.node.referee.field_referee1_name
+    - field.field.node.referee.field_referee1_phone
+    - field.field.node.referee.field_referee2_address
+    - field.field.node.referee.field_referee2_designation
+    - field.field.node.referee.field_referee2_email
+    - field.field.node.referee.field_referee2_name
+    - field.field.node.referee.field_referee2_phone
+    - node.type.referee
+id: node.referee.default
+targetEntityType: node
+bundle: referee
+mode: default
+content:
+  created:
+    type: datetime_timestamp
+    weight: 2
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_application:
+    type: entity_reference_autocomplete
+    weight: 6
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  promote:
+    type: boolean_checkbox
+    weight: 3
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  status:
+    type: boolean_checkbox
+    weight: 5
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  sticky:
+    type: boolean_checkbox
+    weight: 4
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  title:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  uid:
+    type: entity_reference_autocomplete
+    weight: 1
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  field_referee1_address: true
+  field_referee1_designation: true
+  field_referee1_email: true
+  field_referee1_name: true
+  field_referee1_phone: true
+  field_referee2_address: true
+  field_referee2_designation: true
+  field_referee2_email: true
+  field_referee2_name: true
+  field_referee2_phone: true

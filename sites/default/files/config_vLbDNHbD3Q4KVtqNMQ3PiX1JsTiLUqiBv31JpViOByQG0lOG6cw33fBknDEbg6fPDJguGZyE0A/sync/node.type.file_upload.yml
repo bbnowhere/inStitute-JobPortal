@@ -1,0 +1,11 @@
+uuid: 415748cd-dfef-4681-9551-cfd71311c1be
+langcode: en
+status: true
+dependencies: {  }
+name: 'File Upload'
+type: file_upload
+description: 'File Upload content type.'
+help: null
+new_revision: true
+preview_mode: 1
+display_submitted: true

@@ -1,0 +1,27 @@
+uuid: 4e454e8f-4820-48d2-a61b-e286dc0b25e4
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_selected_candidate
+    - node.type.job
+  module:
+    - file
+id: node.job.field_selected_candidate
+field_name: field_selected_candidate
+entity_type: node
+bundle: job
+label: 'Upload Selected Candidate'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: '[date:custom:Y]-[date:custom:m]'
+  file_extensions: pdf
+  max_filesize: '5 MB'
+  description_field: false
+field_type: file

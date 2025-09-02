@@ -1,0 +1,20 @@
+uuid: 7160741b-bd56-40c7-80be-bb846588a5fb
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_grad_gpa
+field_name: field_grad_gpa
+entity_type: node
+type: decimal
+settings:
+  precision: 3
+  scale: 1
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

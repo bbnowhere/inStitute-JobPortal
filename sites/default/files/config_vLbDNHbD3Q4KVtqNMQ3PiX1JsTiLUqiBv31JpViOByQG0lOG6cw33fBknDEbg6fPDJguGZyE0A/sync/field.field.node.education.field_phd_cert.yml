@@ -1,0 +1,27 @@
+uuid: 51fd9a15-ebf5-4926-9417-4921b6f032ee
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_phd_cert
+    - node.type.education
+  module:
+    - file
+id: node.education.field_phd_cert
+field_name: field_phd_cert
+entity_type: node
+bundle: education
+label: 'phd Certificate Upload'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: '[date:custom:Y]-[date:custom:m]'
+  file_extensions: txt
+  max_filesize: ''
+  description_field: false
+field_type: file

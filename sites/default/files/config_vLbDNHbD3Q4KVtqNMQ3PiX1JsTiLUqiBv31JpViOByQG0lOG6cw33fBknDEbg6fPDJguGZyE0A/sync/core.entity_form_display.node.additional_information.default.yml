@@ -1,0 +1,98 @@
+uuid: fc68700d-7e29-4082-8208-b2d9cf63dd85
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.field.node.additional_information.field_admin_malpractice
+    - field.field.node.additional_information.field_admin_malpractice_d
+    - field.field.node.additional_information.field_admin_malpractice_details
+    - field.field.node.additional_information.field_application
+    - field.field.node.additional_information.field_debarred_d
+    - field.field.node.additional_information.field_debarred_details
+    - field.field.node.additional_information.field_debarred_unfair_means
+    - field.field.node.additional_information.field_discharged_employment
+    - field.field.node.additional_information.field_discharged_employment_d
+    - field.field.node.additional_information.field_disciplinary_proceedings
+    - field.field.node.additional_information.field_disciplinary_proceedings_d
+    - field.field.node.additional_information.field_financial_irregularity
+    - field.field.node.additional_information.field_financial_irregularity_d
+    - field.field.node.additional_information.field_joining_time_days
+    - field.field.node.additional_information.field_significant_contributions
+    - field.field.node.additional_information.field_suitability
+    - node.type.additional_information
+id: node.additional_information.default
+targetEntityType: node
+bundle: additional_information
+mode: default
+content:
+  created:
+    type: datetime_timestamp
+    weight: 2
+    region: content
+    settings: {  }
+    third_party_settings: {  }
+  field_application:
+    type: entity_reference_autocomplete
+    weight: 6
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  promote:
+    type: boolean_checkbox
+    weight: 3
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  status:
+    type: boolean_checkbox
+    weight: 5
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  sticky:
+    type: boolean_checkbox
+    weight: 4
+    region: content
+    settings:
+      display_label: true
+    third_party_settings: {  }
+  title:
+    type: string_textfield
+    weight: 0
+    region: content
+    settings:
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+  uid:
+    type: entity_reference_autocomplete
+    weight: 1
+    region: content
+    settings:
+      match_operator: CONTAINS
+      match_limit: 10
+      size: 60
+      placeholder: ''
+    third_party_settings: {  }
+hidden:
+  field_admin_malpractice: true
+  field_admin_malpractice_d: true
+  field_admin_malpractice_details: true
+  field_debarred_d: true
+  field_debarred_details: true
+  field_debarred_unfair_means: true
+  field_discharged_employment: true
+  field_discharged_employment_d: true
+  field_disciplinary_proceedings: true
+  field_disciplinary_proceedings_d: true
+  field_financial_irregularity: true
+  field_financial_irregularity_d: true
+  field_joining_time_days: true
+  field_significant_contributions: true
+  field_suitability: true

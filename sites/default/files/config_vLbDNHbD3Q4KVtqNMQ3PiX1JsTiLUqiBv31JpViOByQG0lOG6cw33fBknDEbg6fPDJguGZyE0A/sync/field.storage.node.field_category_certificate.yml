@@ -1,0 +1,23 @@
+uuid: 99f8f6c4-3da7-4ac6-8c37-a690236db651
+langcode: en
+status: true
+dependencies:
+  module:
+    - file
+    - node
+id: node.field_category_certificate
+field_name: field_category_certificate
+entity_type: node
+type: file
+settings:
+  target_type: file
+  display_field: false
+  display_default: false
+  uri_scheme: public
+module: file
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

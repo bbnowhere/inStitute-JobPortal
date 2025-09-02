@@ -1,0 +1,19 @@
+uuid: b75f005a-85d5-4e9a-8230-a44aebc15763
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - text
+id: node.field_financial_irregularity_d
+field_name: field_financial_irregularity_d
+entity_type: node
+type: text_long
+settings: {  }
+module: text
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

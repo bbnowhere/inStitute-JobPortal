@@ -1,0 +1,23 @@
+/* Application dashboard & sidebar styles (import this into your main SCSS entry) */
+.application-dashboard .card { border: 0; background: transparent; }
+.progress-ring { width: 72px; height:72px; }
+.progress-ring-trail { fill: none; stroke: #e9ecef; stroke-width: 2.8; }
+.progress-ring-bar { fill: none; stroke: #28a745; stroke-width: 2.8; stroke-linecap: round; transform: rotate(-90deg); transform-origin: 50% 50%; }
+.progress-ring-text { font-size: 0.6rem; text-anchor: middle; fill: #212529; font-weight:600; }
+
+.steps-list .step-icon svg { opacity: 0.95; }
+
+.application-sidebar .sidebar-item { transition: transform .12s ease, box-shadow .12s ease; padding: .6rem; border-radius: .5rem; }
+.application-sidebar .sidebar-item.completed { background: linear-gradient(90deg, rgba(40,167,69,0.06), rgba(40,167,69,0.03)); border-left: 3px solid #28a745; }
+.application-sidebar .sidebar-item.in-progress { background: linear-gradient(90deg, rgba(255,193,7,0.06), rgba(255,193,7,0.03)); border-left: 3px solid #ffc107; }
+.application-sidebar .sidebar-item.incomplete { background: transparent; border-left: 3px solid transparent; }
+
+.application-sidebar .sidebar-title { color: #212529; text-decoration: none; }
+.application-sidebar .sidebar-title:hover { color: #0d6efd; }
+
+.application-sidebar .step-number .badge { width:36px; height:36px; display:inline-flex; align-items:center; justify-content:center; font-weight:600; }
+
+@media (max-width: 991px) {
+  .application-sidebar { position: static !important; margin-bottom:1rem; }
+  .progress-ring { width: 56px; height:56px; }
+}

@@ -1,0 +1,21 @@
+uuid: 9500e839-a395-42d2-8715-2312b94c0dce
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+id: node.field_phd_univ
+field_name: field_phd_univ
+entity_type: node
+type: string
+settings:
+  max_length: 255
+  case_sensitive: false
+  is_ascii: false
+module: core
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

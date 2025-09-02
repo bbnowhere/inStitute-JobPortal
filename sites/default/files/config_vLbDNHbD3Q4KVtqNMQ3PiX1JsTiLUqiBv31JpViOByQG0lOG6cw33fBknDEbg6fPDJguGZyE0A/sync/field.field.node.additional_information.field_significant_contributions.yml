@@ -1,0 +1,22 @@
+uuid: f256add8-06bb-49f3-b102-716bf0d296c1
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_significant_contributions
+    - node.type.additional_information
+  module:
+    - text
+id: node.additional_information.field_significant_contributions
+field_name: field_significant_contributions
+entity_type: node
+bundle: additional_information
+label: 'Kindly describe significant contributions where you have worked?'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  allowed_formats: {  }
+field_type: text_long

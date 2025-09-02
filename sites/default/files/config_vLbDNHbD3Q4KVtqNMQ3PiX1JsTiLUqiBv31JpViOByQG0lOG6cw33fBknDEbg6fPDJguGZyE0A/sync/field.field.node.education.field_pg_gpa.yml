@@ -1,0 +1,23 @@
+uuid: f10dffb1-77fb-4163-baf3-c6b9d5dfff87
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pg_gpa
+    - node.type.education
+id: node.education.field_pg_gpa
+field_name: field_pg_gpa
+entity_type: node
+bundle: education
+label: 'post_graduation GPA'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  min: null
+  max: null
+  prefix: ''
+  suffix: ''
+field_type: decimal

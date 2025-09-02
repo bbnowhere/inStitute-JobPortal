@@ -1,0 +1,19 @@
+uuid: 39a94b14-4678-4dd1-be10-b60e2c057149
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_permanent_address
+    - node.type.personal_information
+id: node.personal_information.field_permanent_address
+field_name: field_permanent_address
+entity_type: node
+bundle: personal_information
+label: 'Permanent Address'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: string

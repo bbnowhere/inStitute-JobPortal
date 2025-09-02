@@ -1,0 +1,27 @@
+uuid: e52213cd-cc1e-491d-8749-c1e42114cfeb
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_shortlisted_candidates
+    - node.type.job
+  module:
+    - file
+id: node.job.field_shortlisted_candidates
+field_name: field_shortlisted_candidates
+entity_type: node
+bundle: job
+label: 'Upload Shortlisted Candidates'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: '[date:custom:Y]-[date:custom:m]'
+  file_extensions: pdf
+  max_filesize: '5 MB'
+  description_field: false
+field_type: file

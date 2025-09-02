@@ -1,0 +1,23 @@
+uuid: 144902e6-5241-49ed-a376-b327d1c8159d
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_external_link
+    - node.type.job
+  module:
+    - link
+id: node.job.field_external_link
+field_name: field_external_link
+entity_type: node
+bundle: job
+label: 'External Link'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  title: 1
+  link_type: 17
+field_type: link

@@ -1,0 +1,27 @@
+uuid: cd08f673-1216-489c-82c6-8ebc456feffe
+langcode: en
+status: true
+dependencies:
+  module:
+    - node
+    - options
+id: node.field_departmental_candidate
+field_name: field_departmental_candidate
+entity_type: node
+type: list_string
+settings:
+  allowed_values:
+    -
+      value: 'yes'
+      label: 'Yes'
+    -
+      value: 'no'
+      label: 'No'
+  allowed_values_function: ''
+module: options
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

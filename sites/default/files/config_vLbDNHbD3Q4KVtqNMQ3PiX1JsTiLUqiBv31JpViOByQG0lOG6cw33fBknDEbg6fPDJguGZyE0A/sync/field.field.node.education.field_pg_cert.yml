@@ -1,0 +1,27 @@
+uuid: 2ea31aed-cc26-4cd3-986c-78a8f9b9cc8e
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_pg_cert
+    - node.type.education
+  module:
+    - file
+id: node.education.field_pg_cert
+field_name: field_pg_cert
+entity_type: node
+bundle: education
+label: 'post_graduation Certificate Upload'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:file'
+  handler_settings: {  }
+  file_directory: '[date:custom:Y]-[date:custom:m]'
+  file_extensions: txt
+  max_filesize: ''
+  description_field: false
+field_type: file

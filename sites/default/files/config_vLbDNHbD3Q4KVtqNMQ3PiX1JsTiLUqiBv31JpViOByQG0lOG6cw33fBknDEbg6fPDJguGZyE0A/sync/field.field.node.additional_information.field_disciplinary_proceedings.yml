@@ -1,0 +1,21 @@
+uuid: 9a4d8f96-14ee-480d-9621-dd906065ba79
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_disciplinary_proceedings
+    - node.type.additional_information
+  module:
+    - options
+id: node.additional_information.field_disciplinary_proceedings
+field_name: field_disciplinary_proceedings
+entity_type: node
+bundle: additional_information
+label: 'Is there any pending or contemplated disciplinary proceedings against you?'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

@@ -1,0 +1,21 @@
+uuid: e4d9f684-dabc-4457-827a-d859747c0661
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_admin_malpractice
+    - node.type.additional_information
+  module:
+    - options
+id: node.additional_information.field_admin_malpractice
+field_name: field_admin_malpractice
+entity_type: node
+bundle: additional_information
+label: 'Have you ever been involved in any administrative malpractice?'
+description: ''
+required: true
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings: {  }
+field_type: list_string

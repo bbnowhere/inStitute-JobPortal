@@ -1,0 +1,99 @@
+{{ attach_library('bootstrap_sass/application') }}
+
+{# Build safe_sections from sections: only keep items that are arrays/objects we can render #}
+{% set safe_sections = [] %}
+{% for key, s in sections|default({}) %}
+  {% if s is iterable and s is not same as(true) and s is not same as(false) %}
+    {% set safe_sections = safe_sections|merge([s]) %}
+  {% elseif s is not iterable and s is not same as(true) and s is not same as(false) and s is not null and s != '' %}
+    {# treat scalar (string/number) as a title #}
+    {% set safe_sections = safe_sections|merge([{'title': s, 'status': 'incomplete'}]) %}
+  {% elseif s is same as(true) %}
+    {% set safe_sections = safe_sections|merge([{'title': key, 'status': 'complete'}]) %}
+  {% endif %}
+{% endfor %}
+
+<div class="application-dashboard container-fluid my-4">
+  <div class="row g-4">
+    <aside class="col-lg-4 col-xl-3">
+      {{ include('application-sidebar-menu.html.twig', { items: safe_sections }) }}
+    </aside>
+
+    <main class="col-lg-8 col-xl-9">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          {% set completion = completion|default(0) %}
+          <div class="d-flex align-items-start justify-content-between mb-3">
+            <div>
+              <h1 class="h4 mb-1">{{ job.label|striptags }}</h1>
+              <small class="text-muted">Job ID: {{ job.id is defined ? job.id : (job.nid is defined ? job.nid : '') }}</small>
+            </div>
+
+            <div class="text-end">
+              <div class="progress-circle d-inline-block" title="Application completion">
+                <svg viewBox="0 0 36 36" class="progress-ring" role="img" aria-label="Completion">
+                  <path class="progress-ring-trail" d="M18 2.0845a15.9155 15.9155 0 1 0 0 31.831"/>
+                  <path class="progress-ring-bar" stroke-dasharray="{{ completion }},100" d="M18 2.0845a15.9155 15.9155 0 1 0 0 31.831"/>
+                  <text x="18" y="20.5" class="progress-ring-text">{{ completion }}%</text>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <h5 class="mb-2">Application Progress</h5>
+            <div class="progress" style="height:12px;">
+              <div class="progress-bar bg-success" role="progressbar" style="width: {{ completion }}%;" aria-valuenow="{{ completion }}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+          </div>
+
+          <div class="steps-list row gy-3">
+            {% for section in safe_sections %}
+              {% set status = section.status|default('incomplete') %}
+              {% set badge_class = status == 'complete' ? 'bg-success' : (status == 'in-progress' ? 'bg-warning text-dark' : 'bg-secondary') %}
+              <div class="col-12">
+                <div class="d-flex align-items-center p-3 border rounded bg-white">
+                  <div class="me-3 step-icon flex-shrink-0">
+                    {% if status == 'complete' %}
+                      <svg class="icon icon-complete" width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="11" stroke="#28a745" stroke-width="2"/><path d="M7 12.5l2.5 2.5L17 8" stroke="#28a745" stroke-width="2" fill="none"/></svg>
+                    {% elseif status == 'in-progress' %}
+                      <svg class="icon icon-progress" width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="11" stroke="#ffc107" stroke-width="2"/><path d="M12 7v6l4 2" stroke="#ffc107" stroke-width="2" fill="none"/></svg>
+                    {% else %}
+                      <svg class="icon icon-incomplete" width="36" height="36" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="11" stroke="#6c757d" stroke-width="2"/></svg>
+                    {% endif %}
+                  </div>
+
+                  <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-start">
+                      <div>
+                        <h6 class="mb-1">{{ section.title|striptags }}</h6>
+                        {% if section.description is defined and section.description %}
+                          <div class="small text-muted">{{ section.description|striptags }}</div>
+                        {% endif %}
+                      </div>
+                      <div class="text-end">
+                        <span class="badge {{ badge_class }} rounded-pill px-3 py-2">
+                          {{ status|capitalize }}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div class="mt-2">
+                      {% if section.link is defined and section.link %}
+                        <a href="{{ section.link|escape('html_attr') }}" class="btn btn-outline-primary btn-sm">Open</a>
+                      {% endif %}
+                      {% if section.edit_link is defined and section.edit_link %}
+                        <a href="{{ section.edit_link|escape('html_attr') }}" class="btn btn-primary btn-sm ms-2">Edit</a>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+</div>
