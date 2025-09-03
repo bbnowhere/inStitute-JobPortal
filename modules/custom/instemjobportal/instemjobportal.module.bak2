@@ -1,0 +1,352 @@
+<?php
+
+use Drupal\user\UserInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
+use Drupal\Core\Access\AccessResult;
+use Drupal\Core\Session\AccountInterface;
+
+/**
+ * Implements hook_theme().
+ */
+function instemjobportal_theme($existing, $type, $theme, $path) {
+  return [
+    'job_application_dashboard' => [
+      'variables' => [
+        'job' => NULL,
+        'sections' => [],
+        'completion' => [],
+      ],
+      'template' => 'job-application-dashboard',
+    ],
+    'application_sidebar_menu' => [
+      'variables' => [
+        'items' => [],
+      ],
+      'template' => 'application-sidebar-menu',
+    ],
+  ];
+}
+
+/**
+ * Assign 'applicant' role to newly registered users.
+ */
+function instemjobportal_user_insert(UserInterface $account) {
+  $role_id = 'applicant';
+  $role = \Drupal\user\Entity\Role::load($role_id);
+  if (!$role) {
+    $role = \Drupal\user\Entity\Role::create(['id' => $role_id, 'label' => 'Applicant']);
+    $role->save();
+  }
+  $account->addRole($role_id);
+  $account->save();
+}
+
+/**
+ * Remove revision UI from application bundles and add our handlers.
+ */
+function instemjobportal_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $node = $form_state->getFormObject()->getEntity();
+  if (!$node) {
+    return;
+  }
+
+  $application_bundles = [
+    'personal_information',
+    'education',
+    'employment_details',
+    'referee',
+    'additional_information',
+    'file_upload',
+  ];
+
+  if (!in_array($node->bundle(), $application_bundles, TRUE)) {
+    return;
+  }
+
+  // Strip revision UI.
+  unset($form['revision_information'], $form['revision'], $form['revision_log']);
+
+  // Inject handlers.
+  if (isset($form['actions']['submit']['#submit'])) {
+    $submit_handlers = &$form['actions']['submit']['#submit'];
+    if (!in_array('instemjobportal_application_form_presave', $submit_handlers, TRUE)) {
+      array_unshift($submit_handlers, 'instemjobportal_application_form_presave');
+    }
+    if (!in_array('instemjobportal_application_form_submit', $submit_handlers, TRUE)) {
+      $submit_handlers[] = 'instemjobportal_application_form_submit';
+    }
+  }
+  if (empty($form['#validate']) || !in_array('instemjobportal_application_form_validate', $form['#validate'], TRUE)) {
+    $form['#validate'][] = 'instemjobportal_application_form_validate';
+  }
+
+  // Handle job query param → default value for ER field.
+  $job_param = \Drupal::request()->query->get('job');
+  if ($job_param && $node->isNew() && isset($form['field_application'])) {
+    $job_node = \Drupal\node\Entity\Node::load($job_param);
+    if ($job_node) {
+      instemjobportal_set_er_defaults_recursive($form['field_application'], $job_node);
+      if (isset($form['field_application_wrapper'])) {
+        instemjobportal_set_er_defaults_recursive($form['field_application_wrapper'], $job_node);
+      }
+      // Simple paths.
+      if (isset($form['field_application']['#default_value'])) {
+        $form['field_application']['#default_value'] = [$job_node];
+      }
+      if (isset($form['field_application'][0]['target_id'])) {
+        $form['field_application'][0]['target_id']['#default_value'] = $job_node;
+      }
+    }
+  }
+
+  // Show summary after save.
+  if ($nid = $form_state->get('saved_nid')) {
+    $saved_node = \Drupal\node\Entity\Node::load($nid);
+    if ($saved_node) {
+      $rows = [];
+      $skip = ['nid', 'vid', 'type', 'langcode', 'status', 'uid', 'created', 'changed', 'path'];
+      $fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('node', $saved_node->bundle());
+      foreach ($fields as $field_name => $field_def) {
+        if (in_array($field_name, $skip, TRUE)) {
+          continue;
+        }
+        if ($saved_node->hasField($field_name)) {
+          $label = $field_def->getLabel();
+          $rendered = $saved_node->get($field_name)->view();
+          $markup = empty($rendered) ? '-' : \Drupal::service('renderer')->renderPlain($rendered);
+          $rows[] = [$label, ['#markup' => $markup]];
+        }
+      }
+      $form['instemjobportal_submission_summary'] = [
+        '#type' => 'details',
+        '#title' => t('Your submitted information'),
+        '#open' => TRUE,
+        '#weight' => 100,
+      ];
+      $form['instemjobportal_submission_summary']['table'] = [
+        '#theme' => 'table',
+        '#header' => [t('Field'), t('Value')],
+        '#rows' => $rows,
+      ];
+      $form['instemjobportal_submission_summary']['edit'] = [
+        '#type' => 'link',
+        '#title' => t('Edit submission'),
+        '#url' => Url::fromRoute('entity.node.edit_form', ['node' => $nid]),
+        '#attributes' => ['class' => ['button', 'button--primary']],
+      ];
+    }
+  }
+}
+
+/**
+ * Submit handler: store nid + rebuild for summary.
+ */
+function instemjobportal_application_form_submit($form, FormStateInterface $form_state) {
+  $entity = $form_state->getFormObject()->getEntity();
+  if (!$entity->id()) {
+    return;
+  }
+  $form_state->set('saved_nid', $entity->id());
+  $form_state->setRebuild(TRUE);
+
+  // Preserve job query on redirect.
+  $job_target = NULL;
+  if ($entity->hasField('field_application') && !$entity->get('field_application')->isEmpty()) {
+    $first = $entity->get('field_application')->first();
+    $job_target = $first->target_id ?? NULL;
+  }
+  $form_state->setRedirect('<current>', [], ['query' => $job_target ? ['job' => $job_target] : []]);
+
+  // Invalidate cache tags for sidebar.
+  if ($job_target) {
+    $tag = 'instemjobportal_app:job:' . $job_target . ':user:' . $entity->getOwnerId();
+    \Drupal::service('cache_tags.invalidator')->invalidateTags([$tag]);
+  }
+}
+
+/**
+ * Validate handler: prevent duplicate applications.
+ */
+function instemjobportal_application_form_validate($form, FormStateInterface $form_state) {
+  $entity = $form_state->getFormObject()->getEntity();
+  $job_id = \Drupal::request()->query->get('job');
+  $current_user = \Drupal::currentUser();
+  if ($current_user->isAuthenticated() && $job_id) {
+    $existing = instemjobportal_find_application_node($entity->bundle(), $current_user->id(), $job_id);
+    if ($existing) {
+      \Drupal::messenger()->addStatus(t('You already have a submission for this job.'));
+      $form_state->setRedirect('entity.node.edit_form', ['node' => $existing]);
+    }
+  }
+}
+
+/**
+ * Helper: find existing application node for bundle/user/job.
+ */
+function instemjobportal_find_application_node($bundle, $uid, $job_id) {
+  $fields = \Drupal::service('entity_field.manager')->getFieldDefinitions('node', $bundle);
+  foreach ($fields as $name => $def) {
+    if ($def->getType() === 'entity_reference'
+      && $def->getSetting('target_type') === 'node') {
+      $query = \Drupal::entityQuery('node')
+        ->condition('type', $bundle)
+        ->condition('uid', $uid)
+        ->condition("$name.target_id", $job_id)
+        ->accessCheck(TRUE)
+        ->range(0, 1);
+      $result = $query->execute();
+      if ($result) {
+        return reset($result);
+      }
+    }
+  }
+  return NULL;
+}
+
+/**
+ * Presave handler: force field_application = job query param.
+ */
+function instemjobportal_application_form_presave($form, FormStateInterface $form_state) {
+  $entity = $form_state->getFormObject()->getEntity();
+  $job_id = \Drupal::request()->query->get('job');
+  if ($job_id && $entity->hasField('field_application')) {
+    $entity->set('field_application', ['target_id' => $job_id]);
+    $form_state->setValue('field_application', [['target_id' => $job_id]]);
+  }
+}
+
+/**
+ * Recursive helper: set default_value for ER widgets.
+ */
+function instemjobportal_set_er_defaults_recursive(array &$element, \Drupal\Core\Entity\EntityInterface $job_node) {
+  foreach ($element as &$child) {
+    if (is_array($child)) {
+      if (isset($child['target_id']) && is_array($child['target_id'])) {
+        $child['target_id']['#default_value'] = $job_node;
+      }
+      if (isset($child['widget']) && is_array($child['widget'])) {
+        instemjobportal_set_er_defaults_recursive($child['widget'], $job_node);
+      }
+      instemjobportal_set_er_defaults_recursive($child, $job_node);
+    }
+  }
+}
+
+/**
+ * Hide revision tabs and view/edit tabs in job context.
+ */
+function instemjobportal_menu_local_tasks_alter(&$data, $route_name) {
+  $job_query = \Drupal::request()->query->get('job');
+  $application_bundles = [
+    'personal_information',
+    'education',
+    'employment_details',
+    'referee',
+    'additional_information',
+    'file_upload',
+  ];
+  $node = \Drupal::routeMatch()->getParameter('node');
+  $bundle = $node && method_exists($node, 'bundle') ? $node->bundle() : NULL;
+  $has_job = $node && $node->hasField('field_application') && !$node->get('field_application')->isEmpty();
+
+  foreach ($data as $context => $tasks) {
+    foreach ($tasks as $delta => $task) {
+      $r = $task['#link']['route_name'] ?? '';
+      if (str_contains($r, 'revision')) {
+        unset($data[$context][$delta]);
+      }
+      if ($route_name === 'entity.node.edit_form'
+        && in_array($r, ['entity.node.canonical', 'entity.node.edit_form'])
+        && ($job_query || $has_job)
+        && in_array($bundle, $application_bundles, TRUE)) {
+        unset($data[$context][$delta]);
+      }
+    }
+    $data[$context] = array_values($data[$context]);
+  }
+}
+
+/**
+ * Allow applicants to edit their own submissions.
+ */
+function instemjobportal_node_access(\Drupal\node\NodeInterface $node, $op, AccountInterface $account) {
+  if ($op !== 'update') {
+    return AccessResult::neutral();
+  }
+  $application_bundles = [
+    'personal_information',
+    'education',
+    'employment_details',
+    'referee',
+    'additional_information',
+    'file_upload',
+  ];
+  if (in_array($node->bundle(), $application_bundles, TRUE)
+    && $node->hasField('field_application')
+    && !$node->get('field_application')->isEmpty()
+    && $node->getOwnerId() == $account->id()) {
+    return AccessResult::allowed();
+  }
+  return AccessResult::neutral();
+}
+
+/**
+ * Safely return array_values() or an empty array when input is not an array.
+ *
+ * Some code paths may return CacheableMetadata or other objects by mistake;
+ * this prevents TypeError: array_values(): Argument #1 must be of type array.
+ *
+ * @param mixed $value
+ *   Value to convert.
+ *
+ * @return array
+ *   Numeric array or empty array.
+ */
+function instemjobportal_safe_array_values($value) {
+  return is_array($value) ? array_values($value) : [];
+}
+
+function instemjobportal_preprocess_job_application_dashboard(array &$variables) {
+  $job = $variables['job'] ?? NULL;
+  $sections = $variables['sections'] ?? [];
+  $completion = $variables['completion'] ?? [];
+
+  // Sanitize input.
+  $variables['job'] = $job instanceof \Drupal\Core\Entity\EntityInterface ? $job : NULL;
+  $variables['sections'] = is_array($sections) ? $sections : [];
+  $variables['completion'] = is_array($completion) ? $completion : [];
+
+  // Build sidebar menu.
+  $safe = [];
+  foreach ($variables['sections'] as $key => $section) {
+    $safe[$key] = [
+      'title' => $section['title'] ?? '',
+      'link' => $section['link'] ?? NULL,
+      'status' => $section['status'] ?? '',
+    ];
+  }
+
+  // Replace direct array_values usage with safe helper.
+  $variables['sections'] = instemjobportal_safe_array_values($safe);
+
+  $variables['items'] = array_map(function ($s) {
+    return [
+      'title'  => $s['title'] ?? '',
+      'link'   => $s['link'] ?? NULL,
+      'status' => $s['status'] ?? '',
+    ];
+  }, $variables['sections']);
+}
+
+private function sanitizeSections($sections, array $completion = [], $job_id = NULL) {
+  $safe = [];
+  foreach ($sections as $key => $section) {
+    $safe[$key] = [
+      'title' => $section['title'] ?? '',
+      'link' => $section['link'] ?? NULL,
+      'status' => $section['status'] ?? '',
+    ];
+  }
+  return instemjobportal_safe_array_values($safe);
+}

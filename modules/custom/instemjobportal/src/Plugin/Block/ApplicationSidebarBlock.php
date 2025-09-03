@@ -157,10 +157,12 @@ class ApplicationSidebarBlock extends BlockBase {
         }
       }
 
-      // Ensure the label is a string. Some configurations or callers may pass
-      // objects (for example a NodeType) accidentally; convert to a human
-      // readable string safely.
-      if (is_object($label)) {
+      // Ensure the label is a string. If it's an array, convert to a readable string.
+      if (is_array($label)) {
+        // Try to get a 'title' key if present, otherwise serialize.
+        $label_text = isset($label['title']) ? $label['title'] : json_encode($label);
+      }
+      elseif (is_object($label)) {
         if (method_exists($label, 'label')) {
           $label_text = $label->label();
         }

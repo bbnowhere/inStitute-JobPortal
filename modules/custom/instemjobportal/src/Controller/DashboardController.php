@@ -49,20 +49,29 @@ class DashboardController extends ControllerBase {
       $completion[$bundle] = !empty($result);
     }
 
-    // Build the sidebar block plugin instance programmatically and render it.
+    // Normalize sections into a numeric array of simple arrays.
+    $section_items = $this->sanitizeSections($sections, $completion ?? [], $job_node->id());
+
+    // Build the sidebar block instance and render it.
     $block_manager = \Drupal::service('plugin.manager.block');
     $plugin_block = $block_manager->createInstance('application_sidebar_block', [
       'job' => $job_node->id(),
-      'sections' => $sections,
-      'completion' => $completion,
+      'sections' => $section_items,
     ]);
     $sidebar_build = $plugin_block->build();
+
+    // Calculate total completion percentage for the progress bar.
+    $completed_sections = array_filter($completion, function($status) {
+        return $status === TRUE;
+    });
+    $total_sections = count($sections);
+    $completion_percentage = $total_sections > 0 ? (int) (count($completed_sections) / $total_sections * 100) : 0;
 
     return [
       '#theme' => 'job_application_dashboard',
       '#job' => $job_node,
-      '#sections' => $sections,
-      '#completion' => $completion,
+      '#sections' => $section_items,
+      '#completion' => $completion_percentage,
       '#sidebar' => $sidebar_build,
     ];
   }
@@ -96,4 +105,73 @@ class DashboardController extends ControllerBase {
     return $this->redirect('node.add', ['node_type' => $node_type], ['query' => ['job' => $job]]);
   }
 
+  /**
+   * Convert a possibly-keyed $sections input into a numeric array of arrays
+   * with bundle/title/status/link keys. Always returns an array of arrays.
+   */
+  private function sanitizeSections($sections, array $completion = [], $job_id = NULL) {
+    $safe = [];
+    if (!is_array($sections)) {
+      return $safe;
+    }
+    foreach ($sections as $key => $item) {
+      // boolean true => completed section named by key.
+      if ($item === TRUE) {
+        $safe[] = [
+          'bundle' => (string) $key,
+          'title' => ucfirst(str_replace('_', ' ', (string) $key)),
+          'status' => 'complete',
+          'link' => "/apply/{$job_id}/add/{$key}",
+        ];
+        continue;
+      }
+      // boolean false => skip.
+      if ($item === FALSE) {
+        continue;
+      }
+      // scalar/object -> title
+      if (!is_array($item)) {
+        try {
+          $title = (string) $item;
+        } catch (\Throwable $e) {
+          $title = (string) $key;
+        }
+        $safe[] = [
+          'bundle' => (string) $key,
+          'title' => $title ?: ucfirst(str_replace('_', ' ', (string) $key)),
+          'status' => !empty($completion[$key]) ? 'complete' : 'incomplete',
+          'link' => "/apply/{$job_id}/add/{$key}",
+        ];
+        continue;
+      }
+
+      // item is array: normalize fields.
+      $title = $item['title'] ?? ($item['#title'] ?? (string) $key);
+      if (is_array($title)) {
+        try { $title = trim(strip_tags(\Drupal::service('renderer')->renderPlain($title))); } catch (\Throwable $e) { $title = (string) $key; }
+      } else {
+        $title = trim(strip_tags((string) $title));
+      }
+      $status = strtolower(trim((string) ($item['status'] ?? $item['#status'] ?? ($completion[$key] ? 'complete' : 'incomplete'))));
+      $status_map = ['completed'=>'complete','complete'=>'complete','done'=>'complete','finished'=>'complete'];
+      $status = $status_map[$status] ?? ($status ?: 'incomplete');
+      $link = $item['link'] ?? ($item['#url'] ?? ($item['#href'] ?? "/apply/{$job_id}/add/{$key}"));
+      if (is_array($link)) {
+        try { $link = \Drupal::service('renderer')->renderPlain($link); } catch (\Throwable $e) { $link = NULL; }
+      } elseif (is_object($link) && method_exists($link, '__toString')) {
+        $link = (string) $link;
+      } else {
+        $link = $link !== NULL ? (string) $link : NULL;
+      }
+
+      $safe[] = [
+        'bundle' => (string) $key,
+        'title' => $title ?: ucfirst(str_replace('_', ' ', (string) $key)),
+        'status' => $status,
+        'link' => $link,
+      ];
+    }
+
+    return array_values($safe);
+  }
 }

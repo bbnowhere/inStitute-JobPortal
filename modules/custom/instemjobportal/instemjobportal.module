@@ -1,4 +1,5 @@
 <?php
+
 use Drupal\block\Entity\Block;
 use Drupal\user\UserInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -10,6 +11,7 @@ use Drupal\node\Entity\Node;
 use Drupal\node\Entity\NodeType;
 use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Render\RendererInterface;
+
 /**
  * Implements hook_preprocess_page().
  */
@@ -33,19 +35,21 @@ function instemjobportal_preprocess_page(&$variables) {
     if (in_array($type_id, $application_types, TRUE)) {
       // Set a custom title for each application type.
       $titles = [
-        'personal_information'   => 'Fill Personal Information',
-        'education'              => 'Fill Education Details',
-        'employment_details'     => 'Fill Employment Details',
-        'referee'                => 'Fill Referee Details',
+        'personal_information' => 'Fill Personal Information',
+        'education' => 'Fill Education Details',
+        'employment_details' => 'Fill Employment Details',
+        'referee' => 'Fill Referee Details',
         'additional_information' => 'Fill Additional Information',
-        'file_upload'            => 'Upload Supporting Documents',
+        'file_upload' => 'Upload Supporting Documents',
       ];
       $variables['title'] = $titles[$type_id] ?? 'Fill Application';
     }
   }
 }
+
 /**
  * Implements hook_node_presave().
+ *
  * Auto-increment and set field_advertisement_number for Job nodes.
  */
 function instemjobportal_node_presave(\Drupal\Core\Entity\EntityInterface $entity) {
@@ -106,6 +110,7 @@ function instemjobportal_node_presave(\Drupal\Core\Entity\EntityInterface $entit
     $entity->set('field_advertisement_number', ['target_id' => $tid]);
   }
 }
+
 /**
  * Implements hook_theme().
  */
@@ -115,7 +120,8 @@ function instemjobportal_theme($existing, $type, $theme, $path) {
       'variables' => [
         'job' => NULL,
         'sections' => [],
-        'completion' => [],
+        'completion' => NULL,
+        'sidebar' => NULL,
       ],
       'template' => 'job-application-dashboard',
     ],
@@ -161,13 +167,13 @@ function instemjobportal_form_node_form_alter(&$form, FormStateInterface $form_s
   // Only for new nodes (node/add) so edit titles are unaffected.
   if ($node->isNew()) {
     $titles = [
-      'personal_information'   => 'Fill Personal Information',
-      'education'              => 'Fill Education Details',
-      'employment_details'     => 'Fill Employment Details',
-      'referee'                => 'Fill Referee Details',
+      'personal_information' => 'Fill Personal Information',
+      'education' => 'Fill Education Details',
+      'employment_details' => 'Fill Employment Details',
+      'referee' => 'Fill Referee Details',
       'additional_information' => 'Fill Additional Information',
-      'file_upload'            => 'Upload Supporting Documents',
-      'job'                    => 'Post New Job',
+      'file_upload' => 'Upload Supporting Documents',
+      'job' => 'Post New Job',
     ];
     $bundle = $node->bundle();
     if (isset($titles[$bundle])) {
@@ -264,13 +270,6 @@ function instemjobportal_form_node_form_alter(&$form, FormStateInterface $form_s
         if (isset($form['field_application_wrapper'])) {
           instemjobportal_set_er_defaults_recursive($form['field_application_wrapper'], $job_node);
         }
-        // Debug: log the structure of the field_application form element so we
-        // can see which keys/widgets are present on build.
-        try {
-          \Drupal::logger('instemjobportal')->debug('Form build field_application structure: @data', ['@data' => print_r($form['field_application'], TRUE)]);
-        }
-        catch (\Throwable $e) {
-        }
         // For tag-style (multiple) autocomplete widgets the field widget may
         // expect an array of default entities on the field level. Prefer
         // setting that first.
@@ -304,8 +303,7 @@ function instemjobportal_form_node_form_alter(&$form, FormStateInterface $form_s
           // some widgets expect '#autocomplete_route_parameters' to format
           // display; harmless to set.
           $el['#autocomplete_route_parameters'] = ['title' => $job_node->label()];
-        }
-        elseif (isset($form['field_application'][0]['widget'][0]['target_id'])) {
+        } elseif (isset($form['field_application'][0]['widget'][0]['target_id'])) {
           $el = & $form['field_application'][0]['widget'][0]['target_id'];
           $el['#default_value'] = $job_node;
           $el['#value'] = $display;
@@ -353,8 +351,7 @@ function instemjobportal_form_node_form_alter(&$form, FormStateInterface $form_s
             $rendered_array = $saved_node->get($field_name)->view();
             if (empty($rendered_array)) {
               $rendered_markup = '-';
-            }
-            else {
+            } else {
               $rendered_markup = \Drupal::service('renderer')->renderPlain($rendered_array);
             }
             $rows[] = [$label, ['#markup' => $rendered_markup]];
@@ -385,7 +382,6 @@ function instemjobportal_form_node_form_alter(&$form, FormStateInterface $form_s
   }
 }
 
-
 /**
  * Submit handler for application node forms.
  *
@@ -408,34 +404,22 @@ function instemjobportal_application_form_submit($form, FormStateInterface $form
         if ($first && isset($first->target_id)) {
           $job_target = $first->target_id;
         }
-      }
-      catch (\Throwable $e) {
+      } catch (\Throwable $e) {
         // Fallback: try getValue()
         try {
           $val = $entity->get('field_application')->getValue();
           if (!empty($val[0]['target_id'])) {
             $job_target = $val[0]['target_id'];
           }
-        }
-        catch (\Throwable $e) {
+        } catch (\Throwable $e) {
         }
       }
     }
 
     if (!empty($job_target)) {
       $form_state->setRedirect('<current>', [], ['query' => ['job' => $job_target]]);
-    }
-    else {
+    } else {
       $form_state->setRedirect('<current>');
-    }
-    // Debug: log the final saved field_application value after submit.
-    try {
-      \Drupal::logger('instemjobportal')->info('Post-save saved_nid @nid field_application: @val', [
-        '@nid' => $entity->id(),
-        '@val' => print_r($entity->get('field_application')->getValue(), TRUE),
-      ]);
-    }
-    catch (\Throwable $e) {
     }
     // Invalidate per-job-per-user cache tag so the sidebar block rebuilds with
     // the updated completion state for this user/job.
@@ -444,15 +428,13 @@ function instemjobportal_application_form_submit($form, FormStateInterface $form
         try {
           $val = $entity->get('field_application')->first();
           $job_target = $val->target_id ?? $job_target;
-        }
-        catch (\Throwable $e) {
+        } catch (\Throwable $e) {
           try {
             $g = $entity->get('field_application')->getValue();
             if (!empty($g[0]['target_id'])) {
               $job_target = $g[0]['target_id'];
             }
-          }
-          catch (\Throwable $e) {
+          } catch (\Throwable $e) {
           }
         }
       }
@@ -462,22 +444,19 @@ function instemjobportal_application_form_submit($form, FormStateInterface $form
         $tag = 'instemjobportal_app:job:' . $job_target . ':user:' . $uid;
         \Drupal::service('cache_tags.invalidator')->invalidateTags([$tag]);
       }
-    }
-    catch (\Throwable $e) {
-      \Drupal::logger('instemjobportal')->warning('Failed to invalidate cache tag after save: @msg', ['@msg' => $e->getMessage()]);
+    } catch (\Throwable $e) {
     }
   }
 }
-
 
 /**
  * Validate handler for application forms.
  *
  * - Sets the node's `field_application` (entity reference to job) from the
- *   query parameter `job` when present.
+ * query parameter `job` when present.
  * - Prevents duplicate submissions by the same user for the same job and
- *   bundle: if an existing node is found, set a form error and redirect the
- *   user to edit the existing submission.
+ * bundle: if an existing node is found, set a form error and redirect the
+ * user to edit the existing submission.
  */
 function instemjobportal_application_form_validate($form, FormStateInterface $form_state) {
   $entity = $form_state->getFormObject()->getEntity();
@@ -499,7 +478,6 @@ function instemjobportal_application_form_validate($form, FormStateInterface $fo
   // Validate only: prevent duplicate submissions. Do not set field values here
   // because some field widgets (autocomplete tags) massage form values and
   // will complain if the structure is changed here.
-
   // Prevent duplicate submissions: look for an existing node with same
   // bundle, same field_application target and same uid (current user).
   $current_user = \Drupal::currentUser();
@@ -517,7 +495,6 @@ function instemjobportal_application_form_validate($form, FormStateInterface $fo
     }
   }
 }
-
 
 /**
  * Find an existing application node for a given bundle, user and job id.
@@ -564,7 +541,6 @@ function instemjobportal_find_application_node($bundle, $uid, $job_id) {
   return NULL;
 }
 
-
 /**
  * Presave handler that sets the field_application on the entity from the
  * request `job` parameter or a hidden form value. Runs early in form submit
@@ -591,26 +567,18 @@ function instemjobportal_application_form_presave($form, FormStateInterface $for
     // widgets that will be processed during save.
     try {
       $form_state->setValue('field_application', [['target_id' => $job_id]]);
-    }
-    catch (\Throwable $e) {
-      \Drupal::logger('instemjobportal')->warning('Could not set form_state value at presave: @msg', ['@msg' => $e->getMessage()]);
-    }
-    try {
-      \Drupal::logger('instemjobportal')->debug('Presave set entity field_application: @ent -- form_state value: @fv', ['@ent' => print_r($entity->get('field_application')->getValue(), TRUE), '@fv' => print_r($form_state->getValue('field_application'), TRUE)]);
-    }
-    catch (\Throwable $e) {
+    } catch (\Throwable $e) {
     }
   }
 }
-
 
 /**
  * Recursively walk a form subtree and set autocomplete/ER defaults where we
  * find target_id elements. This makes the injection robust across widget
  * structures and wrappers.
  */
-function instemjobportal_set_er_defaults_recursive(array & $element, \Drupal\Core\Entity\EntityInterface $job_node) {
-  foreach ($element as $key => & $child) {
+function instemjobportal_set_er_defaults_recursive(array &$element, \Drupal\Core\Entity\EntityInterface $job_node) {
+  foreach ($element as $key => &$child) {
     if (!is_array($child)) {
       continue;
     }
@@ -662,8 +630,7 @@ function instemjobportal_menu_local_tasks_alter(&$data, $route_name) {
       if (method_exists($node_param, 'hasField') && $node_param->hasField('field_application') && !$node_param->get('field_application')->isEmpty()) {
         $node_has_job = TRUE;
       }
-    }
-    else {
+    } else {
       try {
         $loaded = \Drupal\node\Entity\Node::load($node_param);
         if ($loaded) {
@@ -672,8 +639,7 @@ function instemjobportal_menu_local_tasks_alter(&$data, $route_name) {
             $node_has_job = TRUE;
           }
         }
-      }
-      catch (\Throwable $e) {
+      } catch (\Throwable $e) {
         // ignore
       }
     }
@@ -705,8 +671,6 @@ function instemjobportal_menu_local_tasks_alter(&$data, $route_name) {
     }
   }
 }
-
-
 
 /**
  * Grant edit access to the owner of an application node that references a
@@ -751,8 +715,7 @@ function instemjobportal_node_access(\Drupal\node\NodeInterface $node, $operatio
             }
           }
         }
-      }
-      catch (\Throwable $e) {
+      } catch (\Throwable $e) {
         // If lookup fails, be conservative and allow edit (neutral) so we do
         // not accidentally lock users out from correcting issues.
         return AccessResult::allowed();
@@ -784,12 +747,12 @@ function instemjobportal_block_view_alter(array &$build, BlockPluginInterface $b
   $node_type = $route_match->getParameter('node_type');
   $type_id = ($node_type instanceof \Drupal\node\Entity\NodeType) ? $node_type->id() : $node_type;
   $titles = [
-    'personal_information'   => 'Fill Personal Information',
-    'education'              => 'Fill Education Details',
-    'employment_details'     => 'Fill Employment Details',
-    'referee'                => 'Fill Referee Details',
+    'personal_information' => 'Fill Personal Information',
+    'education' => 'Fill Education Details',
+    'employment_details' => 'Fill Employment Details',
+    'referee' => 'Fill Referee Details',
     'additional_information' => 'Fill Additional Information',
-    'file_upload'            => 'Upload Supporting Documents',
+    'file_upload' => 'Upload Supporting Documents',
   ];
 
   if (!empty($type_id) && isset($titles[$type_id])) {
@@ -805,264 +768,4 @@ function instemjobportal_block_view_alter(array &$build, BlockPluginInterface $b
       ];
     }
   }
-}
-
-/**
- * Render application dashboard for a job node.
- */
-function instemjobportal_application_dashboard_render(Node $node) {
-  // Example raw sections you might have (avoid boolean values).
-  $raw_sections = [
-    'personal_information' => [
-      'title' => 'Personal Information',
-      'status' => 'complete',
-      'link' => '/jobportal/apply/' . $node->id() . '/personal',
-    ],
-    'education' => [
-      'title' => 'Education',
-      'status' => 'in-progress',
-      'link' => '/jobportal/apply/' . $node->id() . '/education',
-    ],
-    // ... etc ...
-  ];
-
-  // Ensure sections is a numeric array of arrays (remove non-arrays).
-  foreach ($sections as &$s) {
-    // normalize title
-    $s['title'] = isset($s['title']) ? trim(strip_tags((string) $s['title'])) : '';
-    // normalize status
-    $s['status'] = isset($s['status']) ? strtolower(trim((string) $s['status'])) : '';
-    // normalize link (keep only href string)
-    if (!empty($s['link'])) {
-      $href = instemjobportal_extract_href($s['link']);
-      if ($href) {
-        $s['link'] = $href;
-      } else {
-        unset($s['link']);
-      }
-    }
-  }
-  unset($s);
-
-  // Compute completion % from statuses. Treat 'complete'/'completed' as done.
-  $total = count($sections);
-  $completed = 0;
-  if ($total > 0) {
-    foreach ($sections as $s) {
-      $st = $s['status'] ?? '';
-      if (in_array($st, ['complete', 'completed', 'done', 'finished'], TRUE)) {
-        $completed++;
-      }
-    }
-    $completion = (int) round(($completed / $total) * 100);
-  }
-  else {
-    $completion = 0;
-  }
-
-  return [
-    '#theme' => 'job_application_dashboard',
-    '#job' => $node,
-    '#sections' => $sections,
-    '#completion' => $completion,
-    '#cache' => ['tags' => $node->getCacheTags()],
-  ];
-}
-
-/**
- * Extract a plain href string from various link formats.
- *
- * @param mixed $raw_link
- *   Url object, render array, string, or anchor markup.
- * @param \Drupal\Core\Render\RendererInterface|null $renderer
- *   (optional) Renderer service. Falls back to \Drupal::service('renderer').
- *
- * @return string|null
- *   A normalized href, or NULL if extraction failed.
- */
-function instemjobportal_extract_href($raw_link, RendererInterface $renderer = NULL) {
-  $renderer = $renderer ?: \Drupal::service('renderer');
-
-  // Url object.
-  if ($raw_link instanceof Url) {
-    try {
-      return $raw_link->toString();
-    }
-    catch (\Throwable $e) {
-      return NULL;
-    }
-  }
-
-  // Render array.
-  if (is_array($raw_link)) {
-    if (!empty($raw_link['#url']) && $raw_link['#url'] instanceof Url) {
-      return $raw_link['#url']->toString();
-    }
-    if (!empty($raw_link['#href']) && is_string($raw_link['#href'])) {
-      return $raw_link['#href'];
-    }
-    try {
-      $raw_link = (string) $renderer->renderPlain($raw_link);
-    }
-    catch (\Throwable $e) {
-      $raw_link = '';
-    }
-  }
-
-  // Strings.
-  if (is_string($raw_link) && $raw_link !== '') {
-    $string = html_entity_decode(trim($raw_link), ENT_QUOTES | ENT_HTML5, 'UTF-8');
-
-    // Anchor markup.
-    if (stripos($string, '<a') !== FALSE) {
-      try {
-        $dom = new \DOMDocument();
-        @$dom->loadHTML(
-          mb_convert_encoding($string, 'HTML-ENTITIES', 'UTF-8'),
-          LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
-        );
-        $a = $dom->getElementsByTagName('a')->item(0);
-        if ($a) {
-          $href = $a->getAttribute('href');
-          return $href !== '' ? instemjobportal_normalize_path($href) : NULL;
-        }
-      }
-      catch (\Throwable $e) {
-        // fall through to regex
-      }
-
-      if (preg_match('/href=[\'"]([^\'"]+)[\'"]/i', $string, $m)) {
-        return instemjobportal_normalize_path($m[1]);
-      }
-    }
-
-    // Plain path or URL.
-    return instemjobportal_normalize_path($string);
-  }
-
-  return NULL;
-}
-
-/**
- * Normalize a path: ensure relative paths start with '/'.
- *
- * @param string $path
- *   Input path or URL.
- *
- * @return string
- *   Normalized path or URL.
- */
-function instemjobportal_normalize_path($path) {
-  if (!preg_match('@^[a-z][a-z0-9+\-.]*:@i', $path) && isset($path[0]) && $path[0] !== '/') {
-    return '/' . ltrim($path, '/');
-  }
-  return $path;
-}
-
-/**
- * Preprocess for job_application_dashboard: sanitize sections.
- */
-function instemjobportal_preprocess_job_application_dashboard(array &$variables) {
-  $raw_sections = $variables['sections'] ?? [];
-
-  // Defensive: ensure we always provide a numeric array of section arrays
-  // (Drupal render arrays must not contain scalar/boolean children).
-  $safe = [];
-  if (is_array($raw_sections)) {
-    foreach ($raw_sections as $key => $item) {
-      // Convert booleans.
-      if (is_bool($item)) {
-        if ($item === TRUE) {
-          $item = ['title' => (string) $key, 'status' => 'complete'];
-        } else {
-          // skip FALSE entries
-          continue;
-        }
-      }
-
-      // Convert objects / TranslatableMarkup / scalars to a basic section array.
-      if (!is_array($item)) {
-        try {
-          $title = (string) $item;
-        } catch (\Throwable $e) {
-          $title = (string) $key;
-        }
-        $item = [
-          'title' => $title ?: (string) $key,
-          'status' => 'incomplete',
-        ];
-      }
-
-      // Now we definitely have an array; normalize fields.
-
-      // Title: render arrays -> plain text, otherwise strip tags.
-      if (isset($item['title']) && is_array($item['title'])) {
-        try {
-          $rendered = \Drupal::service('renderer')->renderPlain($item['title']);
-          $item['title'] = trim(strip_tags($rendered));
-        } catch (\Throwable $e) {
-          $item['title'] = (string) $key;
-        }
-      } else {
-        $item['title'] = trim(strip_tags((string) ($item['title'] ?? $key)));
-      }
-
-      // Status: normalize to canonical short values.
-      $raw_status = $item['status'] ?? '';
-      if (is_array($raw_status)) {
-        try {
-          $raw_status = \Drupal::service('renderer')->renderPlain($raw_status);
-        } catch (\Throwable $e) {
-          $raw_status = '';
-        }
-      }
-      $raw_status = strtolower(trim((string) $raw_status));
-      $map = [
-        'completed' => 'complete',
-        'complete' => 'complete',
-        'done' => 'complete',
-        'finished' => 'complete',
-        'in-progress' => 'in-progress',
-        'in_progress' => 'in-progress',
-        'in progress' => 'in-progress',
-        'incomplete' => 'incomplete',
-        'not started' => 'incomplete',
-        '' => 'incomplete',
-      ];
-      $item['status'] = $map[$raw_status] ?? ($raw_status ?: 'incomplete');
-
-      // Link: convert to a plain href string when possible.
-      if (isset($item['link'])) {
-        try {
-          $href = instemjobportal_extract_href($item['link']);
-          if ($href) {
-            $item['link'] = $href;
-          } else {
-            unset($item['link']);
-          }
-        } catch (\Throwable $e) {
-          unset($item['link']);
-        }
-      }
-
-      // Ensure the item is a simple array with scalar values only.
-      $safe[] = [
-        'title' => $item['title'],
-        'status' => $item['status'],
-        'link' => $item['link'] ?? NULL,
-      ];
-    }
-  }
-
-  // Replace original (possibly malformed) sections with a safe numeric array.
-  $variables['sections'] = array_values($safe);
-
-  // Provide a simple items array used by the sidebar template.
-  $variables['items'] = array_map(function ($s) {
-    return [
-      'title' => $s['title'] ?? '',
-      'link' => $s['link'] ?? NULL,
-      'status' => $s['status'] ?? '',
-    ];
-  }, $variables['sections']);
 }

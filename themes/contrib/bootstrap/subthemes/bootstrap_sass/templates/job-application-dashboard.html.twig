@@ -15,9 +15,7 @@
 
 <div class="application-dashboard container-fluid my-4">
   <div class="row g-4">
-    <aside class="col-lg-4 col-xl-3">
-      {{ include('application-sidebar-menu.html.twig', { items: safe_sections }) }}
-    </aside>
+    
 
     <main class="col-lg-8 col-xl-9">
       <div class="card shadow-sm">
@@ -78,14 +76,7 @@
                       </div>
                     </div>
 
-                    <div class="mt-2">
-                      {% if section.link is defined and section.link %}
-                        <a href="{{ section.link|escape('html_attr') }}" class="btn btn-outline-primary btn-sm">Open</a>
-                      {% endif %}
-                      {% if section.edit_link is defined and section.edit_link %}
-                        <a href="{{ section.edit_link|escape('html_attr') }}" class="btn btn-primary btn-sm ms-2">Edit</a>
-                      {% endif %}
-                    </div>
+                    
                   </div>
                 </div>
               </div>
