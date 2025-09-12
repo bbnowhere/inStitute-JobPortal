@@ -129,10 +129,3 @@ function referee_module_install() {
     'target_type' => 'node',
   ], FALSE);
 }
-
-/**
- * Implements hook_uninstall().
- */
-function referee_module_uninstall() {
-  drupal_uninstall_schema('referee_module');
-}

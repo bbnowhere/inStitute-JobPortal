@@ -334,50 +334,21 @@ function instemjobportal_form_node_form_alter(&$form, FormStateInterface $form_s
     // the user can modify the submission without leaving the page.
     if ($nid = $form_state->get('saved_nid')) {
       $saved_node = \Drupal\node\Entity\Node::load($nid);
-      if ($saved_node) {
-        $field_definitions = \Drupal::service('entity_field.manager')->getFieldDefinitions('node', $saved_node->bundle());
-        $rows = [];
-        $skip = ['nid', 'vid', 'type', 'langcode', 'status', 'uid', 'created', 'changed', 'path'];
-
-        foreach ($field_definitions as $field_name => $field_def) {
-          if (in_array($field_name, $skip, TRUE)) {
-            continue;
-          }
-          if ($saved_node->hasField($field_name)) {
-            $label = $field_def->getLabel();
-            // Render the field display to a safe markup string to avoid
-            // passing nested objects (like entities) into the table which can
-            // cause Attribute rendering errors.
-            $rendered_array = $saved_node->get($field_name)->view();
-            if (empty($rendered_array)) {
-              $rendered_markup = '-';
-            } else {
-              $rendered_markup = \Drupal::service('renderer')->renderPlain($rendered_array);
-            }
-            $rows[] = [$label, ['#markup' => $rendered_markup]];
-          }
-        }
-
-        $form['instemjobportal_submission_summary'] = [
-          '#type' => 'details',
-          '#title' => t('Your submitted information'),
-          '#open' => TRUE,
-          '#weight' => 100,
-        ];
-
-        $form['instemjobportal_submission_summary']['table'] = [
-          '#theme' => 'table',
-          '#header' => [t('Field'), t('Value')],
-          '#rows' => $rows,
-        ];
-
-        $form['instemjobportal_submission_summary']['edit'] = [
-          '#type' => 'link',
-          '#title' => t('Edit submission'),
-          '#url' => \Drupal\Core\Url::fromRoute('entity.node.edit_form', ['node' => $nid]),
-          '#attributes' => ['class' => ['button', 'button--primary']],
-        ];
-      }
+      // if ($saved_node) {
+      //   // Remove summary table, only show Edit link.
+      //   $form['instemjobportal_submission_summary'] = [
+      //     '#type' => 'details',
+      //     '#title' => t('Edit submission'),
+      //     '#open' => TRUE,
+      //     '#weight' => 100,
+      //   ];
+      //   $form['instemjobportal_submission_summary']['edit'] = [
+      //     '#type' => 'link',
+      //     '#title' => t('Edit submission'),
+      //     '#url' => \Drupal\Core\Url::fromRoute('entity.node.edit_form', ['node' => $nid]),
+      //     '#attributes' => ['class' => ['button', 'button--primary']],
+      //   ];
+      // }
     }
   }
 }
@@ -769,3 +740,31 @@ function instemjobportal_block_view_alter(array &$build, BlockPluginInterface $b
     }
   }
 }
+
+/**
+ * Implements hook_form_alter().
+ * Deny access to application add forms if ?job is missing for applicants.
+ */
+function instemjobportal_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  // Only target node add forms for application bundles.
+  if ($form_id !== 'node_personal_information_form'
+      && $form_id !== 'node_education_form'
+      && $form_id !== 'node_employment_details_form'
+      && $form_id !== 'node_referee_form'
+      && $form_id !== 'node_additional_information_form'
+      && $form_id !== 'node_file_upload_form') {
+    return;
+  }
+
+  $current_user = \Drupal::currentUser();
+  $is_applicant = in_array('applicant', $current_user->getRoles());
+  $request = \Drupal::request();
+  $job_param = $request->query->get('job');
+
+  // If user is applicant and ?job is missing, deny access.
+  if ($is_applicant && empty($job_param)) {
+    $form['#access'] = FALSE;
+    \Drupal::messenger()->addError(t('Access denied: You must use a valid job link to apply.'));
+  }
+}
+

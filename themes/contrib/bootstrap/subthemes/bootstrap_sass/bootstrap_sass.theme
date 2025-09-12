@@ -30,3 +30,25 @@ function bootstrap_sass_form_system_theme_settings_alter(&$form, FormStateInterf
     'bg-transparent' => t('Transparent'),
   );
 }
+
+function bootstrap_sass_preprocess_menu_local_tasks(&$variables) {
+  // Only run on node pages.
+  $route_match = \Drupal::routeMatch();
+  $node = $route_match->getParameter('node');
+  if ($node && is_object($node) && method_exists($node, 'bundle')) {
+    $hide_bundles = [
+      'personal_information',
+      'education',
+      'employment_details',
+      'referee',
+      'additional_information',
+      'file_upload',
+    ];
+    if (in_array($node->bundle(), $hide_bundles, TRUE)) {
+      // Remove all tabs (primary tasks).
+      $variables['primary'] = [];
+      // Optionally, also remove secondary tabs:
+      $variables['secondary'] = [];
+    }
+  }
+}

@@ -1,0 +1,102 @@
+<?php
+/**
+ * Implements hook_update_N().
+ */
+function paragraphcustom_install() {
+  $paragraph_type = 'employment';
+  $field_storage_definitions = [
+    'field_designation' => [
+      'type' => 'string',
+      'settings' => ['max_length' => 255],
+    ],
+    'field_employer' => [
+      'type' => 'string',
+      'settings' => ['max_length' => 255],
+    ],
+    'field_employment_type' => [
+      'type' => 'list_string',
+      'settings' => [
+        'allowed_values' => [
+          'regular' => 'Regular',
+          'ad_hoc' => 'Ad-hoc',
+          'temporary' => 'Temporary',
+          'contract' => 'Contract',
+          'other' => 'Other',
+        ],
+      ],
+    ],
+    'field_other_employment_type' => [
+      'type' => 'string',
+      'settings' => ['max_length' => 255],
+    ],
+    'field_type_of_work' => [
+      'type' => 'list_string',
+      'settings' => [
+        'allowed_values' => [
+          'rnd' => 'R&D',
+          'teaching' => 'Teaching',
+          'admin' => 'Scientific Administration',
+          'other' => 'Other',
+        ],
+      ],
+    ],
+    'field_other_type_of_work' => [
+      'type' => 'string',
+      'settings' => ['max_length' => 255],
+    ],
+    'field_nature_of_job' => [
+      'type' => 'string',
+      'settings' => ['max_length' => 255],
+    ],
+    'field_from_date' => [
+      'type' => 'datetime',
+      'settings' => ['datetime_type' => 'date'],
+    ],
+    'field_to_date' => [
+      'type' => 'datetime',
+      'settings' => ['datetime_type' => 'date'],
+    ],
+    'field_pay_band' => [
+      'type' => 'string',
+      'settings' => ['max_length' => 255],
+    ],
+    'field_brief_experience' => [
+      'type' => 'text_long',
+    ],
+    'field_experience_calculated' => [
+      'type' => 'string',
+      'settings' => ['max_length' => 255],
+    ],
+    'field_delete' => [
+      'type' => 'boolean',
+    ],
+  ];
+
+  foreach ($field_storage_definitions as $field_name => $storage_info) {
+    // Create field storage if not exist.
+    if (!\Drupal::entityTypeManager()->getStorage('field_storage_config')->load('paragraph.' . $field_name)) {
+      \Drupal\field\Entity\FieldStorageConfig::create([
+        'field_name' => $field_name,
+        'entity_type' => 'paragraph',
+        'type' => $storage_info['type'],
+        'settings' => $storage_info['settings'] ?? [],
+      ])->save();
+    }
+
+    // Create field instance if not exist.
+    if (!\Drupal::entityTypeManager()->getStorage('field_config')->load('paragraph.' . $paragraph_type . '.' . $field_name)) {
+      \Drupal\field\Entity\FieldConfig::create([
+        'field_name' => $field_name,
+        'entity_type' => 'paragraph',
+        'bundle' => $paragraph_type,
+        'label' => t(ucwords(str_replace('_', ' ', str_replace('field_', '', $field_name)))),
+        'required' => FALSE,
+      ])->save();
+    }
+  }
+
+  // Set form display and display display defaults (optional).
+  \Drupal::service('entity_display.repository')->getFormDisplay('paragraph', $paragraph_type, 'default')->save();
+  \Drupal::service('entity_display.repository')->getViewDisplay('paragraph', $paragraph_type, 'default')->save();
+}
+
