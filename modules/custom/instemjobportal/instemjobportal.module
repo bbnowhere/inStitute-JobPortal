@@ -53,63 +53,138 @@ function instemjobportal_preprocess_page(&$variables) {
  * Auto-increment and set field_advertisement_number for Job nodes.
  */
 function instemjobportal_node_presave(\Drupal\Core\Entity\EntityInterface $entity) {
-  // Only apply to Job content type.
-  if ($entity->getEntityTypeId() !== 'node' || $entity->bundle() !== 'job') {
-    return;
-  }
+  if ($entity->getEntityTypeId() === 'node' && $entity->bundle() === 'job') {
+    if ($entity->hasField('field_advertisement_number') && $entity->get('field_advertisement_number')->isEmpty()) {
+      $year = date('Y');
+      $query = \Drupal::entityQuery('node')
+        ->condition('type', 'job')
+        ->condition('status', 1)
+        ->exists('field_advertisement_number')
+        ->accessCheck(TRUE);
 
-  // Only set if field_advertisement_number is empty.
-  if ($entity->hasField('field_advertisement_number') && $entity->get('field_advertisement_number')->isEmpty()) {
-    $year = date('Y');
-    // Query all jobs for this year.
-    $query = \Drupal::entityQuery('node')
-      ->condition('type', 'job')
-      ->condition('status', 1)
-      ->exists('field_advertisement_number')
-      ->accessCheck(TRUE);
-    $nids = $query->execute();
-    $max_slno = 0;
-    if (!empty($nids)) {
-      $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
-      foreach ($nodes as $node) {
-        if ($node->hasField('field_advertisement_number') && !$node->get('field_advertisement_number')->isEmpty()) {
-          $term_ref = $node->get('field_advertisement_number')->referencedEntities();
-          if (!empty($term_ref)) {
-            $term = reset($term_ref);
-            $adv_value = $term->getName();
-            // Expect format SLno-Year
-            if (preg_match('/^(\d+)-' . $year . '$/', $adv_value, $matches)) {
-              $slno = (int) $matches[1];
-              if ($slno > $max_slno) {
-                $max_slno = $slno;
+      $nids = $query->execute();
+      $max_slno = 0;
+
+      if (!empty($nids)) {
+        $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
+        foreach ($nodes as $node) {
+          if ($node->hasField('field_advertisement_number') && !$node->get('field_advertisement_number')->isEmpty()) {
+            $term_ref = $node->get('field_advertisement_number')->referencedEntities();
+            if (!empty($term_ref)) {
+              $term = reset($term_ref);
+              $adv_value = $term->getName();
+              if (preg_match('/^(\d+)-' . $year . '$/', $adv_value, $matches)) {
+                $slno = (int) $matches[1];
+                if ($slno > $max_slno) {
+                  $max_slno = $slno;
+                }
               }
             }
           }
         }
       }
-    }
-    $next_slno = $max_slno + 1;
-    $advertisement_number = $next_slno . '-' . $year;
-    // Find or create the taxonomy term in Advertisement Number vocabulary.
-    $vocab = 'advertisement_number';
-    $term_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
-    $terms = $term_storage->loadByProperties([
-      'name' => $advertisement_number,
-      'vid' => $vocab,
-    ]);
-    if ($terms && ($term = reset($terms))) {
-      $tid = $term->id();
-    } else {
-      $term = $term_storage->create([
+
+      $next_slno = $max_slno + 1;
+      $advertisement_number = $next_slno . '-' . $year;
+
+      $vocab = 'advertisement_number';
+      $term_storage = \Drupal::entityTypeManager()->getStorage('taxonomy_term');
+      $terms = $term_storage->loadByProperties([
         'name' => $advertisement_number,
         'vid' => $vocab,
       ]);
-      $term->save();
-      $tid = $term->id();
+
+      if ($terms && ($term = reset($terms))) {
+        $tid = $term->id();
+      } else {
+        $term = $term_storage->create([
+          'name' => $advertisement_number,
+          'vid' => $vocab,
+        ]);
+        $term->save();
+        $tid = $term->id();
+      }
+
+      $entity->set('field_advertisement_number', ['target_id' => $tid]);
     }
-    $entity->set('field_advertisement_number', ['target_id' => $tid]);
+  }
+
+
+
+
+  if ($entity->getEntityTypeId() === 'node') {
+    $bundle = $entity->bundle();
+    $application_bundles = [
+      'education',
+      'employment_details',
+      'referee',
+      'additional_information',
+      'file_upload',
+    ];
+
+    if (in_array($bundle, $application_bundles, TRUE)) {
+      // Get job reference from field_application.
+      if ($entity->hasField('field_application') && !$entity->get('field_application')->isEmpty()) {
+        $job_nid = $entity->get('field_application')->first()?->target_id ?? NULL;
+        $uid = $entity->getOwnerId();
+
+        $title_set = FALSE;
+        if (!empty($job_nid) && !empty($uid)) {
+          // Find the related personal_information node for this user and job.
+          $personal_nid = instemjobportal_find_application_node('personal_information', $uid, $job_nid);
+          if ($personal_nid) {
+            $personal_node = \Drupal\node\Entity\Node::load($personal_nid);
+            if ($personal_node && $personal_node->hasField('field_application_id') && !$personal_node->get('field_application_id')->isEmpty()) {
+              $base_id = $personal_node->get('field_application_id')->value;
+              // Set the title as required: base_id + '-' + bundle
+              $entity->setTitle($base_id . '-' . $bundle);
+              $title_set = TRUE;
+            }
+          }
+        }
+        // Fallback: always set a non-empty title.
+        if (!$title_set) {
+          $entity->setTitle($bundle . '-' . time());
+        }
+      } else {
+        // Fallback if field_application is empty.
+        $entity->setTitle($bundle . '-' . time());
+      }
+    }
+  }
+    if ($entity->getEntityTypeId() === 'node' && $entity->bundle() === 'personal_information') {
+    print_r('presave called');
+    if ($entity->hasField('field_application') && !$entity->get('field_application')->isEmpty()) {
+      $job_nid = $entity->get('field_application')->first()?->target_id ?? NULL;
+
+      if (!empty($job_nid)) {
+        $job_node = \Drupal\node\Entity\Node::load($job_nid);
+
+        if ($job_node && $job_node->hasField('field_job_code') && !$job_node->get('field_job_code')->isEmpty()) {
+          $job_code = $job_node->get('field_job_code')->value;
+
+          $query = \Drupal::entityQuery('node')
+            ->condition('type', 'personal_information')
+            ->condition('field_application.target_id', $job_nid)
+            ->accessCheck(TRUE);
+
+          if (!$entity->isNew()) {
+            $query->condition('nid', $entity->id(), '!=');
+          }
+
+          $nids = $query->execute();
+          $slno = count($nids) + 1;
+          $application_id = $job_code . '-' . $slno;
+
+          if ($entity->hasField('field_application_id')) {
+            $entity->set('field_application_id', $application_id);
+        }
+        }
+      }
+    }
   }
 }
+
 
 /**
  * Implements hook_theme().
@@ -161,6 +236,22 @@ function instemjobportal_form_node_form_alter(&$form, FormStateInterface $form_s
   $node = $form_state->getFormObject()->getEntity();
   if (!$node) {
     return;
+  }
+
+  $application_bundles = [
+    'personal_information',
+    'education',
+    'employment_details',
+    'referee',
+    'additional_information',
+    'file_upload',
+  ];
+
+  // Hide the default title field for these bundles.
+  if (in_array($node->bundle(), $application_bundles, TRUE)) {
+    if (isset($form['title'])) {
+      $form['title']['#access'] = FALSE;
+    }
   }
 
   // Set a custom page/form title for application add (node/add/*) forms.

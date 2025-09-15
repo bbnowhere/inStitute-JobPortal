@@ -1,4 +1,60 @@
 @charset "UTF-8";
+/* Reduce the width of paragraph editing forms in the content area */
+.field--widget-entity-reference-paragraphs .js-form-wrapper.form-wrapper,
+.field--widget-entity-reference-paragraphs .paragraphs-subform.js-form-wrapper.form-wrapper,
+.field--widget-entity-reference-paragraphs .paragraph-type-top.js-form-wrapper.form-wrapper,
+.field--widget-entity-reference-paragraphs .paragraph-type-title.js-form-wrapper.form-wrapper {
+  max-width: 700px;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}
+/* Reduce the size of input fields in paragraph editing forms */
+/* Reduce the width of input fields in paragraph editing forms */
+.field--widget-entity-reference-paragraphs input.form-control,
+.field--widget-entity-reference-paragraphs select.form-select,
+.field--widget-entity-reference-paragraphs textarea.form-control {
+  max-width: 350px;
+  width: 100%;
+}
+/* Make paragraph blocks visually distinct */
+.field--widget-entity-reference-paragraphs .paragraphs-subform.js-form-wrapper.form-wrapper {
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+/* Move Remove button to the left inside paragraph block */
+.field--widget-entity-reference-paragraphs .paragraph-type-top .paragraphs-dropbutton-wrapper {
+  position: relative;
+  left: 1rem;
+  top: 1rem;
+  z-index: 2;
+}
+
+/* Optional: Add some left padding so content doesn't overlap with button */
+.field--widget-entity-reference-paragraphs .paragraphs-subform.js-form-wrapper.form-wrapper {
+  padding-left: 3.5rem;
+}
+
+/* Style the Remove button */
+.field--widget-entity-reference-paragraphs .paragraphs-dropbutton-wrapper .btn {
+  background: #dc3545;
+  color: #fff;
+  border-radius: 0.25rem;
+  font-size: 0.9rem;
+  padding: 0.25rem 0.75rem;
+  border: none;
+}
+
+.field--widget-entity-reference-paragraphs .paragraphs-dropbutton-wrapper .btn:hover {
+  background: #b02a37;
+  color: #fff;
+}
 /*
 Theme Name: Bootstrap 4 Sass
 Description: Bootstrap 4 with Sass

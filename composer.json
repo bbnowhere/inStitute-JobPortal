@@ -17,6 +17,7 @@
     "require": {
         "composer/installers": "^2.3",
         "drupal/admin_toolbar": "^3.6",
+        "drupal/auto_entitylabel": "^3.4",
         "drupal/bootstrap": "^5.0",
         "drupal/conditional_fields": "^4.0@alpha",
         "drupal/core-composer-scaffold": "^11.2",
@@ -28,6 +29,7 @@
         "drupal/field_permissions": "^1.4",
         "drupal/paragraphs": "^1.19",
         "drupal/smtp": "^1.4",
+        "drupal/token": "^1.16",
         "drush/drush": "^13.6"
     },
     "conflict": {
