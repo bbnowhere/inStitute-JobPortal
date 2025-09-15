@@ -233,11 +233,6 @@ function instemjobportal_user_insert(UserInterface $account) {
  * This hides the "Revision information / log message" tab and fields on the form.
  */
 function instemjobportal_form_node_form_alter(&$form, FormStateInterface $form_state, $form_id) {
-  $node = $form_state->getFormObject()->getEntity();
-  if (!$node) {
-    return;
-  }
-
   $application_bundles = [
     'personal_information',
     'education',
@@ -246,52 +241,26 @@ function instemjobportal_form_node_form_alter(&$form, FormStateInterface $form_s
     'additional_information',
     'file_upload',
   ];
-
-  // Hide the default title field for these bundles.
+  $node = $form_state->getFormObject()->getEntity();
   if (in_array($node->bundle(), $application_bundles, TRUE)) {
-    if (isset($form['title'])) {
-      $form['title']['#access'] = FALSE;
-    }
-  }
-
-  // Set a custom page/form title for application add (node/add/*) forms.
-  // Only for new nodes (node/add) so edit titles are unaffected.
-  if ($node->isNew()) {
-    $titles = [
-      'personal_information' => 'Fill Personal Information',
-      'education' => 'Fill Education Details',
-      'employment_details' => 'Fill Employment Details',
-      'referee' => 'Fill Referee Details',
-      'additional_information' => 'Fill Additional Information',
-      'file_upload' => 'Upload Supporting Documents',
-      'job' => 'Post New Job',
-    ];
-    $bundle = $node->bundle();
-    if (isset($titles[$bundle])) {
-      // Set only the form title; do not inject an H1 prefix to avoid duplicate page headings.
-      $form['#title'] = $titles[$bundle];
-      // Remove any previously set prefix that might cause duplicate titles.
-      if (isset($form['#prefix'])) {
-        unset($form['#prefix']);
+    // After saving, you set 'saved_nid' in your submit handler.
+    if ($nid = $form_state->get('saved_nid')) {
+      // Hide the Save button.
+      if (isset($form['actions']['submit'])) {
+        unset($form['actions']['submit']);
       }
+      // Show Edit button for the same node.
+      $form['actions']['edit'] = [
+        '#type' => 'link',
+        '#title' => t('Edit'),
+        '#url' => \Drupal\Core\Url::fromRoute('entity.node.edit_form', ['node' => $nid], [
+          'query' => ['job' => \Drupal::request()->query->get('job')],
+        ]),
+        '#attributes' => ['class' => ['button', 'btn', 'btn-primary']],
+      ];
     }
   }
 
-  // Remove revision UI elements from job_content_type node forms.
-  if ($node->bundle() === 'job') {
-    if (isset($form['revision_information'])) {
-      unset($form['revision_information']);
-    }
-    if (isset($form['revision'])) {
-      unset($form['revision']);
-    }
-    if (isset($form['revision_log'])) {
-      unset($form['revision_log']);
-    }
-    if (isset($form['revision_information']['revision'])) {
-      unset($form['revision_information']['revision']);
-    }
-  }
   $node = $form_state->getFormObject()->getEntity();
   if (!$node) {
     return;
