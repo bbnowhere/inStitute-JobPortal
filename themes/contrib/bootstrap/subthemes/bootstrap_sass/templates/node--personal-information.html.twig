@@ -1,0 +1,39 @@
+{# filepath: themes/contrib/bootstrap/subthemes/bootstrap_sass/templates/node--personal-information.html.twig #}
+<div class="card shadow mb-4">
+  <div class="card-header bg-primary text-white">
+    Personal Information
+  </div>
+  <div class="card-body">
+    <div class="row mb-3">
+      <div class="col-md-3 text-center">
+        {{ content.field_photo }}
+        <div class="small text-muted">Photo</div>
+      </div>
+      <div class="col-md-3 text-center">
+        {{ content.field_signature }}
+        <div class="small text-muted">Signature</div>
+      </div>
+    </div>
+    <table class="table table-bordered table-striped">
+      <tbody>
+        <tr><th>Full Name</th><td>{{ content.field_full_name['#markup'] ?? content.field_full_name }}</td></tr>
+        <tr><th>Date of Birth</th><td>{{ content.field_date_of_birth['#markup'] ?? content.field_date_of_birth }}</td></tr>
+        <tr><th>Age</th><td>{{ content.field_age['#markup'] ?? content.field_age }}</td></tr>
+        <tr><th>Father/Mother/Spouse Name</th><td>{{ content.field_father_mother_spouse_name['#markup'] ?? content.field_father_mother_spouse_name }}</td></tr>
+        <tr><th>Email</th><td>{{ content.field_email['#markup'] ?? content.field_email }}</td></tr>
+        <tr><th>Gender</th><td>{{ content.field_gender['#markup'] ?? content.field_gender }}</td></tr>
+        <tr><th>Category</th><td>{{ content.field_category['#markup'] ?? content.field_category }}</td></tr>
+        <tr><th>PWD Category</th><td>{{ content.field_pwd_category['#markup'] ?? content.field_pwd_category }}</td></tr>
+        <tr><th>Category Certificate</th><td>{{ content.field_category_certificate['#markup'] ?? content.field_category_certificate }}</td></tr>
+        <tr><th>Mobile Number</th><td>{{ content.field_mobile_number['#markup'] ?? content.field_mobile_number }}</td></tr>
+        <tr><th>Marital Status</th><td>{{ content.field_marital_status['#markup'] ?? content.field_marital_status }}</td></tr>
+        <tr><th>Nationality</th><td>{{ content.field_nationality['#markup'] ?? content.field_nationality }}</td></tr>
+        <tr><th>Alternate Phone</th><td>{{ content.field_alternate_phone['#markup'] ?? content.field_alternate_phone }}</td></tr>
+        <tr><th>Permanent Address</th><td>{{ content.field_permanent_address['#markup'] ?? content.field_permanent_address }}</td></tr>
+        <tr><th>Correspondence Address</th><td>{{ content.field_correspondence_address['#markup'] ?? content.field_correspondence_address }}</td></tr>
+        <tr><th>Departmental Candidate</th><td>{{ content.field_departmental_candidate['#markup'] ?? content.field_departmental_candidate }}</td></tr>
+        <tr><th>Experience Level</th><td>{{ content.field_experience_level['#markup'] ?? content.field_experience_level }}</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>

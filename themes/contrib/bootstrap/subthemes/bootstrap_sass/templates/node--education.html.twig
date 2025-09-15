@@ -1,0 +1,72 @@
+<div class="card shadow mb-4">
+  <div class="card-header bg-primary text-white">
+    Education
+  </div>
+  <div class="card-body">
+    {% set education_items = [
+      {
+        'Qualification': content.field_10th_qualification_name,
+        'Specialization': content.field_10th_specialization,
+        'University': content.field_10th_university,
+        'Country': content.field_10th_country,
+        'GPA': content.field_10th_gpa,
+        'Marks (%)': content.field_10th_marks_percentage,
+        'Year of Passing': content.field_10th_year_of_passing,
+        'Certificate': content.field_10th_certificate
+      },
+      {
+        'Qualification': content.field_12th_qualification_name,
+        'Specialization': content.field_12th_specialization,
+        'University': content.field_12th_university,
+        'Country': content.field_12th_country,
+        'GPA': content.field_12th_gpa,
+        'Marks (%)': content.field_12th_marks_percentage,
+        'Year of Passing': content.field_12th_year_of_passing,
+        'Certificate': content.field_12th_certificate
+      },
+      {
+        'Qualification': content.field_grad_qual_name,
+        'Specialization': content.field_grad_spec,
+        'University': content.field_grad_univ,
+        'Country': content.field_grad_country,
+        'GPA': content.field_grad_gpa,
+        'Marks (%)': content.field_grad_marks,
+        'Year of Passing': content.field_grad_year,
+        'Certificate': content.field_grad_cert
+      },
+      {
+        'Qualification': content.field_pg_qual_name,
+        'Specialization': content.field_pg_spec,
+        'University': content.field_pg_univ,
+        'Country': content.field_pg_country,
+        'GPA': content.field_pg_gpa,
+        'Marks (%)': content.field_pg_marks,
+        'Year of Passing': content.field_pg_year,
+        'Certificate': content.field_pg_cert
+      },
+      {
+        'Qualification': content.field_phd_qual_name,
+        'Specialization': content.field_phd_spec,
+        'University': content.field_phd_univ,
+        'Country': content.field_phd_country,
+        'GPA': content.field_phd_gpa,
+        'Marks (%)': content.field_phd_marks,
+        'Year of Passing': content.field_phd_year,
+        'Certificate': content.field_phd_cert
+      }
+    ] %}
+
+    {% for edu in education_items %}
+      <div class="card mb-3">
+        <div class="card-body p-0">
+          {% for label, value in edu %}
+            <div class="d-flex border-bottom py-2 px-3">
+              <div class="font-weight-bold col-md-3">{{ label }}</div>
+              <div class="col-md-9">{{ value }}</div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+</div>

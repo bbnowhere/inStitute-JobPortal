@@ -425,21 +425,29 @@ function instemjobportal_form_node_form_alter(&$form, FormStateInterface $form_s
     // the user can modify the submission without leaving the page.
     if ($nid = $form_state->get('saved_nid')) {
       $saved_node = \Drupal\node\Entity\Node::load($nid);
-      // if ($saved_node) {
-      //   // Remove summary table, only show Edit link.
-      //   $form['instemjobportal_submission_summary'] = [
-      //     '#type' => 'details',
-      //     '#title' => t('Edit submission'),
-      //     '#open' => TRUE,
-      //     '#weight' => 100,
-      //   ];
-      //   $form['instemjobportal_submission_summary']['edit'] = [
-      //     '#type' => 'link',
-      //     '#title' => t('Edit submission'),
-      //     '#url' => \Drupal\Core\Url::fromRoute('entity.node.edit_form', ['node' => $nid]),
-      //     '#attributes' => ['class' => ['button', 'button--primary']],
-      //   ];
-      // }
+      if ($saved_node) {
+        // Render the node using its view mode (e.g. 'full').
+        $view_builder = \Drupal::entityTypeManager()->getViewBuilder('node');
+        $node_render = $view_builder->view($saved_node, 'full');
+        $form['instemjobportal_submission_preview'] = [
+          '#type' => 'container',
+          '#attributes' => ['class' => ['application-preview', 'mb-4']],
+          'preview' => $node_render,
+          '#weight' => 100,
+        ];
+        // Optionally, add a message or instructions.
+        $form['instemjobportal_submission_preview']['info'] = [
+          '#markup' => '<div class="mb-2 text-muted">To edit this section, use the Application Section.</div>',
+          '#weight' => -1,
+        ];
+        // Remove the form fields so only the preview is shown.
+        foreach ($form as $key => $value) {
+          // Only unset visible form elements, not internal keys (those starting with '#').
+          if (strpos($key, '#') !== 0 && $key !== 'instemjobportal_submission_preview' && $key !== 'actions') {
+            unset($form[$key]);
+          }
+        }
+      }
     }
   }
 }

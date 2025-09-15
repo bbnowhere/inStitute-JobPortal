@@ -1,0 +1,35 @@
+{# filepath: themes/contrib/bootstrap/subthemes/bootstrap_sass/templates/node--referee.html.twig #}
+<div class="card shadow mb-4">
+  <div class="card-header bg-primary text-white">
+    Referees
+  </div>
+  <div class="card-body">
+    <table class="table table-bordered table-striped">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Designation</th>
+          <th>Email</th>
+          <th>Phone</th>
+          <th>Address</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{ content.field_referee1_name }}</td>
+          <td>{{ content.field_referee1_designation }}</td>
+          <td>{{ content.field_referee1_email }}</td>
+          <td>{{ content.field_referee1_phone }}</td>
+          <td>{{ content.field_referee1_address }}</td>
+        </tr>
+        <tr>
+          <td>{{ content.field_referee2_name }}</td>
+          <td>{{ content.field_referee2_designation }}</td>
+          <td>{{ content.field_referee2_email }}</td>
+          <td>{{ content.field_referee2_phone }}</td>
+          <td>{{ content.field_referee2_address }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

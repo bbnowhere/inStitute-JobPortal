@@ -1,0 +1,49 @@
+<div class="card shadow mb-4">
+  <div class="card-header bg-primary text-white">
+    Employment Details
+  </div>
+  <div class="card-body">
+    <div class="table table-bordered table-striped">
+      {% for item in node.field_employment_details %}
+        {% set paragraph = item.entity %}
+        <div class="d-flex flex-wrap border bg-white mb-3">
+          <div class="p-2 border-end col-md-3 font-weight-bold bg-light">S.No</div>
+          <div class="p-2 col-md-9">{{ loop.index }}</div>
+
+          <div class="p-2 border-top border-end col-md-3 font-weight-bold bg-light">Designation</div>
+          <div class="p-2 border-top col-md-9">{{ paragraph.field_designation.value }}</div>
+
+          <div class="p-2 border-top border-end col-md-3 font-weight-bold bg-light">Employer</div>
+          <div class="p-2 border-top col-md-9">{{ paragraph.field_employer.value }}</div>
+
+          <div class="p-2 border-top border-end col-md-3 font-weight-bold bg-light">From</div>
+          <div class="p-2 border-top col-md-9">{{ paragraph.field_from_date.value }}</div>
+
+          <div class="p-2 border-top border-end col-md-3 font-weight-bold bg-light">To</div>
+          <div class="p-2 border-top col-md-9">{{ paragraph.field_to_date.value }}</div>
+
+          <div class="p-2 border-top border-end col-md-3 font-weight-bold bg-light">Employment Type</div>
+          <div class="p-2 border-top col-md-9">{{ paragraph.field_employment_type.value }}</div>
+
+          <div class="p-2 border-top border-end col-md-3 font-weight-bold bg-light">Other Employment Type</div>
+          <div class="p-2 border-top col-md-9">{{ paragraph.field_other_employment_type.value }}</div>
+
+          <div class="p-2 border-top border-end col-md-3 font-weight-bold bg-light">Type of Work</div>
+          <div class="p-2 border-top col-md-9">{{ paragraph.field_type_of_work.value }}</div>
+
+          <div class="p-2 border-top border-end col-md-3 font-weight-bold bg-light">Other Type of Work</div>
+          <div class="p-2 border-top col-md-9">{{ paragraph.field_other_type_of_work.value }}</div>
+
+          <div class="p-2 border-top border-end col-md-3 font-weight-bold bg-light">Pay Band</div>
+          <div class="p-2 border-top col-md-9">{{ paragraph.field_pay_band.value }}</div>
+
+          <div class="p-2 border-top border-end col-md-3 font-weight-bold bg-light">Nature of Job</div>
+          <div class="p-2 border-top col-md-9">{{ paragraph.field_nature_of_job.value }}</div>
+
+          <div class="p-2 border-top border-end col-md-3 font-weight-bold bg-light">Experience</div>
+          <div class="p-2 border-top col-md-9">{{ paragraph.field_experience_calculated.value }}</div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
