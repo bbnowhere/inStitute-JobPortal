@@ -1,3 +1,6 @@
+.bg-dark-blue {
+  background-color: whitesmoke; // Example modern dark blue
+}
 @charset "UTF-8";
 /* Reduce the width of paragraph editing forms in the content area */
 .field--widget-entity-reference-paragraphs .js-form-wrapper.form-wrapper,

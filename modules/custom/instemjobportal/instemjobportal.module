@@ -833,6 +833,20 @@ function instemjobportal_form_alter(&$form, \Drupal\Core\Form\FormStateInterface
   if ($is_applicant && empty($job_param)) {
     $form['#access'] = FALSE;
     \Drupal::messenger()->addError(t('Access denied: You must use a valid job link to apply.'));
+    return;
+  }
+
+  // Prevent further access if already submitted for this job.
+  if ($is_applicant && !empty($job_param)) {
+    $uid = $current_user->id();
+    $personal_nid = instemjobportal_find_application_node('personal_information', $uid, $job_param);
+    if ($personal_nid) {
+      $personal_node = \Drupal\node\Entity\Node::load($personal_nid);
+      if ($personal_node && $personal_node->hasField('field_job_status') && strtolower($personal_node->get('field_job_status')->value) === 'completed') {
+        $form['#access'] = FALSE;
+        \Drupal::messenger()->addError(t('You have already submitted your application for this job. Further submissions are not allowed.'));
+      }
+    }
   }
 }
 

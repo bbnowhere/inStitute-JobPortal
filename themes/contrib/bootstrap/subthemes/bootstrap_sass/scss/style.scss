@@ -6,6 +6,7 @@ Description: Bootstrap 4 with Sass
 // import files
 @import "import";
 @import 'application';
+@import 'base';
 
 /* GENERAL STYLES
 -------------------------------------------------*/
@@ -50,6 +51,17 @@ a {
 
 .slick>div {
     margin: 0 15px;
+}
+
+.bg-dark-blue {
+  background-color: whitesmoke // Example modern dark blue
+}
+
+.site-logo {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  background: #fff;
+  border-radius: 4px;
+  padding: 4px;
 }
 
 /*

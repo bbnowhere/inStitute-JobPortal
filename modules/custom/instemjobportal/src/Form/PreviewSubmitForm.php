@@ -535,9 +535,8 @@ class PreviewSubmitForm extends FormBase {
     }
 
     // After submit, redirect to dashboard for the job.
-    $url = Url::fromRoute('instemjobportal.dashboard', ['job' => $job]);
-    $form_state->setRedirectUrl($url);
-    \Drupal::messenger()->addStatus($this->t('Your application has been submitted.'));
+    $form_state->setRedirect('<front>');
+    \Drupal::messenger()->addStatus($this->t('Your application has been submitted successfully.'));
   }
 
 }
