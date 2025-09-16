@@ -153,7 +153,6 @@ function instemjobportal_node_presave(\Drupal\Core\Entity\EntityInterface $entit
     }
   }
     if ($entity->getEntityTypeId() === 'node' && $entity->bundle() === 'personal_information') {
-    print_r('presave called');
     if ($entity->hasField('field_application') && !$entity->get('field_application')->isEmpty()) {
       $job_nid = $entity->get('field_application')->first()?->target_id ?? NULL;
 
@@ -814,15 +813,22 @@ function instemjobportal_block_view_alter(array &$build, BlockPluginInterface $b
  * Deny access to application add forms if ?job is missing for applicants.
  */
 function instemjobportal_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
-  // Only target node add forms for application bundles.
-  if ($form_id !== 'node_personal_information_form'
-      && $form_id !== 'node_education_form'
-      && $form_id !== 'node_employment_details_form'
-      && $form_id !== 'node_referee_form'
-      && $form_id !== 'node_additional_information_form'
-      && $form_id !== 'node_file_upload_form') {
+  // Only target node add/edit forms for application bundles.
+  $application_form_ids = [
+    'node_personal_information_form',
+    'node_education_form',
+    'node_employment_details_form',
+    'node_referee_form',
+    'node_additional_information_form',
+    'node_file_upload_form',
+  ];
+  if (!in_array($form_id, $application_form_ids, TRUE)) {
     return;
   }
+
+  // Remove all status messages for these forms.
+  $messenger = \Drupal::messenger();
+  $messenger->deleteByType('status');
 
   $current_user = \Drupal::currentUser();
   $is_applicant = in_array('applicant', $current_user->getRoles());
@@ -845,6 +851,53 @@ function instemjobportal_form_alter(&$form, \Drupal\Core\Form\FormStateInterface
       if ($personal_node && $personal_node->hasField('field_job_status') && strtolower($personal_node->get('field_job_status')->value) === 'completed') {
         $form['#access'] = FALSE;
         \Drupal::messenger()->addError(t('You have already submitted your application for this job. Further submissions are not allowed.'));
+      }
+    }
+  }
+
+  // Remove status messages after saving for application bundles.
+  $application_form_ids = [
+    'node_personal_information_form',
+    'node_education_form',
+    'node_employment_details_form',
+    'node_referee_form',
+    'node_additional_information_form',
+    'node_file_upload_form',
+  ];
+  if (in_array($form_id, $application_form_ids, TRUE)) {
+    // If the form is being rebuilt after save (preview mode), clear status messages.
+    if ($form_state->get('saved_nid')) {
+      $messenger = \Drupal::messenger();
+      foreach ($messenger->all() as $type => $messages) {
+        if ($type === 'status') {
+          foreach ($messages as $message) {
+            $messenger->deleteByType('status');
+          }
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_page_attachments_alter().
+ * Remove status messages for application bundles on node pages.
+ */
+function instemjobportal_page_attachments_alter(array &$attachments) {
+  $route_match = \Drupal::routeMatch();
+  if ($node = $route_match->getParameter('node')) {
+    if (is_object($node) && method_exists($node, 'bundle')) {
+      $bundle = $node->bundle();
+      $application_bundles = [
+        'personal_information',
+        'education',
+        'employment_details',
+        'referee',
+        'additional_information',
+        'file_upload',
+      ];
+      if (in_array($bundle, $application_bundles, TRUE)) {
+        \Drupal::messenger()->deleteByType('status');
       }
     }
   }

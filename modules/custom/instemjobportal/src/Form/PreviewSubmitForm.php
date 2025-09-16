@@ -535,8 +535,8 @@ class PreviewSubmitForm extends FormBase {
     }
 
     // After submit, redirect to dashboard for the job.
-    $form_state->setRedirect('<front>');
-    \Drupal::messenger()->addStatus($this->t('Your application has been submitted successfully.'));
+   \Drupal::messenger()->addStatus($this->t('Your application has been submitted successfully.'));
+   $form_state->setRedirect('<front>');
   }
 
 }
