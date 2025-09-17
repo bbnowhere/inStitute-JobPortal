@@ -1,0 +1,18 @@
+<div class="card shadow h-100 openpositions">
+  <div class="card-body">
+    <h5 class="card-title">{{ fields.title.content }}</h5>
+<p class="mb-1"><strong>Advertisement No:</strong> {{ row._entity.field_advertisement_number.entity.label }}</p>    <p class="mb-1"><strong>Job Code:</strong> {{ fields.field_job_code.content }}</p>
+    <p class="mb-1"><strong>Department:</strong> {{ fields.field_department.content }}</p>
+    <p class="mb-1"><strong>Vacancies:</strong> {{ fields.field_number_of_vacancies.content }}</p>
+    <p class="mb-1"><strong>Last Date:</strong> {{ fields.field_last_date.content }}</p>
+    {% if fields.field_category.content %}
+      <p class="mb-1"><strong>Category:</strong> {{ fields.field_category.content }}</p>
+    {% endif %}
+    {% if fields.field_pwd_categories.content %}
+      <p class="mb-1"><strong>PWD Category:</strong> {{ fields.field_pwd_categories.content }}</p>
+    {% endif %}
+    {# Application Type Logic #}
+
+{{ apply_markup }}
+  </div>
+</div>

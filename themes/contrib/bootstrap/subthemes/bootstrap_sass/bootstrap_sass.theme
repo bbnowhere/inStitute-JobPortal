@@ -6,6 +6,7 @@
  */
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Session\AccountInterface;
 
 /**
  * Implements hook_form_system_theme_settings_alter() for settings form.
@@ -52,3 +53,73 @@ function bootstrap_sass_preprocess_menu_local_tasks(&$variables) {
     }
   }
 }
+
+/**
+ * Implements hook_preprocess_views_view_fields().
+ */
+function bootstrap_sass_preprocess_views_view_fields(&$variables) {
+  $view = $variables['view'];
+  if ($view->id() == 'open_positions' && $view->current_display == 'page_1') {
+    $account = \Drupal::currentUser();
+    $is_authenticated = $account->isAuthenticated();
+    $uid = $account->id();
+
+    $fields = $variables['fields'];
+    $app_type = trim(strip_tags($fields['field_application_type']->content));
+    $nid = trim(strip_tags($fields['nid']->content));
+    $external_link = isset($fields['field_external_link']) ? trim(strip_tags($fields['field_external_link']->content)) : '';
+
+    // Load the job node.
+    $job_node = \Drupal\node\Entity\Node::load($nid);
+
+    // Get the field_applicants values (multiple).
+    $applicants = $job_node->get('field_applicants')->getValue();
+    $user_application = NULL;
+
+    // Check if any applicant was authored by current user.
+    foreach ($applicants as $applicant_ref) {
+      $applicant_nid = $applicant_ref['target_id'];
+      $applicant_node = \Drupal\node\Entity\Node::load($applicant_nid);
+      if ($applicant_node && $applicant_node->getOwnerId() == $uid) {
+        $user_application = $applicant_node;
+        break;
+      }
+    }
+
+    $apply_markup = '';
+
+    if ($app_type == 'Online') {
+      if ($is_authenticated) {
+        if ($user_application) {
+          $job_status = $user_application->get('field_job_status')->value ?? '';
+
+          if ($job_status == 'In Process') {
+            $apply_markup = '<a href="/jobportal/apply/' . $nid . '" class="btn btn-success mt-2">Continue</a>';
+          }
+          elseif ($job_status == 'Completed') {
+            $apply_markup = '<span class="badge bg-secondary mt-2">Already Applied</span>';
+          }
+          else {
+            $apply_markup = '<a href="/jobportal/apply/' . $nid . '" class="btn btn-success mt-2">Apply</a>';
+          }
+        }
+        else {
+          // No application by this user.
+          $apply_markup = '<a href="/jobportal/apply/' . $nid . '" class="btn btn-success mt-2">Apply</a>';
+        }
+      }
+      else {
+        $apply_markup = '<a href="/user/login" class="btn btn-success mt-2">Login to Apply</a>';
+      }
+    }
+    elseif ($app_type == 'External' && !empty($external_link)) {
+      $apply_markup = '<a href="' . $external_link . '" target="_blank" class="btn btn-info mt-2">Apply </a>';
+    }
+
+    $variables['apply_markup'] = [
+      '#type' => 'inline_template',
+      '#template' => $apply_markup,
+    ];
+  }
+}
+
