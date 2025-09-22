@@ -1,0 +1,335 @@
+{# filepath: themes/contrib/bootstrap/subthemes/bootstrap_sass/templates/node--personal-information--submitted.html.twig #}
+<div class="container my-5">
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+      <h3 class="mb-0">Application No: {{ node.field_application_id.value }}</h3>
+      <a href="/application/{{ node.id }}/pdf" class="btn btn-light btn-sm" target="_blank">
+        <i class="bi bi-file-earmark-pdf"></i> Download PDF
+      </a>
+    </div>
+    <div class="card-body">
+
+      {# --- Personal Information --- #}
+      <h5 class="mb-3 border-bottom pb-2">Personal Information</h5>
+      <div class="row mb-3">
+        <div class="col-md-3 text-center">
+          {% if node.field_photo.entity %}
+            <img src="{{ file_url(node.field_photo.entity.fileuri) }}" class="img-thumbnail mb-2" style="max-width:120px;">
+          {% endif %}
+          {% if node.field_signature.entity %}
+            <div><img src="{{ file_url(node.field_signature.entity.fileuri) }}" class="img-thumbnail" style="max-width:120px;"></div>
+          {% endif %}
+        </div>
+        <div class="col-md-9">
+          <dl class="row">
+            <dt class="col-sm-4">Full Name</dt>
+            <dd class="col-sm-8">{{ node.field_full_name.value }}</dd>
+            <dt class="col-sm-4">Date of Birth</dt>
+            <dd class="col-sm-8">{{ node.field_date_of_birth.value }}</dd>
+            <dt class="col-sm-4">Age</dt>
+            <dd class="col-sm-8">{{ node.field_age.value }}</dd>
+            <dt class="col-sm-4">Father/Mother/Spouse Name</dt>
+            <dd class="col-sm-8">{{ node.field_father_mother_spouse_name.value }}</dd>
+            <dt class="col-sm-4">Email</dt>
+            <dd class="col-sm-8">{{ node.field_email.value }}</dd>
+            <dt class="col-sm-4">Gender</dt>
+            <dd class="col-sm-8">{{ node.field_gender.value }}</dd>
+            <dt class="col-sm-4">Category</dt>
+            <dd class="col-sm-8">{{ node.field_category.value }}</dd>
+            <dt class="col-sm-4">PWD Category</dt>
+            <dd class="col-sm-8">{{ node.field_pwd_category.value }}</dd>
+            <dt class="col-sm-4">Category Certificate</dt>
+            <dd class="col-sm-8">
+              {% if node.field_category_certificate.entity %}
+                <a href="{{ file_url(node.field_category_certificate.entity.fileuri) }}" target="_blank">Download</a>
+              {% endif %}
+            </dd>
+            <dt class="col-sm-4">Mobile Number</dt>
+            <dd class="col-sm-8">{{ node.field_mobile_number.value }}</dd>
+            <dt class="col-sm-4">Marital Status</dt>
+            <dd class="col-sm-8">{{ node.field_marital_status.value }}</dd>
+            <dt class="col-sm-4">Nationality</dt>
+            <dd class="col-sm-8">{{ node.field_nationality.value }}</dd>
+            <dt class="col-sm-4">Alternate Phone</dt>
+            <dd class="col-sm-8">{{ node.field_alternate_phone.value }}</dd>
+            <dt class="col-sm-4">Permanent Address</dt>
+            <dd class="col-sm-8">{{ node.field_permanent_address.value }}</dd>
+            <dt class="col-sm-4">Correspondence Address</dt>
+            <dd class="col-sm-8">{{ node.field_correspondence_address.value }}</dd>
+            <dt class="col-sm-4">Departmental Candidate</dt>
+            <dd class="col-sm-8">{{ node.field_departmental_candidate.value }}</dd>
+            <dt class="col-sm-4">Experience Level</dt>
+            <dd class="col-sm-8">{{ node.field_experience_level.value }}</dd>
+          </dl>
+        </div>
+      </div>
+
+      {# --- Education Section (Table) --- #}
+      <h5 class="mt-4 mb-3 border-bottom pb-2">Education</h5>
+      {% set edu = education_nodes|first %}
+      {% if edu %}
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Level</th>
+                <th>Qualification</th>
+                <th>Specialization</th>
+                <th>University</th>
+                <th>Country</th>
+                <th>GPA</th>
+                <th>Marks (%)</th>
+                <th>Year</th>
+                <th>Certificate</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>10th</td>
+                <td>{{ edu.field_10th_qualification_name.value }}</td>
+                <td>{{ edu.field_10th_specialization.value }}</td>
+                <td>{{ edu.field_10th_university.value }}</td>
+                <td>{{ edu.field_10th_country.value }}</td>
+                <td>{{ edu.field_10th_gpa.value }}</td>
+                <td>{{ edu.field_10th_marks_percentage.value }}</td>
+                <td>{{ edu.field_10th_year_of_passing.value }}</td>
+                <td>
+                  {% if edu.field_10th_certificate.entity %}
+                    <a href="{{ file_url(edu.field_10th_certificate.entity.fileuri) }}" target="_blank">Download</a>
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td>12th</td>
+                <td>{{ edu.field_12th_qualification_name.value }}</td>
+                <td>{{ edu.field_12th_specialization.value }}</td>
+                <td>{{ edu.field_12th_university.value }}</td>
+                <td>{{ edu.field_12th_country.value }}</td>
+                <td>{{ edu.field_12th_gpa.value }}</td>
+                <td>{{ edu.field_12th_marks_percentage.value }}</td>
+                <td>{{ edu.field_12th_year_of_passing.value }}</td>
+                <td>
+                  {% if edu.field_12th_certificate.entity %}
+                    <a href="{{ file_url(edu.field_12th_certificate.entity.fileuri) }}" target="_blank">Download</a>
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td>Graduation</td>
+                <td>{{ edu.field_grad_qual_name.value }}</td>
+                <td>{{ edu.field_grad_spec.value }}</td>
+                <td>{{ edu.field_grad_univ.value }}</td>
+                <td>{{ edu.field_grad_country.value }}</td>
+                <td>{{ edu.field_grad_gpa.value }}</td>
+                <td>{{ edu.field_grad_marks.value }}</td>
+                <td>{{ edu.field_grad_year.value }}</td>
+                <td>
+                  {% if edu.field_grad_cert.entity %}
+                    <a href="{{ file_url(edu.field_grad_cert.entity.fileuri) }}" target="_blank">Download</a>
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td>Post Graduation</td>
+                <td>{{ edu.field_pg_qual_name.value }}</td>
+                <td>{{ edu.field_pg_spec.value }}</td>
+                <td>{{ edu.field_pg_univ.value }}</td>
+                <td>{{ edu.field_pg_country.value }}</td>
+                <td>{{ edu.field_pg_gpa.value }}</td>
+                <td>{{ edu.field_pg_marks.value }}</td>
+                <td>{{ edu.field_pg_year.value }}</td>
+                <td>
+                  {% if edu.field_pg_cert.entity %}
+                    <a href="{{ file_url(edu.field_pg_cert.entity.fileuri) }}" target="_blank">Download</a>
+                  {% endif %}
+                </td>
+              </tr>
+              <tr>
+                <td>PhD</td>
+                <td>{{ edu.field_phd_qual_name.value }}</td>
+                <td>{{ edu.field_phd_spec.value }}</td>
+                <td>{{ edu.field_phd_univ.value }}</td>
+                <td>{{ edu.field_phd_country.value }}</td>
+                <td>{{ edu.field_phd_gpa.value }}</td>
+                <td>{{ edu.field_phd_marks.value }}</td>
+                <td>{{ edu.field_phd_year.value }}</td>
+                <td>
+                  {% if edu.field_phd_cert.entity %}
+                    <a href="{{ file_url(edu.field_phd_cert.entity.fileuri) }}" target="_blank">Download</a>
+                  {% endif %}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="text-muted">No education details provided.</div>
+      {% endif %}
+
+      {# --- Employment Details (Table) --- #}
+      <h5 class="mt-4 mb-3 border-bottom pb-2">Employment Details</h5>
+      {% if employment_nodes is defined and employment_nodes|length > 0 %}
+        {% set emp_node = employment_nodes|first %}
+        {% if emp_node.field_employment_details is defined and emp_node.field_employment_details|length > 0 %}
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>SL No</th>
+                  <th>Designation</th>
+                  <th>Employer</th>
+                  <th>Employment Type</th>
+                  <th>Type of Work</th>
+                  <th>Nature of Job</th>
+                  <th>From</th>
+                  <th>To</th>
+                  <th>Experience (years)</th>
+                  <th>Pay Band</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for para in emp_node.field_employment_details %}
+                  <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ para.entity.field_designation.value }}</td>
+                    <td>{{ para.entity.field_employer.value }}</td>
+                    <td>
+                      {{ para.entity.field_employment_type.value }}
+                      {% if para.entity.field_employment_type.value == 'Other' and para.entity.field_other_employment_type.value %}
+                        ({{ para.entity.field_other_employment_type.value }})
+                      {% endif %}
+                    </td>
+                    <td>
+                      {{ para.entity.field_type_of_work.value }}
+                      {% if para.entity.field_type_of_work.value == 'Other' and para.entity.field_other_type_of_work.value %}
+                        ({{ para.entity.field_other_type_of_work.value }})
+                      {% endif %}
+                    </td>
+                    <td>{{ para.entity.field_nature_of_job.value }}</td>
+                    <td>{{ para.entity.field_from_date.value }}</td>
+                    <td>{{ para.entity.field_to_date.value }}</td>
+                    <td>{{ para.entity.field_experience_calculated.value }}</td>
+                    <td>{{ para.entity.field_pay_band.value }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="text-muted">No employment details provided.</div>
+        {% endif %}
+      {% else %}
+        <div class="text-muted">No employment details provided.</div>
+      {% endif %}
+
+      {# --- Referee Section --- #}
+      <h5 class="mt-4 mb-3 border-bottom pb-2">Referees</h5>
+      {% if referee_nodes is defined and referee_nodes|length > 0 %}
+        {% for ref in referee_nodes %}
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <strong>{{ ref.field_referee1_name.value }}</strong><br>
+              {{ ref.field_referee1_designation.value }}<br>
+              Email: {{ ref.field_referee1_email.value }}<br>
+              Phone: {{ ref.field_referee1_phone.value }}<br>
+              Address: {{ ref.field_referee1_address.value|striptags|nl2br }}
+            </div>
+            <div class="col-md-6">
+              <strong>{{ ref.field_referee2_name.value }}</strong><br>
+              {{ ref.field_referee2_designation.value }}<br>
+              Email: {{ ref.field_referee2_email.value }}<br>
+              Phone: {{ ref.field_referee2_phone.value }}<br>
+              Address: {{ ref.field_referee2_address.value|striptags|nl2br }}
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="text-muted">No referees provided.</div>
+      {% endif %}
+
+      {# --- File Uploads --- #}
+      <h5 class="mt-4 mb-3 border-bottom pb-2">Uploaded Documents</h5>
+      {% if file_upload_nodes is defined and file_upload_nodes|length > 0 %}
+        <ul>
+          {% for file in file_upload_nodes %}
+            {% if file.field_resume.entity %}
+              <li><a href="{{ file_url(file.field_resume.entity.fileuri) }}" target="_blank">Resume</a></li>
+            {% endif %}
+            {% if file.field_pan_passport_dl_voter.entity %}
+              <li><a href="{{ file_url(file.field_pan_passport_dl_voter.entity.fileuri) }}" target="_blank">PAN/Passport/DL/Voter</a></li>
+            {% endif %}
+            {% if file.field_experience_certificates.entity %}
+              <li><a href="{{ file_url(file.field_experience_certificates.entity.fileuri) }}" target="_blank">Experience Certificates</a></li>
+            {% endif %}
+            {% if file.field_noc_file.entity %}
+              <li><a href="{{ file_url(file.field_noc_file.entity.fileuri) }}" target="_blank">NOC</a></li>
+            {% endif %}
+            {% if file.field_reservation_certificate.entity %}
+              <li><a href="{{ file_url(file.field_reservation_certificate.entity.fileuri) }}" target="_blank">Reservation Certificate</a></li>
+            {% endif %}
+            {% if file.field_transaction_details.value %}
+              <li><strong>Transaction Details:</strong> {{ file.field_transaction_details.value|striptags|nl2br }}</li>
+            {% endif %}
+          {% endfor %}
+        </ul>
+      {% else %}
+        <div class="text-muted">No files uploaded.</div>
+      {% endif %}
+
+      {# --- Additional Information --- #}
+      <h5 class="mt-4 mb-3 border-bottom pb-2">Additional Information</h5>
+      {% if additional_nodes is defined and additional_nodes|length > 0 %}
+        {% for add in additional_nodes %}
+          <dl class="row">
+            <dt class="col-sm-6">Have you ever been involved in any malpractice?</dt>
+            <dd class="col-sm-6">{{ add.field_admin_malpractice.value }}</dd>
+            {% if add.field_admin_malpractice.value == 'Yes' %}
+              <dt class="col-sm-6">Malpractice Details</dt>
+              <dd class="col-sm-6">{{ add.field_admin_malpractice_details.value|striptags|nl2br }}</dd>
+            {% endif %}
+
+            <dt class="col-sm-6">Have you ever been debarred for unfair means?</dt>
+            <dd class="col-sm-6">{{ add.field_debarred_unfair_means.value }}</dd>
+            {% if add.field_debarred_unfair_means.value == 'Yes' %}
+              <dt class="col-sm-6">Debarred Details</dt>
+              <dd class="col-sm-6">{{ add.field_debarred_details.value|striptags|nl2br }}</dd>
+            {% endif %}
+
+            <dt class="col-sm-6">Have you ever been discharged from employment?</dt>
+            <dd class="col-sm-6">{{ add.field_discharged_employment.value }}</dd>
+            {% if add.field_discharged_employment.value == 'Yes' %}
+              <dt class="col-sm-6">Discharged Employment Details</dt>
+              <dd class="col-sm-6">{{ add.field_discharged_employment_d.value|striptags|nl2br }}</dd>
+            {% endif %}
+
+            <dt class="col-sm-6">Have you ever faced disciplinary proceedings?</dt>
+            <dd class="col-sm-6">{{ add.field_disciplinary_proceedings.value }}</dd>
+            {% if add.field_disciplinary_proceedings.value == 'Yes' %}
+              <dt class="col-sm-6">Disciplinary Proceedings Details</dt>
+              <dd class="col-sm-6">{{ add.field_disciplinary_proceedings_d.value|striptags|nl2br }}</dd>
+            {% endif %}
+
+            <dt class="col-sm-6">Any financial irregularity?</dt>
+            <dd class="col-sm-6">{{ add.field_financial_irregularity.value }}</dd>
+            {% if add.field_financial_irregularity.value == 'Yes' %}
+              <dt class="col-sm-6">Financial Irregularity Details</dt>
+              <dd class="col-sm-6">{{ add.field_financial_irregularity_d.value|striptags|nl2br }}</dd>
+            {% endif %}
+
+            <dt class="col-sm-6">Joining Time (days)</dt>
+            <dd class="col-sm-6">{{ add.field_joining_time_days.value }}</dd>
+
+            <dt class="col-sm-6">Significant Contributions</dt>
+            <dd class="col-sm-6">{{ add.field_significant_contributions.value|striptags|nl2br }}</dd>
+
+            <dt class="col-sm-6">Suitability</dt>
+            <dd class="col-sm-6">{{ add.field_suitability.value|striptags|nl2br }}</dd>
+          </dl>
+        {% endfor %}
+      {% else %}
+        <div class="text-muted">No additional information provided.</div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>

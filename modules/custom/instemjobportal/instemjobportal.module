@@ -485,6 +485,66 @@ function instemjobportal_application_form_submit($form, FormStateInterface $form
     } catch (\Throwable $e) {
     }
   }
+
+  // After saving and setting redirect, send email if this is the personal_information node.
+  $entity = $form_state->getFormObject()->getEntity();
+  if ($entity instanceof \Drupal\node\NodeInterface && $entity->bundle() === 'personal_information' && $entity->id()) {
+    // Only send if status is Completed.
+    if ($entity->hasField('field_job_status') && strtolower($entity->get('field_job_status')->value) === 'completed') {
+      $user = $entity->getOwner();
+      $to = $user->getEmail();
+
+      // Get Application ID, Job Post, Post Number.
+      $application_id = $entity->get('field_application_id')->value ?? '';
+      $job_nid = $entity->get('field_application')->target_id ?? '';
+      $job_title = '';
+      $job_code = '';
+      $post_number = '';
+      $advt_number = '';
+      if ($job_nid) {
+        $job_node = \Drupal\node\Entity\Node::load($job_nid);
+        if ($job_node) {
+          $job_title = $job_node->getTitle();
+          $job_code = $job_node->get('field_job_code')->value ?? '';
+          // If you have a post number field, e.g. field_post_number:
+          $post_number = $job_node->get('field_post_number')->value ?? '';
+          // Get Advertisement Number (taxonomy term label)
+          if ($job_node->hasField('field_advertisement_number') && !$job_node->get('field_advertisement_number')->isEmpty()) {
+            $term = $job_node->get('field_advertisement_number')->entity;
+            if ($term) {
+              $advt_number = $term->label();
+            }
+          }
+        }
+      }
+
+      // Compose the email.
+      $mailManager = \Drupal::service('plugin.manager.mail');
+      $module = 'instemjobportal';
+      $key = 'application_submission';
+      $langcode = $user->getPreferredLangcode();
+      $params['subject'] = 'Your Application Has Been Submitted';
+      $params['body'] = SafeMarkup::format('
+        <p>Dear @name,</p>
+        <p>Thank you for submitting your application. Here are your application details:</p>
+        <table style="border-collapse:collapse;">
+          <tr><td style="padding:4px 8px;"><strong>Application ID:</strong></td><td style="padding:4px 8px;">@appid</td></tr>
+          <tr><td style="padding:4px 8px;"><strong>Job Post:</strong></td><td style="padding:4px 8px;">@job</td></tr>
+          <tr><td style="padding:4px 8px;"><strong>Advertisement Number:</strong></td><td style="padding:4px 8px;">@advtno</td></tr>
+        </table>
+        <p>Please keep checking the portal for updates and information about this job post.</p>
+        <p>Best regards,<br/>Recruitment Team</p>
+      ', [
+        '@name' => $user->getDisplayName(),
+        '@appid' => $application_id,
+        '@job' => $job_title . ($job_code ? ' (' . $job_code . ')' : ''),
+        '@advtno' => $advt_number,
+      ]);
+      $params['headers'] = ['Content-Type' => 'text/html; charset=UTF-8'];
+
+      $mailManager->mail($module, $key, $to, $langcode, $params, NULL, TRUE);
+    }
+  }
 }
 
 /**
@@ -900,6 +960,19 @@ function instemjobportal_page_attachments_alter(array &$attachments) {
         \Drupal::messenger()->deleteByType('status');
       }
     }
+  }
+}
+
+/**
+ * Implements hook_mail().
+ */
+function instemjobportal_mail($key, &$message, $params) {
+  switch ($key) {
+    case 'application_submission':
+      $message['subject'] = $params['subject'];
+      $message['body'][] = $params['body'];
+      $message['headers'] = $params['headers'];
+      break;
   }
 }
 

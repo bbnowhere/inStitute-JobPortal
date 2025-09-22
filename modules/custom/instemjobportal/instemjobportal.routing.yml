@@ -18,3 +18,12 @@ instemjobportal.preview_submit:
     _title: 'Preview and Submit'
   requirements:
     _permission: 'access content'
+
+instemjobportal.application_preview:
+  path: '/application/{node}/preview'
+  defaults:
+    _controller: '\Drupal\instemjobportal\Controller\ApplicationPreviewController::preview'
+    _title: 'Application'
+  requirements:
+    _permission: 'access content'
+    node: \d+
