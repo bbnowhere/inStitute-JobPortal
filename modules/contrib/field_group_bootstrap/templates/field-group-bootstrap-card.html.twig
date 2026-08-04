@@ -1,0 +1,38 @@
+{#
+/**
+ * @file
+ * Default theme implementation for a fieldgroup card element.
+ *
+ * Available variables:
+ * - title: Title defined in formatter.
+ * - children: The children of the group.
+ * - attributes: A list of HTML attributes for the group wrapper.
+ * - footer: Return HTML footer.
+ * - header: Title of the group.
+ *
+ * @see template_preprocess_field_group_bootstrap_card()
+ *
+ * @ingroup themeable
+ */
+#}
+<div id="{{ id }}">
+  <div{{ attributes }}>
+    {% if header %}
+    <div class="card-header">
+      {{ header }}
+    </div>
+    {% endif %}
+    {{ img }}
+    <div class="card-body">
+      {% if title %}
+        <h5 class="card-title">{{ title }}</h5>
+      {% endif %}
+      <p class="card-text">{{ children }}</p>
+    </div>
+    {% if footer %}
+    <div class="card-footer text-muted">
+      {{ footer }}
+    </div>
+    {% endif %}
+  </div>
+</div>

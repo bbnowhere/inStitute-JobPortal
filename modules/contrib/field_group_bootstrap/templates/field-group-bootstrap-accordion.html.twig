@@ -1,0 +1,16 @@
+<div class="accordion-item">
+  <h2 class="accordion-header" id="heading_{{ field_name }}">
+    <div {{ button_attributes }}>
+      {{ icon }} {{ title }}
+    </div>
+  </h2>
+  <div id="{{ button_attributes['aria-controls'] }}" class="accordion-collapse collapse {{ collapse }} {% if open == true %}show{% endif %}" aria-labelledby="heading_{{ field_name }}"
+    {% if open == false %}
+      data-bs-parent="#{{ parent_id }}"
+    {% endif %}
+  >
+    <div class="accordion-body">
+      {{ children }}
+    </div>
+  </div>
+</div>

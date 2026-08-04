@@ -1,8 +1,0 @@
-<?php
-
-/**
- * @file
- * File Upload Module - Content type and fields are created via .install file.
- */
-
-// No custom entity or schema needed. All logic is in file_upload_module.install.

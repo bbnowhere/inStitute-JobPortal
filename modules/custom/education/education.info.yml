@@ -1,5 +1,0 @@
-name: Education
-type: module
-description: Provides an Education content type with qualifications from 10th grade to PhD.
-core_version_requirement: ^10 || ^11
-package: Custom

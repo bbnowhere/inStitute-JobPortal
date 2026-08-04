@@ -5,6 +5,7 @@ namespace Drupal\instemjobportal\Controller;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\node\Entity\Node;
 use Drupal\Core\Url;
+use Drupal\Core\Cache\CacheableMetadata;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 
@@ -67,13 +68,33 @@ class DashboardController extends ControllerBase {
     $total_sections = count($sections);
     $completion_percentage = $total_sections > 0 ? (int) (count($completed_sections) / $total_sections * 100) : 0;
 
-    return [
+    if ($completion_percentage === 100) {
+  $completion_percentage = 99;
+}
+    $page_build = [
       '#theme' => 'job_application_dashboard',
       '#job' => $job_node,
       '#sections' => $section_items,
       '#completion' => $completion_percentage,
       '#sidebar' => $sidebar_build,
     ];
+
+    // Merge cacheability metadata from the sidebar so contexts/tags bubble
+    // to the page. This prevents stale cached pages when the sidebar varies
+    // by user, route or the ?job query parameter.
+    try {
+      $sidebar_cache = CacheableMetadata::createFromRenderArray($sidebar_build);
+      // Ensure expected contexts are present (they are also set by the block,
+      // but adding them here avoids missing contexts when the block is altered).
+      $sidebar_cache->addCacheContexts(['user', 'route', 'url.query_args:job']);
+      $sidebar_cache->applyTo($page_build);
+    }
+    catch (\Throwable $e) {
+      // On any failure, fall back to returning the page without merged
+      // metadata; the change is non-fatal but recommended.
+    }
+
+    return $page_build;
   }
 
   /**

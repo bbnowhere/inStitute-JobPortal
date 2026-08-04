@@ -1,5 +1,0 @@
-name: Additional Information Module
-type: module
-description: Provides an Additional Information content type with custom fields.
-core_version_requirement: ^8 || ^9 || ^11
-package: Custom

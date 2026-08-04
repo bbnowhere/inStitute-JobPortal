@@ -43,7 +43,10 @@ parameters:
     # sharing mechanism is implemented.
     #
     # @default none
-    # cookie_domain: '.example.com'
+    # Set the cookie domain to the shared base domain so sessions work when
+    # accessing the site via different subdomains (e.g., priweb3.instem.res.in).
+    # Using a leading dot allows the cookie to be valid across subdomains.
+    cookie_domain: '.instem.res.in'
     #
     # Set the SameSite cookie attribute: 'None', 'Lax', or 'Strict'. If set,
     # this value will override the server value. See

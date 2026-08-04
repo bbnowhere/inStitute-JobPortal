@@ -1,0 +1,4 @@
+download application zip:
+  title: 'Download application ZIP files'
+  description: 'Allows HR and Admin to download full application ZIP packages.'
+  restrict access: TRUE

@@ -1,5 +1,0 @@
-name: 'Referee Module'
-type: module
-description: 'A module to manage Referee content type with custom fields.'
-core_version_requirement: ^11 || ^10
-package: Custom

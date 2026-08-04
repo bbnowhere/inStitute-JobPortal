@@ -8,9 +8,15 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Session\AccountInterface;
 use Drupal\node\Entity\Node;
+use Drupal\Core\Render\Markup;
 use Drupal\node\Entity\NodeType;
 use Drupal\Core\Block\BlockPluginInterface;
 use Drupal\Core\Render\RendererInterface;
+use Drupal\Component\Render\FormattableMarkup;
+use Drupal\node\NodeInterface;
+use Drupal\Core\Routing\TrustedRedirectResponse;
+use Drupal\paragraphs\Entity\Paragraph;
+
 
 /**
  * Implements hook_preprocess_page().
@@ -50,9 +56,14 @@ function instemjobportal_preprocess_page(&$variables) {
 /**
  * Implements hook_node_presave().
  *
- * Auto-increment and set field_advertisement_number for Job nodes.
+ * Auto-increment advertisement numbers, set application titles,
+ * calculate application IDs, DOB-based age, and total experience.
  */
 function instemjobportal_node_presave(\Drupal\Core\Entity\EntityInterface $entity) {
+
+   // instemjobportal_update_total_experience($entity);
+
+  // 1. Auto-generate Advertisement Number for Job nodes.
   if ($entity->getEntityTypeId() === 'node' && $entity->bundle() === 'job') {
     if ($entity->hasField('field_advertisement_number') && $entity->get('field_advertisement_number')->isEmpty()) {
       $year = date('Y');
@@ -109,9 +120,7 @@ function instemjobportal_node_presave(\Drupal\Core\Entity\EntityInterface $entit
     }
   }
 
-
-
-
+  // 2. Set automatic titles for related application content types.
   if ($entity->getEntityTypeId() === 'node') {
     $bundle = $entity->bundle();
     $application_bundles = [
@@ -121,41 +130,52 @@ function instemjobportal_node_presave(\Drupal\Core\Entity\EntityInterface $entit
       'additional_information',
       'file_upload',
     ];
+// Automatically link field_personal_info to the applicant's personal_information node.
+if (in_array($bundle, $application_bundles, TRUE)) {
+  if ($entity->hasField('field_application') && !$entity->get('field_application')->isEmpty()) {
+    $job_nid = $entity->get('field_application')->target_id;
+    $uid = $entity->getOwnerId();
+
+    // Find the applicant's personal_information node for this job.
+    $personal_nid = instemjobportal_find_application_node('personal_information', $uid, $job_nid);
+    if (!empty($personal_nid) && $entity->hasField('field_personal_info')) {
+      $entity->set('field_personal_info', ['target_id' => $personal_nid]);
+    }
+  }
+}
 
     if (in_array($bundle, $application_bundles, TRUE)) {
-      // Get job reference from field_application.
       if ($entity->hasField('field_application') && !$entity->get('field_application')->isEmpty()) {
         $job_nid = $entity->get('field_application')->first()?->target_id ?? NULL;
         $uid = $entity->getOwnerId();
 
         $title_set = FALSE;
         if (!empty($job_nid) && !empty($uid)) {
-          // Find the related personal_information node for this user and job.
           $personal_nid = instemjobportal_find_application_node('personal_information', $uid, $job_nid);
           if ($personal_nid) {
             $personal_node = \Drupal\node\Entity\Node::load($personal_nid);
             if ($personal_node && $personal_node->hasField('field_application_id') && !$personal_node->get('field_application_id')->isEmpty()) {
               $base_id = $personal_node->get('field_application_id')->value;
-              // Set the title as required: base_id + '-' + bundle
               $entity->setTitle($base_id . '-' . $bundle);
               $title_set = TRUE;
             }
           }
         }
-        // Fallback: always set a non-empty title.
         if (!$title_set) {
           $entity->setTitle($bundle . '-' . time());
         }
       } else {
-        // Fallback if field_application is empty.
         $entity->setTitle($bundle . '-' . time());
       }
     }
   }
-    if ($entity->getEntityTypeId() === 'node' && $entity->bundle() === 'personal_information') {
+
+  // 3. Handle Personal Information bundle.
+  if ($entity->getEntityTypeId() === 'node' && $entity->bundle() === 'personal_information') {
+
+    // Set Application ID based on Job reference.
     if ($entity->hasField('field_application') && !$entity->get('field_application')->isEmpty()) {
       $job_nid = $entity->get('field_application')->first()?->target_id ?? NULL;
-
       if (!empty($job_nid)) {
         $job_node = \Drupal\node\Entity\Node::load($job_nid);
 
@@ -177,13 +197,60 @@ function instemjobportal_node_presave(\Drupal\Core\Entity\EntityInterface $entit
 
           if ($entity->hasField('field_application_id')) {
             $entity->set('field_application_id', $application_id);
-        }
+          }
         }
       }
     }
+
+    // Calculate and set Age from Date of Birth.
+    if ($entity->hasField('field_date_of_birth') && !$entity->get('field_date_of_birth')->isEmpty()) {
+      $dob = $entity->get('field_date_of_birth')->value;
+      if ($dob) {
+        $dob_dt = new \DateTime($dob);
+        $now = new \DateTime();
+        $age = $now->diff($dob_dt)->y;
+        if ($entity->hasField('field_age')) {
+          $entity->set('field_age', $age);
+        }
+      }
+    }
+
+
+  }
+   // Calculate total experience from paragraph references.
+  if ($entity->getEntityTypeId() === 'node' && $entity->hasField('field_employment_details')) {
+  $total_days = 0;
+  foreach ($entity->get('field_employment_details') as $item) {
+    /** @var \Drupal\paragraphs\Entity\Paragraph $paragraph */
+    $paragraph = $item->entity;
+    if ($paragraph && !$paragraph->get('field_from_date')->isEmpty() && !$paragraph->get('field_to_date')->isEmpty()) {
+      $from = new \DateTime($paragraph->get('field_from_date')->value, new \DateTimeZone('UTC'));
+      $to   = new \DateTime($paragraph->get('field_to_date')->value, new \DateTimeZone('UTC'));
+      $interval = $from->diff($to);
+      $days = $interval->days;
+      // Calculate experience as years with two decimals for the paragraph.
+      $experience = round($days / 365, 2);
+
+      if ($paragraph->hasField('field_experience_calculated')) {
+        $paragraph->set('field_experience_calculated', $experience);
+        $paragraph->save();
+      }
+      $total_days += $days;
+    }
+  }
+  // Convert total days to years, months, days.
+  $years = floor($total_days / 365);
+  $remaining_days = $total_days % 365;
+  $months = floor($remaining_days / 30);
+  $days = $remaining_days % 30;
+  $formatted = "{$years} years {$months} months {$days} days";
+
+  // Save total experience in the node field as a string.
+  if ($entity->hasField('field_total_experience')) {
+    $entity->set('field_total_experience', $formatted);
   }
 }
-
+}
 
 /**
  * Implements hook_theme().
@@ -198,6 +265,15 @@ function instemjobportal_theme($existing, $type, $theme, $path) {
         'sidebar' => NULL,
       ],
       'template' => 'job-application-dashboard',
+    ],
+    'registration_email' => [
+      'variables' => [
+        'user' => NULL,
+        'site_name' => NULL,
+        'one_time_login_url' => NULL,
+        'login_url' => NULL,
+      ],
+      'template' => 'registration-email',
     ],
     'application_sidebar_menu' => [
       'variables' => [
@@ -220,10 +296,86 @@ function instemjobportal_user_insert(UserInterface $account) {
     $role = \Drupal\user\Entity\Role::create(['id' => $role_id, 'label' => 'Applicant']);
     $role->save();
   }
+  
+  // Add the role to the user but don't save yet as it will trigger the hook again
+  $account->addRole($role_id);
+  
+  // Send custom registration email only if user is active
+  if ($account->isActive()) {
+    // Generate the one-time login URL
+    $timestamp = \Drupal::time()->getRequestTime();
+    $hash = user_pass_rehash($account, $timestamp);
+    $url_options = [
+      'absolute' => TRUE,
+    ];
+    $one_time_login_url = \Drupal::service('url_generator')->generateFromRoute(
+      'user.reset',
+      [
+        'uid' => $account->id(),
+        'timestamp' => $timestamp,
+        'hash' => $hash,
+      ],
+      $url_options
+    );
+    
+    /** @var \Drupal\instemjobportal\Service\EmailService $email_service */
+    $email_service = \Drupal::service('instemjobportal.email_service');
+    $email_service->sendRegistrationEmail($account, $one_time_login_url);
+  }
 
   // Assign role to new user.
   $account->addRole($role_id);
   $account->save();
+}
+
+/**
+ * Implements hook_user_login().
+ *
+ * Set destination to front page so all users are redirected to home after login.
+ */
+function instemjobportal_user_login(UserInterface $account) {
+  // Set the global destination so Drupal's redirect handling will send users to
+  // the front page after successful login.
+  // Only set a default destination if no destination is already present.
+  // This avoids overriding explicit destinations (which may be internal or
+  // external) and prevents attempts to force redirects to external URLs
+  // that would be rejected by the redirect handling.
+  $redirect_service = \Drupal::service('redirect.destination');
+  $request = \Drupal::request();
+  if (!$request->query->has('destination') && !$redirect_service->get()) {
+    // Use site root path so RedirectResponseSubscriber will convert it to an
+    // absolute URL and redirect to the homepage.
+    $redirect_service->set('/');
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for the user login form.
+ *
+ * Inject a hidden 'destination' field with value '<front>' when no explicit
+ * destination is provided in the query string. This ensures the login form
+ * submit handler will preserve the destination and redirect users to the
+ * front page after login.
+ */
+function instemjobportal_form_user_login_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state, $form_id) {
+  // If a destination query parameter is already present, do nothing and
+  // If a destination query parameter or a previously-set destination exists,
+  // do nothing and preserve the explicit destination.
+  $request = \Drupal::request();
+  $redirect_service = \Drupal::service('redirect.destination');
+  if ($request->query->has('destination') || $redirect_service->get()) {
+    return;
+  }
+
+  // Add a hidden destination field that will be present in POST data so the
+  // login submit handler uses it to redirect the user after successful login.
+  $form['destination'] = [
+    '#type' => 'hidden',
+    // Use site root path so RedirectResponseSubscriber will convert it to an
+    // absolute URL and redirect to the homepage.
+    '#value' => '/',
+    '#weight' => -100,
+  ];
 }
 
 /**
@@ -258,6 +410,20 @@ function instemjobportal_form_node_form_alter(&$form, FormStateInterface $form_s
         '#attributes' => ['class' => ['button', 'btn', 'btn-primary']],
       ];
     }
+     
+      if ($node->isNew()) {
+        // You can use any logic here — e.g. user name, timestamp, etc.
+        $form['title']['widget'][0]['value']['#default_value'] = ucfirst($node->bundle()) . ' - ' . date('YmdHis');
+      }
+
+      // Disable editing (make title read-only).
+      $form['title']['widget'][0]['value']['#attributes']['readonly'] = 'readonly';
+      $form['title']['widget'][0]['value']['#disabled'] = TRUE;
+
+      // Optional: Add a note below the field.
+      //$form['title']['widget'][0]['value']['#description'] = t('This title is automatically generated and cannot be changed.');
+    
+
   }
 
   $node = $form_state->getFormObject()->getEntity();
@@ -388,6 +554,23 @@ function instemjobportal_form_node_form_alter(&$form, FormStateInterface $form_s
       }
     }
 
+    // Add validation for education year fields.
+    if ($node->bundle() === 'education') {
+      $fields = [
+        'field_10th_year_of_passing',
+        'field_12th_year_of_passing',
+        'field_grad_year',
+        'field_other_year_of_passing',
+        'field_pg_year',
+        'field_phd_year',
+      ];
+      foreach ($fields as $field) {
+        if (isset($form[$field]['widget'][0]['value'])) {
+          $form[$field]['widget'][0]['value']['#element_validate'][] = 'instemjobportal_validate_mm_yyyy';
+        }
+      }
+    }
+
     // If the form was just submitted and a saved node id exists in form
     // state, render a compact summary of the saved values and an Edit link so
     // the user can modify the submission without leaving the page.
@@ -429,124 +612,99 @@ function instemjobportal_form_node_form_alter(&$form, FormStateInterface $form_s
  */
 function instemjobportal_application_form_submit($form, FormStateInterface $form_state) {
   $entity = $form_state->getFormObject()->getEntity();
-  if ($entity instanceof \Drupal\node\NodeInterface && $entity->id()) {
+  // Ensure it's a node.
+  if ($entity instanceof NodeInterface && $entity->id()) {
     $form_state->set('saved_nid', $entity->id());
+
     $form_state->setRebuild(TRUE);
-    // Preserve the job query parameter on redirect when possible so the
-    // sidebar and other job-scoped UI continue to receive the job context.
+
+    // Preserve job query param on redirect if exists.
     $job_target = NULL;
     if ($entity->hasField('field_application') && !$entity->get('field_application')->isEmpty()) {
-      // Try common accessors for the ER value.
-      try {
-        $first = $entity->get('field_application')->first();
-        if ($first && isset($first->target_id)) {
-          $job_target = $first->target_id;
-        }
-      } catch (\Throwable $e) {
-        // Fallback: try getValue()
-        try {
-          $val = $entity->get('field_application')->getValue();
-          if (!empty($val[0]['target_id'])) {
-            $job_target = $val[0]['target_id'];
-          }
-        } catch (\Throwable $e) {
-        }
+      $first = $entity->get('field_application')->first();
+      if ($first && isset($first->target_id)) {
+        $job_target = $first->target_id;
       }
     }
 
+    // Set redirect.
+    $redirect_options = !empty($job_target) ? ['query' => ['job' => $job_target]] : [];
+    $form_state->setRedirect('<current>', [], $redirect_options);
+
+    // Invalidate cache for user-job.
     if (!empty($job_target)) {
-      $form_state->setRedirect('<current>', [], ['query' => ['job' => $job_target]]);
-    } else {
-      $form_state->setRedirect('<current>');
-    }
-    // Invalidate per-job-per-user cache tag so the sidebar block rebuilds with
-    // the updated completion state for this user/job.
-    try {
-      if (empty($job_target) && $entity->hasField('field_application') && !$entity->get('field_application')->isEmpty()) {
-        try {
-          $val = $entity->get('field_application')->first();
-          $job_target = $val->target_id ?? $job_target;
-        } catch (\Throwable $e) {
-          try {
-            $g = $entity->get('field_application')->getValue();
-            if (!empty($g[0]['target_id'])) {
-              $job_target = $g[0]['target_id'];
-            }
-          } catch (\Throwable $e) {
-          }
-        }
-      }
-
-      if (!empty($job_target)) {
-        $uid = $entity->getOwnerId();
-        $tag = 'instemjobportal_app:job:' . $job_target . ':user:' . $uid;
-        \Drupal::service('cache_tags.invalidator')->invalidateTags([$tag]);
-      }
-    } catch (\Throwable $e) {
+      $uid = $entity->getOwnerId();
+      $tag = 'instemjobportal_app:job:' . $job_target . ':user:' . $uid;
+      \Drupal::service('cache_tags.invalidator')->invalidateTags([$tag]);
     }
   }
 
-  // After saving and setting redirect, send email if this is the personal_information node.
-  $entity = $form_state->getFormObject()->getEntity();
-  if ($entity instanceof \Drupal\node\NodeInterface && $entity->bundle() === 'personal_information' && $entity->id()) {
-    // Only send if status is Completed.
-    if ($entity->hasField('field_job_status') && strtolower($entity->get('field_job_status')->value) === 'completed') {
+// Send email only if personal_information node and status = completed.
+if ($entity instanceof NodeInterface && $entity->bundle() === 'personal_information' && $entity->id()) {
+
+  if ($entity->hasField('field_job_status')) {
+    $status_val = trim(strtolower($form_state->getValue('field_job_status')[0]['value'] ?? $entity->get('field_job_status')->value ?? ''));
+
+    if ($status_val === 'completed') {
+
       $user = $entity->getOwner();
       $to = $user->getEmail();
 
-      // Get Application ID, Job Post, Post Number.
-      $application_id = $entity->get('field_application_id')->value ?? '';
-      $job_nid = $entity->get('field_application')->target_id ?? '';
-      $job_title = '';
-      $job_code = '';
-      $post_number = '';
-      $advt_number = '';
-      if ($job_nid) {
-        $job_node = \Drupal\node\Entity\Node::load($job_nid);
-        if ($job_node) {
-          $job_title = $job_node->getTitle();
-          $job_code = $job_node->get('field_job_code')->value ?? '';
-          // If you have a post number field, e.g. field_post_number:
-          $post_number = $job_node->get('field_post_number')->value ?? '';
-          // Get Advertisement Number (taxonomy term label)
-          if ($job_node->hasField('field_advertisement_number') && !$job_node->get('field_advertisement_number')->isEmpty()) {
-            $term = $job_node->get('field_advertisement_number')->entity;
-            if ($term) {
-              $advt_number = $term->label();
+      if (!empty($to)) {
+        // Gather job details.
+        $application_id = $entity->get('field_application_id')->value ?? '';
+        $job_nid = $entity->get('field_application')->target_id ?? '';
+        $job_title = '';
+        $job_code = '';
+        $advt_number = '';
+
+        if ($job_nid) {
+          $job_node = Node::load($job_nid);
+          if ($job_node instanceof NodeInterface) {
+            $job_title = $job_node->label();
+            $job_code = $job_node->get('field_job_code')->value ?? '';
+            if ($job_node->hasField('field_advertisement_number') && !$job_node->get('field_advertisement_number')->isEmpty()) {
+              $term = $job_node->get('field_advertisement_number')->entity;
+              $advt_number = $term ? $term->label() : '';
             }
           }
         }
+
+        $mailManager = \Drupal::service('plugin.manager.mail');
+        $module = 'instemjobportal';
+        $key = 'application_submission';
+        $langcode = $user->getPreferredLangcode();
+
+        $params['subject'] = 'Your Application Has Been Submitted';
+        $params['body'] = (string) new FormattableMarkup('
+          <div style="font-family: Arial, Helvetica, sans-serif;">
+            <p>Dear <strong>@name</strong>,</p>
+            <p>Your application (<strong>@appid</strong>) for <strong>@job</strong> has been submitted successfully.</p>
+            <p>Advt. No.: @advtno</p>
+          </div>',
+          [
+            '@name' => $user->getDisplayName(),
+            '@appid' => $application_id,
+            '@job' => $job_title . ($job_code ? ' (' . $job_code . ')' : ''),
+            '@advtno' => $advt_number,
+          ]
+        );
+
+        $params['headers'] = ['Content-Type' => 'text/html; charset=UTF-8'];
+
+        $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, TRUE);
+
+        if (empty($result['result'])) {
+          \Drupal::logger('instemjobportal')->error('Failed to send application confirmation email to %to', ['%to' => $to]);
+        } else {
+          \Drupal::logger('instemjobportal')->notice('Application confirmation email sent to %to', ['%to' => $to]);
+        }
       }
-
-      // Compose the email.
-      $mailManager = \Drupal::service('plugin.manager.mail');
-      $module = 'instemjobportal';
-      $key = 'application_submission';
-      $langcode = $user->getPreferredLangcode();
-      $params['subject'] = 'Your Application Has Been Submitted';
-      $params['body'] = SafeMarkup::format('
-        <p>Dear @name,</p>
-        <p>Thank you for submitting your application. Here are your application details:</p>
-        <table style="border-collapse:collapse;">
-          <tr><td style="padding:4px 8px;"><strong>Application ID:</strong></td><td style="padding:4px 8px;">@appid</td></tr>
-          <tr><td style="padding:4px 8px;"><strong>Job Post:</strong></td><td style="padding:4px 8px;">@job</td></tr>
-          <tr><td style="padding:4px 8px;"><strong>Advertisement Number:</strong></td><td style="padding:4px 8px;">@advtno</td></tr>
-        </table>
-        <p>Please keep checking the portal for updates and information about this job post.</p>
-        <p>Best regards,<br/>Recruitment Team</p>
-      ', [
-        '@name' => $user->getDisplayName(),
-        '@appid' => $application_id,
-        '@job' => $job_title . ($job_code ? ' (' . $job_code . ')' : ''),
-        '@advtno' => $advt_number,
-      ]);
-      $params['headers'] = ['Content-Type' => 'text/html; charset=UTF-8'];
-
-      $mailManager->mail($module, $key, $to, $langcode, $params, NULL, TRUE);
     }
-  }
+  } 
 }
 
+}
 /**
  * Validate handler for application forms.
  *
@@ -566,30 +724,337 @@ function instemjobportal_application_form_validate($form, FormStateInterface $fo
   $request = \Drupal::request();
   $job_id = $request->query->get('job');
   if (empty($job_id)) {
-    // Try a form value in case it's stored in a hidden field.
     $values = $form_state->getValues();
     if (!empty($values['job'])) {
       $job_id = $values['job'];
     }
   }
 
-  // Validate only: prevent duplicate submissions. Do not set field values here
-  // because some field widgets (autocomplete tags) massage form values and
-  // will complain if the structure is changed here.
-  // Prevent duplicate submissions: look for an existing node with same
-  // bundle, same field_application target and same uid (current user).
+  // Prevent duplicate submissions.
   $current_user = \Drupal::currentUser();
   if ($current_user->isAuthenticated() && !empty($job_id)) {
-    // Use helper to locate an existing application node (handles different
-    // ER field names if needed).
     $existing_nid = instemjobportal_find_application_node($entity->bundle(), $current_user->id(), $job_id);
     if (!empty($existing_nid)) {
-      // Redirect to the existing node edit form instead of creating a new
-      // submission. Use form_state redirect so Form API handles it cleanly.
       \Drupal::messenger()->addStatus(t('You already have a submission for this job. Redirecting to your existing application.'));
       $form_state->setRedirect('entity.node.edit_form', ['node' => $existing_nid]);
       $form_state->setRebuild(FALSE);
       return;
+    }
+  }
+
+  // Load the job node for validation.
+  $job_node = NULL;
+if (!empty($job_id)) {
+  $job_node = \Drupal\node\Entity\Node::load($job_id);
+}
+// Only validate if job node is available.
+if ($job_node) {
+
+  // 1. Age Validation
+  if ($entity->hasField('field_date_of_birth')) {
+    // Prefer submitted value from form_state, fallback to entity field.
+    $dob = $form_state->getValue('field_date_of_birth');
+    if (is_array($dob)) {
+      // Handle widget structures: ['value' => 'YYYY-MM-DD'] or [0 => ['value' => 'YYYY-MM-DD']]
+      $dob = $dob['value'] ?? ($dob[0]['value'] ?? ($dob[0] ?? reset($dob)));
+    }
+    if (empty($dob)) {
+      $dob = $entity->get('field_date_of_birth')->value ?? '';
+    }
+    // Debug log for troubleshooting
+    \Drupal::logger('instemjobportal')->debug('DOB (form): @dob_form, DOB (entity): @dob_entity', [
+      '@dob_form' => print_r($form_state->getValue('field_date_of_birth'), TRUE),
+      '@dob_entity' => $entity->get('field_date_of_birth')->value ?? ''
+    ]);
+    if ($dob) {
+      try {
+        $dob_dt = new \DateTime($dob);
+        $now = new \DateTime();
+        $age = $dob_dt->diff($now)->y;
+        \Drupal::logger('instemjobportal')->debug('DOB used: @dob, Age: @age', ['@dob' => $dob, '@age' => $age]);
+        $max_age = ($job_node->hasField('field_age_limit') && !$job_node->get('field_age_limit')->isEmpty())
+          ? (int) $job_node->get('field_age_limit')->value
+          : NULL;
+        if ($age < 18 || ($max_age && $age > $max_age)) {
+          $form_state->setErrorByName(
+            'field_date_of_birth',
+            t('You are not eligible to apply. Your age must be between 18 and the maximum age limit specified for this job.')
+          );
+        }
+      } catch (\Exception $e) {
+        \Drupal::logger('instemjobportal')->error('Invalid DOB format: @dob. Error: @err', ['@dob' => $dob, '@err' => $e->getMessage()]);
+        $form_state->setErrorByName('field_date_of_birth', t('Invalid date of birth format.'));
+      }
+    }
+  }
+
+  // 2. Category Validation (List field type)
+  if ($entity->hasField('field_category') && $job_node->hasField('field_category')) {
+
+    // Extract applicant category (form or entity fallback)
+    $app_cat = $form_state->getValue('field_category');
+    if (is_array($app_cat)) {
+      $app_cat = $app_cat['value']
+        ?? ($app_cat[0]['value'] ?? ($app_cat[0] ?? reset($app_cat)));
+    }
+    if (empty($app_cat)) {
+      $app_cat = $entity->get('field_category')->value ?? '';
+    }
+
+    // Extract job category
+    $job_cat = $job_node->get('field_category')->value ?? '';
+
+    // If job_cat is not set or is 'general', skip category validation
+    $job_cat_trimmed = strtolower(trim($job_cat));
+    if (empty($job_cat_trimmed) || $job_cat_trimmed === 'general') {
+      // No category restriction for this job, skip validation
+    } else {
+      // Normalize for comparison
+      $app_cat = strtolower(trim($app_cat));
+      if ($app_cat !== $job_cat_trimmed) {
+        $form_state->setErrorByName(
+          'field_category',
+          t('Your selected category does not match the category allowed for this job.')
+        );
+      }
+    }
+  }
+
+  // 3. Other Category Validation
+  if ($job_node->hasField('field_other_category') && !$job_node->get('field_other_category')->isEmpty()) {
+    $job_other_cat = $job_node->get('field_other_category')->value;
+    if ($entity->hasField('field_other_category')) {
+      $app_other_cat = $form_state->getValue('field_other_category');
+      if (is_array($app_other_cat)) {
+        $app_other_cat = $app_other_cat['value']
+          ?? ($app_other_cat[0]['value'] ?? ($app_other_cat[0] ?? reset($app_other_cat)));
+      }
+      if (empty($app_other_cat)) {
+        $app_other_cat = $entity->get('field_other_category')->value ?? '';
+      }
+      if ($app_other_cat !== $job_other_cat) {
+        $form_state->setErrorByName(
+          'field_other_category',
+          t('Your selected other category does not match the job’s specified category.')
+        );
+      }
+    }
+  }
+
+  // 4. PwD Category Validation
+  if ($job_node->hasField('field_pwd_categories') && !$job_node->get('field_pwd_categories')->isEmpty()) {
+    $job_pwd = $job_node->get('field_pwd_categories')->value;
+    if ($entity->hasField('field_pwd_categories')) {
+      $app_pwd = $form_state->getValue('field_pwd_categories');
+      if (is_array($app_pwd)) {
+        $app_pwd = $app_pwd['value']
+          ?? ($app_pwd[0]['value'] ?? ($app_pwd[0] ?? reset($app_pwd)));
+      }
+      if (empty($app_pwd)) {
+        $app_pwd = $entity->get('field_pwd_categories')->value ?? '';
+      }
+      if ($app_pwd !== $job_pwd) {
+        $form_state->setErrorByName(
+          'field_pwd_categories',
+          t('This job is not applicable for your specified PwD category.')
+        );
+      }
+    }
+  }
+
+  // 5. Experience Validation
+  // if ($entity->hasField('field_total_experience') && $job_node->hasField('field_min_experience')) {
+  //   $app_exp = (string) ($entity->get('field_total_experience')->value ?? '');
+  //   $job_exp = (int) ($job_node->get('field_min_experience')->value ?? 0);
+
+  //   // Extract years (handles strings like "2 years 3 months")
+  //   preg_match('/(\d+)\s*year/', strtolower($app_exp), $matches);
+  //   $years = isset($matches[1]) ? (int) $matches[1] : 0;
+
+  //   if ($years < $job_exp) {
+  //     $form_state->setErrorByName(
+  //       'field_total_experience',
+  //       t('You do not meet the minimum experience required for this position.')
+  //     );
+  //   }
+  // }
+
+  // Education CT: Validate marks percentage and GPA fields
+  if ($entity->bundle() === 'education') {
+    // Percentage fields: must be between 35 and 100
+    $percent_fields = [
+      'field_10th_marks_percentage',
+      'field_12th_marks_percentage',
+      'field_grad_marks',
+      'field_pg_marks',
+      'field_phd_marks',
+      'field_other_marks_percentage',
+    ];
+    foreach ($percent_fields as $field) {
+      if ($entity->hasField($field)) {
+        $val = $form_state->getValue($field);
+        if (is_array($val)) {
+          $val = $val['value'] ?? ($val[0]['value'] ?? ($val[0] ?? reset($val)));
+        }
+        if ($val !== '' && $val !== NULL) {
+          if (!is_numeric($val) || $val < 35 || $val > 100) {
+            $form_state->setErrorByName($field, t('The value for %field must be between 35 and 100.', ['%field' => $field]));
+          }
+        }
+      }
+    }
+    // GPA fields: must be between 1 and 10
+    $gpa_fields = [
+      'field_10th_gpa',
+      'field_12th_gpa',
+      'field_grad_gpa',
+      'field_pg_gpa',
+      'field_phd_gpa',
+      'field_other_gpa',
+    ];
+    foreach ($gpa_fields as $field) {
+      if ($entity->hasField($field)) {
+        $val = $form_state->getValue($field);
+        if (is_array($val)) {
+          $val = $val['value'] ?? ($val[0]['value'] ?? ($val[0] ?? reset($val)));
+        }
+        if ($val !== '' && $val !== NULL) {
+          if (!is_numeric($val) || $val < 1 || $val > 10) {
+            $form_state->setErrorByName($field, t('The value for %field must be between 1 and 10.', ['%field' => $field]));
+          }
+        }
+      }
+    }
+    $year_fields = [
+      'field_10th_year_of_passing',
+      'field_12th_year_of_passing',
+      'field_grad_year',
+      'field_pg_year',
+      'field_phd_year',
+      'field_other_year_of_passing',
+    ];
+    $years = [];
+    foreach ($year_fields as $field) {
+      $val = NULL;
+      if ($entity->hasField($field)) {
+        $val = $form_state->getValue($field);
+        if (is_array($val)) {
+          $val = $val['value'] ?? ($val[0]['value'] ?? ($val[0] ?? reset($val)));
+        }
+        if ($val !== '' && $val !== NULL) {
+          $years[$field] = (int)substr($val, -4);
+        }
+      }
+    }
+    // 10th year <= 12th year
+    if (isset($years['field_10th_year_of_passing'], $years['field_12th_year_of_passing'])) {
+      if ($years['field_10th_year_of_passing'] > $years['field_12th_year_of_passing']) {
+        $form_state->setErrorByName('field_10th_year_of_passing', t('10th year of passing cannot be greater than 12th year of passing.'));
+        $form_state->setErrorByName('field_12th_year_of_passing', t('12th year of passing cannot be less than 10th year of passing.'));
+      }
+    }
+    // 12th year <= grad year
+    if (isset($years['field_12th_year_of_passing'], $years['field_grad_year'])) {
+      if ($years['field_12th_year_of_passing'] > $years['field_grad_year']) {
+        $form_state->setErrorByName('field_12th_year_of_passing', t('12th year of passing cannot be greater than graduation year.'));
+        $form_state->setErrorByName('field_grad_year', t('Graduation year cannot be less than 12th year of passing.'));
+      }
+    }
+    // grad year <= pg year
+    if (isset($years['field_grad_year'], $years['field_pg_year'])) {
+      if ($years['field_grad_year'] > $years['field_pg_year']) {
+        $form_state->setErrorByName('field_grad_year', t('Graduation year cannot be greater than post graduation year.'));
+        $form_state->setErrorByName('field_pg_year', t('Post graduation year cannot be less than graduation year.'));
+      }
+    }
+    // pg year <= phd year
+    if (isset($years['field_pg_year'], $years['field_phd_year'])) {
+      if ($years['field_pg_year'] > $years['field_phd_year']) {
+        $form_state->setErrorByName('field_pg_year', t('Post graduation year cannot be greater than PhD year.'));
+        $form_state->setErrorByName('field_phd_year', t('PhD year cannot be less than post graduation year.'));
+      }
+    }
+  }
+    // Referee CT: Validate referee phone fields (must be 10 digits)
+  if ($entity->bundle() === 'referee') {
+    $phone_fields = [
+      'field_referee1_phone',
+      'field_referee2_phone',
+    ];
+    foreach ($phone_fields as $field) {
+      if ($entity->hasField($field)) {
+        $val = $form_state->getValue($field);
+        if (is_array($val)) {
+          $val = $val['value'] ?? ($val[0]['value'] ?? ($val[0] ?? reset($val)));
+        }
+        if ($val !== '' && $val !== NULL) {
+          if (!preg_match('/^\d{10}$/', $val)) {
+            $form_state->setErrorByName($field, t('The value for %field must be exactly 10 digits.', ['%field' => $field]));
+          }
+        }
+      }
+    }
+  // Referee CT: Referee 1 and 2 phone/email must not be the same
+ // Phone fields
+    $phone1 = $form_state->getValue('field_referee1_phone');
+    $phone2 = $form_state->getValue('field_referee2_phone');
+    if (is_array($phone1)) {
+      $phone1 = $phone1['value'] ?? ($phone1[0]['value'] ?? ($phone1[0] ?? reset($phone1)));
+    }
+    if (is_array($phone2)) {
+      $phone2 = $phone2['value'] ?? ($phone2[0]['value'] ?? ($phone2[0] ?? reset($phone2)));
+    }
+    if (!empty($phone1) && !empty($phone2) && $phone1 === $phone2) {
+      $form_state->setErrorByName('field_referee2_phone', t('Referee 1 and Referee 2 phone numbers must not be the same.'));
+    }
+    // Email fields
+    $email1 = $form_state->getValue('field_referee1_email');
+    $email2 = $form_state->getValue('field_referee2_email');
+    if (is_array($email1)) {
+      $email1 = $email1['value'] ?? ($email1[0]['value'] ?? ($email1[0] ?? reset($email1)));
+    }
+    if (is_array($email2)) {
+      $email2 = $email2['value'] ?? ($email2[0]['value'] ?? ($email2[0] ?? reset($email2)));
+    }
+    if (!empty($email1) && !empty($email2) && strtolower($email1) === strtolower($email2)) {
+      $form_state->setErrorByName('field_referee2_email', t('Referee 1 and Referee 2 email addresses must not be the same.'));
+    }
+  }
+}
+}
+
+/**
+ * Element validate callback for MM/YYYY date format.
+ */
+function instemjobportal_validate_mm_yyyy($element, FormStateInterface $form_state) {
+  $value = $element['#value'];
+
+  if (!empty($value) && !preg_match('/^(0[1-9]|1[0-2])\/\d{4}$/', $value)) {
+    $form_state->setError(
+      $element,
+      'Enter a valid date in MM/YYYY format (Example: 05/2021).'
+    );
+  }
+}
+
+/**
+ * Implements hook_entity_presave().
+ * Calculate experience for each employment_detail paragraph.
+ */
+function instemjobportal_entity_presave(\Drupal\Core\Entity\EntityInterface $entity) {
+  if ($entity->getEntityTypeId() === 'paragraph' && $entity->bundle() === 'employment_detail') {
+    if ($entity->hasField('field_from_date') && $entity->hasField('field_to_date') &&
+        !$entity->get('field_from_date')->isEmpty() && !$entity->get('field_to_date')->isEmpty()) {
+      $from = new \DateTime($entity->get('field_from_date')->value, new \DateTimeZone('UTC'));
+      $to   = new \DateTime($entity->get('field_to_date')->value, new \DateTimeZone('UTC'));
+      $interval = $from->diff($to);
+      $days = $interval->days;
+      $years = floor($days / 365);
+      $remaining_days = $days % 365;
+      $months = floor($remaining_days / 30);
+      $days_left = $remaining_days % 30;
+      $experience_str = "{$years} years {$months} months {$days_left} days";
+      $entity->set('field_experience_calculated', $experience_str);
     }
   }
 }
@@ -774,58 +1239,106 @@ function instemjobportal_menu_local_tasks_alter(&$data, $route_name) {
  * Grant edit access to the owner of an application node that references a
  * job via `field_application` so applicants can edit their own submissions.
  */
-function instemjobportal_node_access(\Drupal\node\NodeInterface $node, $operation, AccountInterface $account) {
-  // Only care about update (edit) operations.
-  if ($operation !== 'update') {
-    return AccessResult::neutral();
-  }
+function instemjobportal_node_access(NodeInterface $node, $operation, AccountInterface $account) {
+  $roles = $account->getRoles();
+  $content_type = $node->bundle();
 
-  // Only apply to our application bundles.
-  $application_bundles = [
-    'personal_information',
-    'education',
-    'employment_details',
-    'referee',
-    'additional_information',
-    'file_upload',
-  ];
-  if (!in_array($node->bundle(), $application_bundles, TRUE)) {
-    return AccessResult::neutral();
-  }
+  /**
+   * ----------------------------------------------------
+   * PART 1: UPDATE ACCESS (EDIT)
+   * ----------------------------------------------------
+   */
+  if ($operation === 'update') {
 
-  // If the node references a job in field_application and the current user is
-  // the owner, decide based on whether the application has been submitted
-  // (personal_information.field_job_status == Completed). If submitted,
-  // deny edits for all application nodes for that job.
-  if ($node->hasField('field_application') && !$node->get('field_application')->isEmpty()) {
-    $target = $node->get('field_application')->target_id;
-    if ($node->getOwnerId() == $account->id()) {
-      // Look up the personal_information node for this user and job.
-      try {
-        $personal_nid = instemjobportal_find_application_node('personal_information', $account->id(), $target);
-        if (!empty($personal_nid)) {
-          $pnode = \Drupal\node\Entity\Node::load($personal_nid);
-          if ($pnode && $pnode->hasField('field_job_status') && !$pnode->get('field_job_status')->isEmpty()) {
-            $status = (string) $pnode->get('field_job_status')->value;
-            if (strtolower($status) === 'completed') {
-              // Application already submitted; deny edits.
-              return AccessResult::forbidden();
+    $application_bundles = [
+      'personal_information',
+      'education',
+      'employment_details',
+      'referee',
+      'additional_information',
+      'file_upload',
+    ];
+
+    // Only apply to application bundles.
+    if (!in_array($content_type, $application_bundles, TRUE)) {
+      return AccessResult::neutral();
+    }
+
+    // Node must reference a job.
+    if ($node->hasField('field_application') && !$node->get('field_application')->isEmpty()) {
+      $job_id = $node->get('field_application')->target_id;
+
+      // Owner editing their own application.
+      if ($node->getOwnerId() == $account->id()) {
+
+        // Check if personal_information status is completed.
+        try {
+          $personal_nid = instemjobportal_find_application_node('personal_information', $account->id(), $job_id);
+          if ($personal_nid) {
+            $pnode = \Drupal\node\Entity\Node::load($personal_nid);
+            if ($pnode && $pnode->hasField('field_job_status')) {
+              $status = strtolower((string) $pnode->get('field_job_status')->value);
+              if ($status === 'completed') {
+                return AccessResult::forbidden(); // Cannot edit after submission
+              }
             }
           }
         }
-      } catch (\Throwable $e) {
-        // If lookup fails, be conservative and allow edit (neutral) so we do
-        // not accidentally lock users out from correcting issues.
-        return AccessResult::allowed();
-      }
+        catch (\Throwable $e) {
+          return AccessResult::allowed();
+        }
 
-      // Not submitted: allow owner to edit.
-      return AccessResult::allowed();
+        return AccessResult::allowed(); // Not completed yet
+      }
     }
+
+    return AccessResult::neutral();
+  }
+
+  /**
+   * ----------------------------------------------------
+   * PART 2: VIEW ACCESS
+   * ----------------------------------------------------
+   */
+  if ($operation === 'view') {
+
+    // Anonymous users → Only Job CT
+    if ($account->isAnonymous()) {
+      if ($content_type === 'job') {
+        return AccessResult::allowed()->cachePerPermissions();
+      }
+      return AccessResult::forbidden()->cachePerPermissions();
+    }
+
+    // Admin + HR → Can view everything
+    if (in_array('administrator', $roles) || in_array('hr', $roles)) {
+      return AccessResult::allowed()->cachePerPermissions();
+    }
+
+    // Applicant: can view ONLY their own nodes
+  if (in_array('applicant', $roles)) {
+
+  // Applicants can always view Job CT.
+  if ($content_type === 'job') {
+    return AccessResult::allowed()->cachePerPermissions();
+  }
+
+  // Applicants can view ONLY their own nodes for other CTs.
+  if ($node->getOwnerId() == $account->id()) {
+    return AccessResult::allowed()->cachePerUser();
+  }
+
+  return AccessResult::forbidden()->cachePerUser();
+}
+
+
+    // All others denied
+    return AccessResult::forbidden();
   }
 
   return AccessResult::neutral();
 }
+
 
 /**
  * Implements hook_block_view_alter().
@@ -908,10 +1421,18 @@ function instemjobportal_form_alter(&$form, \Drupal\Core\Form\FormStateInterface
     $personal_nid = instemjobportal_find_application_node('personal_information', $uid, $job_param);
     if ($personal_nid) {
       $personal_node = \Drupal\node\Entity\Node::load($personal_nid);
-      if ($personal_node && $personal_node->hasField('field_job_status') && strtolower($personal_node->get('field_job_status')->value) === 'completed') {
-        $form['#access'] = FALSE;
-        \Drupal::messenger()->addError(t('You have already submitted your application for this job. Further submissions are not allowed.'));
-      }
+ if (
+  $personal_node &&
+  $personal_node->hasField('field_job_status')
+) {
+  $job_status = $personal_node->get('field_job_status')->value ?? '';
+
+  if (strtolower($job_status) === 'completed') {
+    $form['#access'] = FALSE;
+    \Drupal::messenger()->addError(t('You have already submitted your application for this job. Further submissions are not allowed.'));
+  }
+}
+
     }
   }
 
@@ -970,9 +1491,364 @@ function instemjobportal_mail($key, &$message, $params) {
   switch ($key) {
     case 'application_submission':
       $message['subject'] = $params['subject'];
-      $message['body'][] = $params['body'];
-      $message['headers'] = $params['headers'];
+      $message['body'] = [$params['body']];
+      $message['headers']['Content-Type'] = 'text/html; charset=UTF-8';
+      $message['headers']['MIME-Version'] = '1.0';
+      break;
+    
+    case 'register':
+      $message['subject'] = $params['subject'];
+      $message['body'][] = Markup::create($params['message']);
+      $message['headers']['Content-Type'] = 'text/html; charset=UTF-8';
+      $message['headers']['MIME-Version'] = '1.0';
       break;
   }
 }
 
+
+/**
+ * Implements hook_node_update().
+ *
+ * Sends confirmation email automatically when job status changes to 'Completed'.
+ */
+// function instemjobportal_node_update(\Drupal\Core\Entity\EntityInterface $entity) {
+//   // Only run for personal_information content type.
+//   if ($entity->getEntityTypeId() !== 'node' || $entity->bundle() !== 'personal_information') {
+//     return;
+//   }
+
+//   // Ensure the field exists before proceeding.
+//   if (!$entity->hasField('field_job_status')) {
+//     return;
+//   }
+
+//   // Get current and previous status values (lowercase for comparison).
+//   $new_status = strtolower(trim($entity->get('field_job_status')->value ?? ''));
+//   $old_status = '';
+
+//   if (isset($entity->original) && $entity->original->hasField('field_job_status')) {
+//     $old_status = strtolower(trim($entity->original->get('field_job_status')->value ?? ''));
+//   }
+
+//   // Trigger email when transitioning to "completed".
+//   if ($old_status !== 'completed' && $new_status === 'completed') {
+//     \Drupal::logger('instemjobportal')->notice('Application status changed to completed for NID @nid. Sending confirmation email.', [
+//       '@nid' => $entity->id(),
+//     ]);
+//     instemjobportal_send_confirmation_email($entity);
+//   }
+// }
+
+/**
+ * Sends a well-formatted HTML application confirmation email.
+ *
+ * @param \Drupal\node\NodeInterface $entity
+ *   The personal_information node that has just been marked as Completed.
+ */
+function instemjobportal_send_confirmation_email(\Drupal\node\NodeInterface $entity) {
+  try {
+    if ($entity->bundle() !== 'personal_information') {
+      return;
+    }
+
+    $user = $entity->getOwner();
+    $to = $user->getEmail();
+    if (empty($to)) {
+      \Drupal::logger('instemjobportal')->warning('No email found for applicant (UID: @uid).', ['@uid' => $user->id()]);
+      return;
+    }
+
+    // Extract details.
+    $application_id = $entity->get('field_application_id')->value ?? '';
+    $job_nid = $entity->get('field_application')->target_id ?? '';
+    $job_title = '';
+    $job_code = '';
+    $advt_number = '';
+
+    if ($job_nid) {
+      $job_node = \Drupal\node\Entity\Node::load($job_nid);
+      if ($job_node) {
+        $job_title = $job_node->label();
+        $job_code = $job_node->get('field_job_code')->value ?? '';
+        if ($job_node->hasField('field_advertisement_number') && !$job_node->get('field_advertisement_number')->isEmpty()) {
+          $term = $job_node->get('field_advertisement_number')->entity;
+          $advt_number = $term ? $term->label() : '';
+        }
+      }
+    }
+
+    // Pure inline HTML email body (safe for Gmail/Outlook).
+    $html_body = '
+    <!DOCTYPE html>
+    <html>
+      <body style="font-family: Arial, Helvetica, sans-serif; background-color: #f4f6f8; margin: 0; padding: 0;">
+        <div style="background-color:#004080;color:#fff;text-align:center;padding:16px 24px;font-size:20px;font-weight:600;">
+          Application Confirmation
+        </div>
+        <div style="max-width:600px;background-color:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.1);
+                    margin:24px auto;padding:24px;color:#333;">
+          <p>Dear <strong>' . htmlspecialchars($user->getDisplayName()) . '</strong>,</p>
+          <p>Thank you for submitting your application. Here are your details:</p>
+          <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+            <tr><td style="font-weight:600;background:#f9fafb;padding:10px;">Application ID</td><td style="padding:10px;">' . htmlspecialchars($application_id) . '</td></tr>
+            <tr><td style="font-weight:600;background:#f9fafb;padding:10px;">Job Title</td><td style="padding:10px;">' . htmlspecialchars($job_title) . ' (' . htmlspecialchars($job_code) . ')</td></tr>
+            <tr><td style="font-weight:600;background:#f9fafb;padding:10px;">Advertisement No.</td><td style="padding:10px;">' . htmlspecialchars($advt_number) . '</td></tr>
+          </table>
+          <p>You can track your application anytime on our portal:</p>
+          <div style="text-align:center;margin:20px 0;">
+            <a href="https://beta.instem.res.in/jobportal" style="display:inline-block;background:#004080;color:#fff;
+                text-decoration:none;padding:10px 16px;border-radius:4px;font-weight:600;">Visit Job Portal</a>
+          </div>
+          <p style="margin-top:24px;">Best regards,<br>
+            <strong style="color:#004080;">Recruitment Team</strong><br>
+            <span style="font-size:13px;color:#777;">Institute for Stem Cell Science and Regenerative Medicine (inStem)</span>
+          </p>
+        </div>
+        <p style="text-align:center;font-size:12px;color:#999;">This is an automated message. Please do not reply.</p>
+      </body>
+    </html>';
+
+    // Send email
+    $mailManager = \Drupal::service('plugin.manager.mail');
+    $module = 'instemjobportal';
+    $key = 'application_submission';
+    $langcode = $user->getPreferredLangcode();
+
+    $params = [
+      'subject' => t('Your Application Has Been Submitted'),
+      'body' => $html_body,
+    ];
+
+    $result = $mailManager->mail($module, $key, $to, $langcode, $params, NULL, TRUE);
+
+    if (empty($result['result'])) {
+      \Drupal::logger('instemjobportal')->error('Failed to send confirmation email to %to (Application ID: %appid)', [
+        '%to' => $to,
+        '%appid' => $application_id,
+      ]);
+    }
+    else {
+      \Drupal::logger('instemjobportal')->notice('Confirmation email sent to %to (Application ID: %appid)', [
+        '%to' => $to,
+        '%appid' => $application_id,
+      ]);
+    }
+  }
+  catch (\Exception $e) {
+    \Drupal::logger('instemjobportal')->error('Error sending confirmation email: @msg', ['@msg' => $e->getMessage()]);
+  }
+}
+
+/**
+ * Performs full revalidation across all applicant nodes before final submission.
+ */
+function instemjobportal_revalidate_application($uid, $job_nid, FormStateInterface $form_state) {
+  $bundles = [
+    'personal_information',
+    'education',
+    'employment_details',
+    'referee',
+    'additional_information',
+    'file_upload',
+  ];
+
+  $has_error = FALSE;
+
+
+  //  Load job node once.
+  $job_node = !empty($job_nid)
+    ? \Drupal\node\Entity\Node::load($job_nid)
+    : NULL;
+
+
+
+  if (!$job_node) {
+    $form_state->setErrorByName('final_validation', t('Job details missing for validation.'));
+    return FALSE;
+  }
+
+  foreach ($bundles as $bundle) {
+    $nid = instemjobportal_find_application_node($bundle, $uid, $job_nid);
+    if (!$nid) {
+      $form_state->setErrorByName('final_validation', t('You must complete the @bundle section before final submission.', [
+        '@bundle' => ucwords(str_replace('_', ' ', $bundle)),
+      ]));
+      $has_error = TRUE;
+      continue;
+    }
+
+    $node = \Drupal\node\Entity\Node::load($nid);
+    if (!$node) {
+      continue;
+    }
+
+
+
+    // ------------------ PERSONAL INFORMATION ------------------
+    if ($bundle === 'personal_information') {
+      // Age
+      if ($node->hasField('field_date_of_birth')) {
+        $dob = $node->get('field_date_of_birth')->value ?? '';
+        if (!empty($dob)) {
+          try {
+            $dob_dt = new \DateTime($dob);
+            $age = $dob_dt->diff(new \DateTime())->y;
+            $max_age = ($job_node->hasField('field_age_limit') && !$job_node->get('field_age_limit')->isEmpty())
+              ? (int) $job_node->get('field_age_limit')->value : NULL;
+            if ($age < 18 || ($max_age && $age > $max_age)) {
+              $form_state->setErrorByName('field_date_of_birth', t('Age must be between 18 and @max years.', ['@max' => $max_age]));
+              $has_error = TRUE;
+            }
+          }
+          catch (\Exception $e) {
+            $form_state->setErrorByName('field_date_of_birth', t('Invalid date of birth format.'));
+            $has_error = TRUE;
+          }
+        }
+      }
+
+      // Category
+      if ($node->hasField('field_category') && $job_node->hasField('field_category')) {
+        $app_cat = strtolower(trim($node->get('field_category')->value ?? ''));
+        $job_cat = strtolower(trim($job_node->get('field_category')->value ?? ''));
+        if (!empty($job_cat) && $job_cat !== 'general' && $app_cat !== $job_cat) {
+          $form_state->setErrorByName('field_category', t('Your category does not match the job’s category.'));
+          $has_error = TRUE;
+        }
+      }
+
+      // PwD
+      if ($job_node->hasField('field_pwd_categories') && !$job_node->get('field_pwd_categories')->isEmpty()) {
+        $job_pwd = $job_node->get('field_pwd_categories')->value;
+        $app_pwd = $node->get('field_pwd_categories')->value ?? '';
+        if ($job_pwd && $app_pwd !== $job_pwd) {
+          $form_state->setErrorByName('field_pwd_categories', t('This job is not applicable for your PwD category.'));
+          $has_error = TRUE;
+        }
+      }
+
+  
+    }
+// ------------------ EMPLOYMENT DETAILS ------------------
+ if ($bundle === 'employment_details') {
+  if ($node->hasField('field_total_experience') && $job_node->hasField('field_min_experience')) {
+    $app_exp = strtolower(trim($node->get('field_total_experience')->value ?? ''));
+    $job_exp = (int) ($job_node->get('field_min_experience')->value ?? 0);
+
+    $years = 0;
+    $months = 0;
+
+    if (preg_match('/(\d+)\s*year/', $app_exp, $match_year)) {
+      $years = (int) $match_year[1];
+    }
+    if (preg_match('/(\d+)\s*month/', $app_exp, $match_month)) {
+      $months = (int) $match_month[1];
+    }
+
+    $total_exp = $years + ($months / 12);
+
+    if ($total_exp < $job_exp) {
+      $form_state->setErrorByName('field_total_experience',
+        t('Minimum @exp years of experience required. You have @y years @m months.', [
+          '@exp' => $job_exp,
+          '@y' => $years,
+          '@m' => $months,
+        ])
+      );
+      $has_error = TRUE;
+    }
+  }
+}
+
+    // ------------------ EDUCATION ------------------
+    if ($bundle === 'education') {
+      $percent_fields = [
+        'field_10th_marks_percentage', 'field_12th_marks_percentage',
+        'field_grad_marks', 'field_pg_marks', 'field_phd_marks', 'field_other_marks_percentage'
+      ];
+      foreach ($percent_fields as $field) {
+        if ($node->hasField($field)) {
+          $val = $node->get($field)->value;
+          if ($val !== '' && $val !== NULL && (!is_numeric($val) || $val < 35 || $val > 100)) {
+            $form_state->setErrorByName($field, t('%field must be between 35–100.', ['%field' => $field]));
+            $has_error = TRUE;
+          }
+        }
+      }
+
+      $gpa_fields = ['field_10th_gpa','field_12th_gpa','field_grad_gpa','field_pg_gpa','field_phd_gpa','field_other_gpa'];
+      foreach ($gpa_fields as $field) {
+        if ($node->hasField($field)) {
+          $val = $node->get($field)->value;
+          if ($val !== '' && $val !== NULL && (!is_numeric($val) || $val < 1 || $val > 10)) {
+            $form_state->setErrorByName($field, t('%field must be between 1–10.', ['%field' => $field]));
+            $has_error = TRUE;
+          }
+        }
+      }
+    }
+
+    // ------------------ REFEREE ------------------
+    if ($bundle === 'referee') {
+      $phone1 = $node->get('field_referee1_phone')->value ?? '';
+      $phone2 = $node->get('field_referee2_phone')->value ?? '';
+      $email1 = $node->get('field_referee1_email')->value ?? '';
+      $email2 = $node->get('field_referee2_email')->value ?? '';
+
+      if ($phone1 && !preg_match('/^\d{10}$/', $phone1)) {
+        $form_state->setErrorByName('field_referee1_phone', t('Referee 1 phone must be 10 digits.'));
+        $has_error = TRUE;
+      }
+      if ($phone2 && !preg_match('/^\d{10}$/', $phone2)) {
+        $form_state->setErrorByName('field_referee2_phone', t('Referee 2 phone must be 10 digits.'));
+        $has_error = TRUE;
+      }
+      if ($phone1 && $phone2 && $phone1 === $phone2) {
+        $form_state->setErrorByName('field_referee2_phone', t('Referee phone numbers must be different.'));
+        $has_error = TRUE;
+      }
+      if ($email1 && $email2 && strtolower($email1) === strtolower($email2)) {
+        $form_state->setErrorByName('field_referee2_email', t('Referee emails must be different.'));
+        $has_error = TRUE;
+      }
+    }
+  }
+
+  return !$has_error;
+}
+
+/**
+ * Implements hook_mail_alter().
+ */
+function instemjobportal_mail_alter(&$message) {
+  // Override Drupal's default user registration email
+  if ($message['id'] === 'user.register_no_approval_required') {
+    /** @var \Drupal\user\UserInterface $user */
+    $user = $message['params']['account'];
+    
+    if ($user->isActive()) {
+      // Generate the one-time login URL
+      $timestamp = \Drupal::time()->getRequestTime();
+      $hash = user_pass_rehash($user, $timestamp);
+      $url_options = [
+        'absolute' => TRUE,
+      ];
+      $one_time_login_url = \Drupal::service('url_generator')->generateFromRoute(
+        'user.reset',
+        [
+          'uid' => $user->id(),
+          'timestamp' => $timestamp,
+          'hash' => $hash,
+        ],
+        $url_options
+      );
+      
+      /** @var \Drupal\instemjobportal\Service\EmailService $email_service */
+      $email_service = \Drupal::service('instemjobportal.email_service');
+      $email_service->sendRegistrationEmail($user, $one_time_login_url);
+    }
+    
+    // Prevent the original mail from being sent
+    $message['send'] = FALSE;
+  }
+}

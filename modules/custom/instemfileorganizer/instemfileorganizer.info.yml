@@ -1,0 +1,6 @@
+name: InStem File Organizer
+type: module
+description: Organizes uploaded files by Job Code and Application ID.
+core_version_requirement: ^10 || ^11
+package: Custom
+version: 1.0

@@ -17,7 +17,7 @@ instemjobportal.preview_submit:
     _form: 'Drupal\instemjobportal\Form\PreviewSubmitForm'
     _title: 'Preview and Submit'
   requirements:
-    _permission: 'access content'
+    _permission: 'apply for job'
 
 instemjobportal.application_preview:
   path: '/application/{node}/preview'
@@ -27,3 +27,16 @@ instemjobportal.application_preview:
   requirements:
     _permission: 'access content'
     node: \d+
+
+instemjobportal.application_pdf:
+  path: '/application/{node}/pdf'
+  defaults:
+    _controller: '\Drupal\instemjobportal\Controller\ApplicationPdfController::pdf'
+    _title: 'Application PDF'
+  requirements:
+    _custom_access: '\Drupal\instemjobportal\Controller\ApplicationPdfController::access'
+  options:
+    parameters:
+      node:
+        type: entity:node
+

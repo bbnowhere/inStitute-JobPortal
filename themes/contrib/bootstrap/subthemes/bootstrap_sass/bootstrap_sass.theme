@@ -116,9 +116,23 @@ function bootstrap_sass_preprocess_views_view_fields(&$variables) {
       $apply_markup = '<a href="' . $external_link . '" target="_blank" class="btn btn-info mt-2">Apply </a>';
     }
 
+    // Provide the HTML as a renderable '#markup' and attach cacheability
+    // metadata so Drupal's render cache can vary and invalidate correctly.
+    $cache = [
+      'contexts' => ['user', 'route', 'url.query_args:job'],
+      'tags' => [],
+    ];
+    // If we have a job nid and an authenticated user, add the job/user cache
+    // tag so changes to a user's application invalidate the listing.
+    if (!empty($nid) && $is_authenticated) {
+      $cache['tags'][] = 'instemjobportal_app:job:' . $nid . ':user:' . $uid;
+    }
+
     $variables['apply_markup'] = [
-      '#type' => 'inline_template',
-      '#template' => $apply_markup,
+      '#markup' => $apply_markup,
+      // Restrict allowed tags when rendering the raw HTML snippet.
+      '#allowed_tags' => ['a', 'span', 'strong', 'em', 'p', 'br'],
+      '#cache' => $cache,
     ];
   }
 }
@@ -126,68 +140,165 @@ function bootstrap_sass_preprocess_views_view_fields(&$variables) {
 /**
  * Implements hook_preprocess_node().
  */
+// function bootstrap_sass_preprocess_node(&$variables) {
+//   if ($variables['node']->bundle() == 'personal_information') {
+//     // Get the application ID from the personal_information node's field_application.
+//     $application_id = NULL;
+//     if ($variables['node']->hasField('field_application') && !$variables['node']->get('field_application')->isEmpty()) {
+//       $application_id = $variables['node']->get('field_application')->target_id;
+//     }
+
+//     if ($application_id) {
+//       // Load referenced Education nodes.
+//       $education_nodes = \Drupal::entityTypeManager()
+//         ->getStorage('node')
+//         ->loadByProperties([
+//           'type' => 'education',
+//           'field_application' => $application_id,
+//         ]);
+//       $variables['education_nodes'] = $education_nodes;
+
+//       // Load referenced Employment nodes.
+//       $employment_nodes = \Drupal::entityTypeManager()
+//         ->getStorage('node')
+//         ->loadByProperties([
+//           'type' => 'employment_details',
+//           'field_application' => $application_id,
+//         ]);
+//       $variables['employment_nodes'] = $employment_nodes;
+
+//       // Load referenced Referee nodes.
+//       $referee_nodes = \Drupal::entityTypeManager()
+//         ->getStorage('node')
+//         ->loadByProperties([
+//           'type' => 'referee',
+//           'field_application' => $application_id,
+//           'uid' => $variables['node']->getOwnerId(),
+//         ]);
+//       $variables['referee_nodes'] = $referee_nodes;
+//       // Load referenced Additional Information nodes.
+//       $additional_nodes = \Drupal::entityTypeManager()
+//         ->getStorage('node')
+//         ->loadByProperties([
+//           'type' => 'additional_information',
+//           'field_application' => $application_id,
+//         ]);
+//       $variables['additional_nodes'] = $additional_nodes;
+
+//       // Load referenced File Upload nodes.
+//       $file_upload_nodes = \Drupal::entityTypeManager()
+//         ->getStorage('node')
+//         ->loadByProperties([
+//           'type' => 'file_upload',
+//           'field_application' => $application_id,
+//         ]);
+//       $variables['file_upload_nodes'] = $file_upload_nodes;
+//     }
+//     else {
+//       // If no application_id, set empty arrays to avoid Twig errors.
+//       $variables['education_nodes'] = [];
+//       $variables['employment_nodes'] = [];
+//       $variables['referee_nodes'] = [];
+//       $variables['additional_nodes'] = [];
+//       $variables['file_upload_nodes'] = [];
+//     }
+//    if ($variables['node']->hasField('field_photo') && !$variables['node']->get('field_photo')->isEmpty()) {
+//       $file = $variables['node']->get('field_photo')->entity;
+//       if ($file) {
+//         $realpath = \Drupal::service('file_system')->realpath($file->getFileUri());
+//         if (file_exists($realpath)) {
+//           $data = file_get_contents($realpath);
+//           $base64 = 'data:' . $file->getMimeType() . ';base64,' . base64_encode($data);
+//           $variables['photo_base64'] = $base64;
+//         }
+//       }
+//     }
+
+//     // ---- SIGNATURE ----
+//     if ($variables['node']->hasField('field_signature') && !$variables['node']->get('field_signature')->isEmpty()) {
+//       $file2 = $variables['node']->get('field_signature')->entity;
+//       if ($file2) {
+//         $realpath2 = \Drupal::service('file_system')->realpath($file2->getFileUri());
+//         if (file_exists($realpath2)) {
+//           $data2 = file_get_contents($realpath2);
+//           $base64_2 = 'data:' . $file2->getMimeType() . ';base64,' . base64_encode($data2);
+//           $variables['signature_base64'] = $base64_2;
+//         }
+//       }
+//     }
+
+//   }
+// }
+
 function bootstrap_sass_preprocess_node(&$variables) {
-  if ($variables['node']->bundle() == 'personal_information') {
-    // Get the application ID from the personal_information node's field_application.
-    $application_id = NULL;
-    if ($variables['node']->hasField('field_application') && !$variables['node']->get('field_application')->isEmpty()) {
-      $application_id = $variables['node']->get('field_application')->target_id;
-    }
+  $node = $variables['node'];
 
-    if ($application_id) {
-      // Load referenced Education nodes.
-      $education_nodes = \Drupal::entityTypeManager()
-        ->getStorage('node')
-        ->loadByProperties([
-          'type' => 'education',
-          'field_application' => $application_id,
-        ]);
-      $variables['education_nodes'] = $education_nodes;
+  if ($node->bundle() !== 'personal_information') {
+    return;
+  }
 
-      // Load referenced Employment nodes.
-      $employment_nodes = \Drupal::entityTypeManager()
-        ->getStorage('node')
-        ->loadByProperties([
-          'type' => 'employment_details',
-          'field_application' => $application_id,
-        ]);
-      $variables['employment_nodes'] = $employment_nodes;
+  $personal_info_nid = $node->id();
 
-      // Load referenced Referee nodes.
-      $referee_nodes = \Drupal::entityTypeManager()
-        ->getStorage('node')
-        ->loadByProperties([
-          'type' => 'referee',
-          'field_application' => $application_id,
-        ]);
-      $variables['referee_nodes'] = $referee_nodes;
+  $storage = \Drupal::entityTypeManager()->getStorage('node');
 
-      // Load referenced Additional Information nodes.
-      $additional_nodes = \Drupal::entityTypeManager()
-        ->getStorage('node')
-        ->loadByProperties([
-          'type' => 'additional_information',
-          'field_application' => $application_id,
-        ]);
-      $variables['additional_nodes'] = $additional_nodes;
+  // Helper to normalize values for Twig.
+  $normalize = function(array $items) {
+    return array_values($items);
+  };
 
-      // Load referenced File Upload nodes.
-      $file_upload_nodes = \Drupal::entityTypeManager()
-        ->getStorage('node')
-        ->loadByProperties([
-          'type' => 'file_upload',
-          'field_application' => $application_id,
-        ]);
-      $variables['file_upload_nodes'] = $file_upload_nodes;
-    }
-    else {
-      // If no application_id, set empty arrays to avoid Twig errors.
-      $variables['education_nodes'] = [];
-      $variables['employment_nodes'] = [];
-      $variables['referee_nodes'] = [];
-      $variables['additional_nodes'] = [];
-      $variables['file_upload_nodes'] = [];
+  // ---- Load all related CTs using field_personal_info ----
+  $variables['education_nodes'] = $normalize($storage->loadByProperties([
+    'type' => 'education',
+    'field_personal_info' => $personal_info_nid,
+  ]));
+
+  $variables['employment_nodes'] = $normalize($storage->loadByProperties([
+    'type' => 'employment_details',
+    'field_personal_info' => $personal_info_nid,
+  ]));
+
+  $variables['referee_nodes'] = $normalize($storage->loadByProperties([
+    'type' => 'referee',
+    'field_personal_info' => $personal_info_nid,
+    'uid' => $node->getOwnerId(),  // Optional (you can remove this if not needed)
+  ]));
+
+  $variables['additional_nodes'] = $normalize($storage->loadByProperties([
+    'type' => 'additional_information',
+    'field_personal_info' => $personal_info_nid,
+  ]));
+
+  $variables['file_upload_nodes'] = $normalize($storage->loadByProperties([
+    'type' => 'file_upload',
+    'field_personal_info' => $personal_info_nid,
+  ]));
+
+  // ---- PHOTO (base64) ----
+  if ($node->hasField('field_photo') && !$node->get('field_photo')->isEmpty()) {
+    $file = $node->get('field_photo')->entity;
+    if ($file) {
+      $realpath = \Drupal::service('file_system')->realpath($file->getFileUri());
+      if ($realpath && file_exists($realpath)) {
+        $data = file_get_contents($realpath);
+        $variables['photo_base64'] = 'data:' . $file->getMimeType() . ';base64,' . base64_encode($data);
+      }
     }
   }
+
+  // ---- SIGNATURE (base64) ----
+  if ($node->hasField('field_signature') && !$node->get('field_signature')->isEmpty()) {
+    $file2 = $node->get('field_signature')->entity;
+    if ($file2) {
+      $realpath2 = \Drupal::service('file_system')->realpath($file2->getFileUri());
+      if ($realpath2 && file_exists($realpath2)) {
+        $data2 = file_get_contents($realpath2);
+        $variables['signature_base64'] = 'data:' . $file2->getMimeType() . ';base64,' . base64_encode($data2);
+      }
+    }
+  }
+}
+
+if (isset($variables['pdf_mode'])) {
+  $variables['pdf_mode'] = TRUE;
 }
 

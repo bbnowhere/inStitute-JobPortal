@@ -503,7 +503,8 @@ $settings['update_free_access'] = FALSE;
  * security by serving user-uploaded files from a different domain or subdomain
  * pointing to the same server. Do not include a trailing slash.
  */
-# $settings['file_public_base_url'] = 'http://downloads.example.com/files';
+ #$settings['file_public_base_url'] = 'http://priweb3.instem.res.in/jobportal';
+ #$base_url = 'https://priweb3.instem.res.in/jobportal';
 
 /**
  * Public file path:
@@ -587,7 +588,9 @@ $settings['update_free_access'] = FALSE;
  * about securing private files.
  */
 # $settings['file_private_path'] = '';
-
+$settings['file_private_path'] = '/var/www/private';
+$settings['file_temporary_path'] = '/tmp';
+$settings['file_downloads'] = 1;
 /**
  * Temporary file path:
  *
@@ -739,6 +742,10 @@ $settings['container_yamls'][] = $app_root . '/' . $site_path . '/services.yml';
  * @see https://www.drupal.org/docs/installing-drupal/trusted-host-settings
  */
 # $settings['trusted_host_patterns'] = [];
+ $settings['trusted_host_patterns'] = [
+    '^instem\.res\.in$',
+    '^.+\.instem\.res\.in$'
+  ];
 
 /**
  * The default list of directories that will be ignored by Drupal's file API.

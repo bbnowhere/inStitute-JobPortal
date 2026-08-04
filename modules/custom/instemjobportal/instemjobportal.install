@@ -1,0 +1,39 @@
+<?php
+/**
+ * Update decimal precision in field storage configuration only.
+ */
+function instemjobportal_update_9007() {
+
+  $fields = [
+    'field_10th_marks_percentage',
+    'field_12th_marks_percentage',
+    'field_grad_marks',
+    'field_10th_gpa',
+    'field_12th_gpa',
+    'field_grad_gpa',
+    'field_pg_gpa',
+    'field_phd_gpa',
+    'field_phd_marks',
+    'field_pg_marks',
+  ];
+
+  $entity_type = 'node';
+
+  $storage = \Drupal::entityTypeManager()->getStorage('field_storage_config');
+
+  foreach ($fields as $field) {
+    $id = "$entity_type.$field";
+    if ($field_storage = $storage->load($id)) {
+
+      // Update precision and scale.
+      $current = $field_storage->get('settings');
+      $current['precision'] = 10;
+      $current['scale'] = 2;
+
+      $field_storage->set('settings', $current);
+      $field_storage->save();
+    }
+  }
+
+  \Drupal::messenger()->addMessage('Field storage updated. Now run SQL ALTER commands.');
+}

@@ -1,5 +1,0 @@
-name: File Upload Module
-type: module
-description: Provides a File Upload content type with custom fields for document uploads.
-core_version_requirement: ^8 || ^9 || ^11
-package: Custom

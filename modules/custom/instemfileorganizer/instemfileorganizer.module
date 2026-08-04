@@ -1,0 +1,182 @@
+<?php
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\node\Entity\Node;
+use Drupal\file\Entity\File;
+use Drupal\Core\File\FileSystemInterface;
+
+/**
+ * Mapping of file fields to folder names.
+ */
+function instemfileorganizer_field_folder_map() {
+  return [
+
+    // personal_information
+    'field_photo' => 'Photo',
+    'field_signature' => 'Signature',
+    'field_category_certificate' => 'CategoryCertificate',
+
+    // file_upload
+    'field_resume' => 'Resume',
+    'field_experience_certificates' => 'ExperienceCertificates',
+    'field_noc_file' => 'NOC',
+    'field_pan_passport_dl_voter' => 'PanPassportDLVoter',
+    'field_reservation_certificate' => 'ReservationCertificate',
+
+    // education
+    'field_10th_certificate' => '10thCertificate',
+    'field_12th_certificate' => '12thCertificate',
+    'field_grad_cert' => 'Graduation',
+    'field_pg_cert' => 'PostGraduation',
+    'field_phd_cert' => 'PhDCertificate',
+  ];
+}
+
+/**
+ * Implements hook_entity_presave().
+ */
+function instemfileorganizer_entity_presave(EntityInterface $entity) {
+
+  if ($entity->getEntityTypeId() !== 'node') {
+    return;
+  }
+
+  $map = instemfileorganizer_field_folder_map();
+  $file_system = \Drupal::service('file_system');
+
+  /**
+   * STEP 1 — LOAD JOB NODE (field_application)
+   */
+  if (
+    !$entity->hasField('field_application') ||
+    $entity->get('field_application')->isEmpty()
+  ) {
+    return;
+  }
+
+  $job_node = Node::load($entity->get('field_application')->target_id);
+
+  if (
+    !$job_node ||
+    !$job_node->hasField('field_job_code') ||
+    $job_node->get('field_job_code')->isEmpty()
+  ) {
+    return;
+  }
+
+  $job_code = $job_node->get('field_job_code')->value;
+
+  /**
+   * STEP 2 — LOAD PERSONAL INFO NODE → get field_application_id
+   */
+  $personal_info_node = NULL;
+
+  // Case A: This node *is* personal_information
+  if ($entity->bundle() === 'personal_information') {
+    $personal_info_node = $entity;
+  }
+  // Case B: Node references personal_information via field_personal_info
+  elseif ($entity->hasField('field_personal_info') && !$entity->get('field_personal_info')->isEmpty()) {
+    $personal_info_node = Node::load($entity->get('field_personal_info')->target_id);
+  }
+
+  if (
+    !$personal_info_node ||
+    !$personal_info_node->hasField('field_application_id') ||
+    $personal_info_node->get('field_application_id')->isEmpty()
+  ) {
+    return;
+  }
+
+  $application_id = $personal_info_node->get('field_application_id')->value;
+
+  /**
+   * STEP 3 — PROCESS EACH FILE FIELD
+   */
+  foreach ($map as $field_name => $folder_name) {
+
+    if (
+      !$entity->hasField($field_name) ||
+      $entity->get($field_name)->isEmpty()
+    ) {
+      continue;
+    }
+
+    /** @var \Drupal\file\Entity\File $new_file */
+    $new_file = File::load($entity->get($field_name)->target_id);
+    if (!$new_file) {
+      continue;
+    }
+
+    $old_uri = $new_file->getFileUri();
+    $extension = pathinfo($old_uri, PATHINFO_EXTENSION);
+    $new_filename = $application_id . '_' . $folder_name . '.' . $extension;
+
+    // Build final directory path
+    $destination = "private://{$job_code}/{$application_id}/{$folder_name}";
+
+    // Ensure folder exists
+    $file_system->prepareDirectory(
+      $destination,
+      FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS
+    );
+
+    // Final target URI
+    $new_uri = $destination . '/' . $new_filename;
+
+    /**
+     * DELETE OLD FILE — ONLY DURING UPDATES
+     */
+    if (!$entity->isNew() && isset($entity->original)) {
+
+      $original = $entity->original;
+
+      if (
+        $original->hasField($field_name) &&
+        !$original->get($field_name)->isEmpty()
+      ) {
+
+        $old_fid = $original->get($field_name)->target_id;
+
+        // Ensure old file is not the same as new
+        if ($old_fid && $old_fid != $new_file->id()) {
+
+          $old_file = File::load($old_fid);
+
+          if ($old_file) {
+            $old_real = $file_system->realpath($old_file->getFileUri());
+
+            if ($old_real && file_exists($old_real)) {
+              @unlink($old_real);
+            }
+
+            $old_file->delete();
+          }
+        }
+      }
+    }
+
+    /**
+     * MOVE + RENAME FILE — only if URI changes
+     */
+    if ($old_uri !== $new_uri) {
+
+      // If target already exists and is different file, remove it
+      $new_real = $file_system->realpath($new_uri);
+      if ($new_real && file_exists($new_real)) {
+        @unlink($new_real);
+      }
+
+      // Now safe to move
+      $file_system->move($old_uri, $new_uri, TRUE);
+    }
+
+    /**
+     * UPDATE FILE ENTITY
+     */
+    $new_file->setPermanent();
+    $new_file->setFileUri($new_uri);
+    $new_file->setFilename($new_filename);
+    $new_file->save();
+  }
+}

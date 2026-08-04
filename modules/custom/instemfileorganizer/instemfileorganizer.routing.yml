@@ -1,0 +1,17 @@
+instemfileorganizer.export_zip:
+  path: '/application/{application_id}/zip'
+  defaults:
+    _controller: '\Drupal\instemfileorganizer\Controller\ZipExportController::export'
+    _title: 'Download Application ZIP'
+  requirements:
+    _permission: 'download application zip'
+    application_id: '.+'
+
+instemfileorganizer.export_job_zip:
+  path: '/job/{job_code}/zip'
+  defaults:
+    _controller: '\Drupal\instemfileorganizer\Controller\JobZipExportController::export'
+    _title: 'Download Full Job ZIP'
+  requirements:
+    _permission: 'download application zip'
+    job_code: '.+'

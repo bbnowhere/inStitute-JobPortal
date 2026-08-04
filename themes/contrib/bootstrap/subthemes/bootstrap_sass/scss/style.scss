@@ -14,7 +14,11 @@ Description: Bootstrap 4 with Sass
 body {
     background: $body-bg;
 }
-
+.bg-primary {
+	--bs-bg-opacity: 1;
+	//background-color: cadetblue !important;
+}  
+  
 
 /* COLORS
 --------------------------------------------------*/
@@ -97,7 +101,7 @@ header.bg-light-header {
 .navbar-brand,
 .site-name,
 .site-name-slogan a {
-  color: #1a2332 !important; // dark blue-gray for contrast
+  color: #FDFDFD !important; // dark blue-gray for contrast
 }
 
 // Optional: update menu link color for light header
@@ -288,7 +292,9 @@ ul.nav > li > a:hover,
 
 .bg-dark {
 	--bs-bg-opacity: 1;
-	background-color: rgba(var(--bs-primary-rgb), var(--bs-bg-opacity)) !important;
+//	background-color: rgba(var(--bs-primary-rgb), var(--bs-bg-opacity)) !important;
+//background-color:cadetblue !important;
+background-color: rgba(var(--bs-primary-rgb), var(--bs-bg-opacity)) !important;
 }
 
 .openpositions .card {
@@ -320,6 +326,13 @@ ul.nav > li > a:hover,
   border: 1px solid #e5e7eb;
   transition: box-shadow 0.2s, border-color 0.2s;
   min-height: 100%;
+}
+
+
+/* Hide title field on specific node types */
+/* Hide title field for certain bundles on both add and edit */
+.js-form-item.js-form-type-textfield.form-type-textfield.js-form-item-title-0-value.form-item-title-0-value.disabled.mb-3 {
+	display: none;
 }
 
 /*

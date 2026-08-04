@@ -1,0 +1,4 @@
+services:
+  instemjobportal.email_service:
+    class: Drupal\instemjobportal\Service\EmailService
+    arguments: ['@plugin.manager.mail']

@@ -4,35 +4,45 @@
     Personal Information
   </div>
   <div class="card-body">
-    <div class="row mb-3">
-      <div class="col-md-3 text-center">
-        {{ content.field_photo }}
-        <div class="small text-muted">Photo</div>
-      </div>
-      <div class="col-md-3 text-center">
-        {{ content.field_signature }}
-        <div class="small text-muted">Signature</div>
-      </div>
+<div class="row mb-3">
+
+  <div class="col-md-3 text-center">
+    {% if photo_base64 is defined %}
+      <img src="{{ photo_base64 }}" class="img-thumbnail mb-2" style="max-width:120px;">
+    {% endif %}
+    <div class="small text-muted">Photo</div>
+  </div>
+
+  <div class="col-md-3 text-center">
+    {% if signature_base64 is defined %}
+      <img src="{{ signature_base64 }}" class="img-thumbnail mb-2" style="max-width:120px;">
+    {% endif %}
+    <div class="small text-muted">Signature</div>
+  </div>
+
+</div>
+
     </div>
     <table class="table table-bordered table-striped">
       <tbody>
-        <tr><th>Full Name</th><td>{{ content.field_full_name['#markup'] ?? content.field_full_name }}</td></tr>
-        <tr><th>Date of Birth</th><td>{{ content.field_date_of_birth['#markup'] ?? content.field_date_of_birth }}</td></tr>
-        <tr><th>Age</th><td>{{ content.field_age['#markup'] ?? content.field_age }}</td></tr>
-        <tr><th>Father/Mother/Spouse Name</th><td>{{ content.field_father_mother_spouse_name['#markup'] ?? content.field_father_mother_spouse_name }}</td></tr>
-        <tr><th>Email</th><td>{{ content.field_email['#markup'] ?? content.field_email }}</td></tr>
-        <tr><th>Gender</th><td>{{ content.field_gender['#markup'] ?? content.field_gender }}</td></tr>
-        <tr><th>Category</th><td>{{ content.field_category['#markup'] ?? content.field_category }}</td></tr>
-        <tr><th>PWD Category</th><td>{{ content.field_pwd_category['#markup'] ?? content.field_pwd_category }}</td></tr>
-        <tr><th>Category Certificate</th><td>{{ content.field_category_certificate['#markup'] ?? content.field_category_certificate }}</td></tr>
-        <tr><th>Mobile Number</th><td>{{ content.field_mobile_number['#markup'] ?? content.field_mobile_number }}</td></tr>
-        <tr><th>Marital Status</th><td>{{ content.field_marital_status['#markup'] ?? content.field_marital_status }}</td></tr>
-        <tr><th>Nationality</th><td>{{ content.field_nationality['#markup'] ?? content.field_nationality }}</td></tr>
-        <tr><th>Alternate Phone</th><td>{{ content.field_alternate_phone['#markup'] ?? content.field_alternate_phone }}</td></tr>
-        <tr><th>Permanent Address</th><td>{{ content.field_permanent_address['#markup'] ?? content.field_permanent_address }}</td></tr>
-        <tr><th>Correspondence Address</th><td>{{ content.field_correspondence_address['#markup'] ?? content.field_correspondence_address }}</td></tr>
-        <tr><th>Departmental Candidate</th><td>{{ content.field_departmental_candidate['#markup'] ?? content.field_departmental_candidate }}</td></tr>
-        <tr><th>Experience Level</th><td>{{ content.field_experience_level['#markup'] ?? content.field_experience_level }}</td></tr>
+        <tr><th>Full Name</th><td>{{ (node.field_full_name.value is iterable ? node.field_full_name.value|join(' ') : node.field_full_name.value)|upper }}</td></tr>
+        <tr><th>Date of Birth</th><td>{{ node.field_date_of_birth.value }}</td></tr>
+        <tr><th>Age</th><td>{{ node.field_age.value }}</td></tr>
+        <tr><th>Father/Mother/Spouse Name</th><td>{{ (node.field_father_mother_spouse_name.value is iterable ? node.field_father_mother_spouse_name.value|join(' ') : node.field_father_mother_spouse_name.value)|capitalize }}</td></tr>
+        <tr><th>Email</th><td>{{ node.field_email.value }}</td></tr>
+        <tr><th>Gender</th><td>{{ (node.field_gender.value is iterable ? node.field_gender.value|join(' ') : node.field_gender.value)|capitalize }}</td></tr>
+        <tr><th>Category</th><td>{{ (node.field_category.value is iterable ? node.field_category.value|join(' ') : node.field_category.value)|upper }}</td></tr>
+        <tr><th>PWD Category</th><td>{{ (node.field_pwd_category.value is iterable ? node.field_pwd_category.value|join(' ') : node.field_pwd_category.value)|upper }}</td></tr>
+        <tr><th>Category Certificate</th><td>{{ (node.field_category_certificate.value is iterable ? node.field_category_certificate.value|join(' ') : node.field_category_certificate.value)|capitalize }}</td></tr>
+        <tr><th>Mobile Number</th><td>{{ node.field_mobile_number.value }}</td></tr>
+        <tr><th>Marital Status</th><td>{{ (node.field_marital_status.value is iterable ? node.field_marital_status.value|join(' ') : node.field_marital_status.value)|upper }}</td></tr>
+        <tr><th>Nationality</th><td>{{ (node.field_nationality.value is iterable ? node.field_nationality.value|join(' ') : node.field_nationality.value)|upper }}</td></tr>
+        <tr><th>Alternate Phone</th><td>{{ node.field_alternate_phone.value }}</td></tr>
+        <tr><th>Permanent Address</th><td>{{ node.field_permanent_address.value }}</td></tr>
+        <tr><th>Correspondence Address</th><td>{{ node.field_correspondence_address.value }}</td></tr>
+        <tr><th>Departmental Candidate</th><td>{{ (node.field_departmental_candidate.value is iterable ? node.field_departmental_candidate.value|join(' ') : node.field_departmental_candidate.value)|capitalize }}</td></tr>
+        <tr><th>Brief particulars about departmental candidates i.e. who are all entitled to get the benefits of departmental candidate.</th><td>{{ node.field_departmental_candidate_details.value ?: '-' }}</td></tr>
+        <tr><th>Experience Level</th><td>{{ (node.field_experience_level.value is iterable ? node.field_experience_level.value|join(' ') : node.field_experience_level.value)|upper }}</td></tr>
       </tbody>
     </table>
   </div>

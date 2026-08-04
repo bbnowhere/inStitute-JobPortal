@@ -1,0 +1,600 @@
+{# filepath: themes/contrib/bootstrap/subthemes/bootstrap_sass/templates/node--personal-information--pdf.html.twig #}
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>
+    Application No:
+{{ node.field_application_id.0.value ?? 'N/A' }}
+
+  </title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; color: #222; }
+    .card { border: 1px solid #dee2e6; border-radius: 8px; margin-bottom: 24px; box-shadow: 0 2px 8px #e9ecef; }
+    .card-header { background: #061d35ff; color: #fff; padding: 16px 24px; border-radius: 8px 8px 0 0; }
+    .card-header h3, .card-header div { color: #fff !important; }
+    .card-body { padding: 24px; }
+    h3 { color: #061d35ff; margin-bottom: 12px; font-size: 1.7em; }
+    h5 { color: #061d35ff; margin-bottom: 12px; font-size: 1.2em; }
+    .table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+    .table th, .table td { border: 1px solid #dee2e6; padding: 8px 10px; }
+    .table th { background: #f8f9fa; color: #333; }
+    dl.row { margin-bottom: 0; }
+    dt { font-weight: bold; }
+    .alert-success { background: #d4edda; color: #155724; padding: 10px 16px; border-radius: 4px; }
+    .text-muted { color: #6c757d; }
+    .img-thumbnail { border: 1px solid #dee2e6; border-radius: 4px; padding: 2px; }
+    .text-center { text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="card-header">
+      <h3 class="mb-0" style="color:#fff;">
+        {{ node.field_full_name.value }}
+        &nbsp;|&nbsp;
+        Application No: {{ node.field_application_id.0.value }}
+      </h3>
+      <div style="font-size:1.1em; margin-top:4px; color:#fff;">
+        {% if node.field_application.entity %}
+          Post: {{ node.field_application.entity.label }}
+        {% endif %}
+      </div>
+    </div>
+    <div class="card-body">
+
+      {# --- Personal Information --- #}
+    <table class="table table-bordered">
+  <tr>
+    <td rowspan="6" style="width:140px; text-align:center;">
+
+      {# {% if node.field_photo.entity %}
+        <img src="{{ 'https://beta.instem.res.in' ~ file_url(node.field_photo.entity.uri.value) }}"
+             class="img-thumbnail mb-2" style="max-width:120px;">
+      {% endif %}
+      <br>
+      {% if node.field_signature.entity %}
+        <img src="{{ 'https://beta.instem.res.in' ~ file_url(node.field_signature.entity.uri.value) }}"
+             class="img-thumbnail" style="max-width:120px;">
+      {% endif %} #}
+{% if photo_base64 is defined %}
+  <img src="{{ photo_base64 }}" class="img-thumbnail mb-2" style="max-width:120px;">
+{% endif %}
+    </td>
+    <th>Full Name</th>
+    <td>{{ (node.field_full_name.value is iterable ? node.field_full_name.value|join(' ') : node.field_full_name.value)|upper }}</td>
+
+    <th>Date of Birth</th>
+    <td>{{ node.field_date_of_birth.value }}</td>
+  </tr>
+
+  <tr>
+    <th>Age</th>
+    <td>{{ node.field_age.value }}</td>
+
+    <th>Father/Mother/Spouse Name</th>
+    <td>{{ (node.field_father_mother_spouse_name.value is iterable ? node.field_father_mother_spouse_name.value|join(' ') : node.field_father_mother_spouse_name.value)|upper }}</td>
+  </tr>
+
+  <tr>
+    <th>Email</th>
+    <td>{{ node.field_email.value }}</td>
+
+    <th>Gender</th>
+    <td>{{ (node.field_gender.value is iterable ? node.field_gender.value|join(' ') : node.field_gender.value)|upper }}</td>
+  </tr>
+
+  <tr>
+    <th>Category</th>
+    <td>{{ (node.field_category.value is iterable ? node.field_category.value|join(' ') : node.field_category.value)|upper }}</td>
+
+    <th>PWD Category</th>
+    <td>{{ (node.field_pwd_category.value is iterable ? node.field_pwd_category.value|join(' ') : node.field_pwd_category.value)|upper }}</td>
+  </tr>
+
+  <tr>
+    <th>Mobile Number</th>
+    <td>{{ node.field_mobile_number.value }}</td>
+
+    <th>Marital Status</th>
+    <td>{{ (node.field_marital_status.value is iterable ? node.field_marital_status.value|join(' ') : node.field_marital_status.value)|upper }}</td>
+  </tr>
+
+  <tr>
+    <th>Nationality</th>
+    <td>{{ (node.field_nationality.value is iterable ? node.field_nationality.value|join(' ') : node.field_nationality.value)|upper }}</td>
+
+    <th>Alternate Phone</th>
+    <td>{{ node.field_alternate_phone.value }}</td>
+  </tr>
+
+<tr>
+  <th>Permanent Address</th>
+  <td colspan="4">{{ node.field_permanent_address.value }}</td>
+</tr>
+
+<tr>
+  <th>Correspondence Address</th>
+  <td colspan="4">{{ node.field_correspondence_address.value }}</td>
+</tr>
+
+  <tr>
+    <th>Departmental Candidate</th>
+    <td>{{ (node.field_departmental_candidate.value is iterable ? node.field_departmental_candidate.value|join(' ') : node.field_departmental_candidate.value)|capitalize }}</td>
+
+    <th>Experience Level</th>
+    <td colspan="2">{{ (node.field_experience_level.value is iterable ? node.field_experience_level.value|join(' ') : node.field_experience_level.value)|upper }}</td>
+  </tr>
+  <tr>
+    <th>Brief particulars about departmental candidates i.e. who are all entitled to get the benefits of departmental candidate.</th>
+    <td colspan="4">{{ node.field_brief_particulars_about_de.value ?: '-' }}</td>
+  </tr>
+</table>
+
+
+      {# --- Education Section (Table) --- #}
+      <h5 class="mt-4 mb-3 border-bottom pb-2">Education</h5>
+      {% set edu = education_nodes|first %}
+      {% if edu %}
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Level</th>
+                <th>Qualification</th>
+                <th>Specialization</th>
+                <th>University</th>
+                <th>Country</th>
+                <th>CGPA/GPA</th>
+                <th>Marks (%)</th>
+                <th>Month/Year</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>10th</td>
+                <td>{{ (edu.field_10th_qualification_name.value is iterable ? edu.field_10th_qualification_name.value|join(' ') : edu.field_10th_qualification_name.value)|upper }}</td>
+                <td>{{ (edu.field_10th_specialization.value is iterable ? edu.field_10th_specialization.value|join(' ') : edu.field_10th_specialization.value)|upper }}</td>
+                <td>{{ (edu.field_10th_university.value is iterable ? edu.field_10th_university.value|join(' ') : edu.field_10th_university.value)|upper }}</td>
+                <td>{{ (edu.field_10th_country.value is iterable ? edu.field_10th_country.value|join(' ') : edu.field_10th_country.value)|upper }}</td>
+                <td>{{ edu.field_10th_gpa.value }}</td>
+                <td>{{ edu.field_10th_marks_percentage.value }}</td>
+                <td>{{ edu.field_10th_year_of_passing.value }}</td>
+              </tr>
+              <tr>
+                <td>12th</td>
+                <td>{{ (edu.field_12th_qualification_name.value is iterable ? edu.field_12th_qualification_name.value|join(' ') : edu.field_12th_qualification_name.value)|upper }}</td>
+                <td>{{ (edu.field_12th_specialization.value is iterable ? edu.field_12th_specialization.value|join(' ') : edu.field_12th_specialization.value)|upper }}</td>
+                <td>{{ (edu.field_12th_university.value is iterable ? edu.field_12th_university.value|join(' ') : edu.field_12th_university.value)|upper }}</td>
+                <td>{{ (edu.field_12th_country.value is iterable ? edu.field_12th_country.value|join(' ') : edu.field_12th_country.value)|upper }}</td>
+                <td>{{ edu.field_12th_gpa.value }}</td>
+                <td>{{ edu.field_12th_marks_percentage.value }}</td>
+                <td>{{ edu.field_12th_year_of_passing.value }}</td>
+              </tr>
+              <tr>
+                <td>Graduation</td>
+                <td>{{ (edu.field_grad_qual_name.value is iterable ? edu.field_grad_qual_name.value|join(' ') : edu.field_grad_qual_name.value)|upper }}</td>
+                <td>{{ (edu.field_grad_spec.value is iterable ? edu.field_grad_spec.value|join(' ') : edu.field_grad_spec.value)|upper }}</td>
+                <td>{{ (edu.field_grad_univ.value is iterable ? edu.field_grad_univ.value|join(' ') : edu.field_grad_univ.value)|upper }}</td>
+                <td>{{ (edu.field_grad_country.value is iterable ? edu.field_grad_country.value|join(' ') : edu.field_grad_country.value)|upper }}</td>
+                <td>{{ edu.field_grad_gpa.value }}</td>
+                <td>{{ edu.field_grad_marks.value }}</td>
+                <td>{{ edu.field_grad_year.value }}</td>
+              </tr>
+              <tr>
+                <td>Post Graduation</td>
+                <td>{{ (edu.field_pg_qual_name.value is iterable ? edu.field_pg_qual_name.value|join(' ') : edu.field_pg_qual_name.value)|upper }}</td>
+                <td>{{ (edu.field_pg_spec.value is iterable ? edu.field_pg_spec.value|join(' ') : edu.field_pg_spec.value)|upper }}</td>
+                <td>{{ (edu.field_pg_univ.value is iterable ? edu.field_pg_univ.value|join(' ') : edu.field_pg_univ.value)|upper }}</td>
+                <td>{{ (edu.field_pg_country.value is iterable ? edu.field_pg_country.value|join(' ') : edu.field_pg_country.value)|upper }}</td>
+                <td>{{ edu.field_pg_gpa.value }}</td>
+                <td>{{ edu.field_pg_marks.value }}</td>
+                <td>{{ edu.field_pg_year.value }}</td>
+              </tr>
+              <tr>
+                <td>PhD</td>
+                <td>{{ (edu.field_phd_qual_name.value is iterable ? edu.field_phd_qual_name.value|join(' ') : edu.field_phd_qual_name.value)|upper }}</td>
+                <td>{{ (edu.field_phd_spec.value is iterable ? edu.field_phd_spec.value|join(' ') : edu.field_phd_spec.value)|upper }}</td>
+                <td>{{ (edu.field_phd_univ.value is iterable ? edu.field_phd_univ.value|join(' ') : edu.field_phd_univ.value)|upper }}</td>
+                <td>{{ (edu.field_phd_country.value is iterable ? edu.field_phd_country.value|join(' ') : edu.field_phd_country.value)|upper }}</td>
+                <td>{{ edu.field_phd_gpa.value }}</td>
+                <td>{{ edu.field_phd_marks.value }}</td>
+                <td>{{ edu.field_phd_year.value }}</td>
+              </tr>
+              <tr>
+                <td>Other</td>
+                <td>{{ (edu.field_other_qualification_name.value is iterable ? edu.field_other_qualification_name.value|join(' ') : edu.field_other_qualification_name.value)|upper }}</td>
+                <td>{{ (edu.field_other_spec.value is iterable ? edu.field_other_spec.value|join(' ') : edu.field_other_spec.value)|upper }}</td>
+                <td>{{ (edu.field_other_uni.value is iterable ? edu.field_other_uni.value|join(' ') : edu.field_other_uni.value)|upper }}</td>
+                <td>{{ (edu.field_other_country.value is iterable ? edu.field_other_country.value|join(' ') : edu.field_other_country.value)|upper }}</td>
+                <td>{{ edu.field_other_cgpa_gpa.value }}</td>
+                <td>{{ edu.field_other_marks.value }}</td>
+                <td>{{ edu.field_other_year_of_passing.value }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="text-muted">No education details provided.</div>
+      {% endif %}
+
+     {# --- Employment Details (Table) --- #}
+<h5 class="mt-4 mb-3 border-bottom pb-2">Employment Details</h5>
+
+{% if employment_nodes is defined and employment_nodes|length > 0 %}
+  {% set emp_node = employment_nodes|first %}
+  {% if emp_node.field_employment_details is defined and emp_node.field_employment_details|length > 0 %}
+
+    {% for para in emp_node.field_employment_details %}
+           <div class="table-responsive">
+          <table class="table table-bordered table-striped align-middle">
+          <tr>
+            <th style="text-align: left; width: 40%;">SL No</th>
+            <td>{{ loop.index }}</td>
+          </tr>
+          <tr>
+            <th style="text-align: left;">Designation</th>
+            <td>{{ (para.entity.field_designation.value is iterable ? para.entity.field_designation.value|join(' ') : para.entity.field_designation.value) }}</td>
+          </tr>
+          <tr>
+            <th style="text-align: left;">Employer</th>
+            <td>{{ (para.entity.field_employer.value is iterable ? para.entity.field_employer.value|join(' ') : para.entity.field_employer.value)|capitalize }}</td>
+          </tr>
+          <tr>
+            <th style="text-align: left;">Address</th>
+            <td>{{ para.entity.field_job_address.value }}</td>
+          </tr>
+          <tr>
+            <th style="text-align: left;">Employment Type</th>
+            <td>{{ (para.entity.field_employment_type.value is iterable ? para.entity.field_employment_type.value|join(' ') : para.entity.field_employment_type.value)|capitalize }}
+              {% if para.entity.field_employment_type.value == 'Other' and para.entity.field_other_employment_type.value %}
+                ({{ (para.entity.field_other_employment_type.value is iterable ? para.entity.field_other_employment_type.value|join(' ') : para.entity.field_other_employment_type.value)|capitalize }})
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th style="text-align: left;">Type of Work</th>
+            <td>{{ (para.entity.field_type_of_work.value is iterable ? para.entity.field_type_of_work.value|join(' ') : para.entity.field_type_of_work.value)|capitalize }}
+              {% if para.entity.field_type_of_work.value == 'Other' and para.entity.field_other_type_of_work.value %}
+                ({{ (para.entity.field_other_type_of_work.value is iterable ? para.entity.field_other_type_of_work.value|join(' ') : para.entity.field_other_type_of_work.value)|capitalize }})
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <th style="text-align: left;">Nature of Job</th>
+            <td>{{ (para.entity.field_nature_of_job.value is iterable ? para.entity.field_nature_of_job.value|join(' ') : para.entity.field_nature_of_job.value)|capitalize }}</td>
+          </tr>
+          <tr>
+            <th style="text-align: left;">From</th>
+            <td>{{ para.entity.field_from_date.value }}</td>
+          </tr>
+          <tr>
+            <th style="text-align: left;">To</th>
+            <td>{{ para.entity.field_to_date.value }}</td>
+          </tr>
+          <tr>
+            <th style="text-align: left;">Experience (years)</th>
+            <td>{{ para.entity.field_experience_calculated.value }}</td>
+          </tr>
+          <tr>
+            <th style="text-align: left;">Pay Level
+            <td>{{ para.entity.field_pay_band.value }}</td>
+          </tr>
+        </table>
+      </div>
+    {% endfor %}
+
+  {% else %}
+    <div class="text-muted">No employment details provided.</div>
+  {% endif %}
+{% else %}
+  <div class="text-muted">No employment details provided.</div>
+{% endif %}
+
+{% if emp_node.field_total_experience.value %}
+  <div style="font-weight:bold; margin-bottom:10px;">
+    Total Experience: {{ emp_node.field_total_experience.value }}
+  </div>
+{% endif %}
+
+ {# --- Referee Section (Table) --- #}
+      <h5 class="mt-4 mb-3 border-bottom pb-2">Referees</h5>
+      {% if referee_nodes is defined and referee_nodes|length > 0 %}
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped align-middle">
+            <thead class="table-light">
+              <tr>
+                <th>Referee</th>
+                <th>Name</th>
+                <th>Designation</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Address</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for ref in referee_nodes %}
+                <tr>
+                  <td>Referee 1</td>
+                  <td>{{ ref.field_referee1_name.value }}</td>
+                  <td>{{ ref.field_referee1_designation.value }}</td>
+                  <td>{{ ref.field_referee1_email.value }}</td>
+                  <td>{{ ref.field_referee1_phone.value }}</td>
+                  <td>
+                    {{
+                      ref.field_referee1_address.value is iterable
+                        ? ref.field_referee1_address.value|join(', ')
+                        : ref.field_referee1_address.value
+                    }}
+                  </td>
+                </tr>
+                <tr>
+                  <td>Referee 2</td>
+                  <td>{{ ref.field_referee2_name.value }}</td>
+                  <td>{{ ref.field_referee2_designation.value }}</td>
+                  <td>{{ ref.field_referee2_email.value }}</td>
+                  <td>{{ ref.field_referee2_phone.value }}</td>
+                  <td>
+                    {{
+                      ref.field_referee2_address.value is iterable
+                        ? ref.field_referee2_address.value|join(', ')
+                        : ref.field_referee2_address.value
+                    }}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="text-muted">No referees provided.</div>
+      {% endif %}
+
+  {# --- Uploaded Documents --- #}
+<h5 class="mt-4 mb-3 border-bottom pb-2">Uploaded Documents</h5>
+
+{% if file_upload_nodes is defined and file_upload_nodes|length > 0 %}
+  <table class="table table-bordered" style="margin-bottom: 20px;">
+    <thead>
+      <tr>
+        <th style="width: 35%;">Document Type</th>
+        <th>File Name / Details</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      {% for file in file_upload_nodes %}
+
+        {# Education documents (10th/12th/Graduation/etc) #}
+        {% if education_nodes is defined %}
+          {% for edu_doc in education_nodes %}
+            {% if edu_doc.field_10th_certificate is defined and edu_doc.field_10th_certificate.entity %}
+              <tr>
+                <td>10th Document</td>
+                <td>{{ edu_doc.field_10th_certificate.entity.filename.value }}</td>
+              </tr>
+            {% endif %}
+            {% if edu_doc.field_12th_certificate is defined and edu_doc.field_12th_certificate.entity %}
+              <tr>
+                <td>12th Document</td>
+                <td>{{ edu_doc.field_12th_certificate.entity.filename.value }}</td>
+              </tr>
+            {% endif %}
+            {% if edu_doc.field_grad_cert is defined and edu_doc.field_grad_cert.entity %}
+              <tr>
+                <td>Graduation Document</td>
+                <td>{{ edu_doc.field_grad_cert.entity.filename.value }}</td>
+              </tr>
+            {% endif %}
+            {% if edu_doc.field_pg_cert is defined and edu_doc.field_pg_cert.entity %}
+              <tr>
+                <td>Post Graduation Document</td>
+                <td>{{ edu_doc.field_pg_cert.entity.filename.value }}</td>
+              </tr>
+            {% endif %}
+            {% if edu_doc.field_phd_cert is defined and edu_doc.field_phd_cert.entity %}
+              <tr>
+                <td>PhD Document</td>
+                <td>{{ edu_doc.field_phd_cert.entity.filename.value }}</td>
+              </tr>
+            {% endif %}
+            {% if edu_doc.field_other_certificate_upload is defined and edu_doc.field_other_certificate_upload.entity %}
+              <tr>
+                <td>Other Document</td>
+                <td>{{ edu_doc.field_other_certificate_upload.entity.filename.value }}</td>
+              </tr>
+            {% endif %}
+          {% endfor %}
+        {% endif %}
+
+        {% if file.field_resume.entity %}
+          <tr>
+            <td>Resume</td>
+            <td>{{ file.field_resume.entity.filename.value }}</td>
+          </tr>
+        {% endif %}
+
+        {% if file.field_pan_passport_dl_voter.entity %}
+          <tr>
+            <td>PAN / Passport / DL / Voter</td>
+            <td>{{ file.field_pan_passport_dl_voter.entity.filename.value }}</td>
+          </tr>
+        {% endif %}
+
+        {% if file.field_experience_certificates.entity %}
+          <tr>
+            <td>Experience Certificates</td>
+            <td>{{ file.field_experience_certificates.entity.filename.value }}</td>
+          </tr>
+        {% endif %}
+
+        {% if file.field_noc_file.entity %}
+          <tr>
+            <td>NOC Upload</td>
+            <td>{{ file.field_noc_file.entity.filename.value }}</td>
+          </tr>
+        {% endif %}
+
+        {% if file.field_reservation_certificate.entity %}
+          <tr>
+            <td>Reservation Certificate</td>
+            <td>{{ file.field_reservation_certificate.entity.filename.value }}</td>
+          </tr>
+        {% endif %}
+
+        {% if file.field_transaction_details.value %}
+          <tr>
+            <td><strong>Transaction Details</strong></td>
+            <td>{{ file.field_transaction_details.value }}</td>
+          </tr>
+        {% endif %}
+
+{% if file.field_noc_option.value %}
+  {% if file.field_noc_option.value == 'produce' %}
+  <tr>
+    <td><strong>NOC Declaration</strong></td>
+    <td>I declared that I shall produce NOC at the time of Document Verification/Skill Test/Interview.</td>
+  </tr>
+  {% endif %}
+{% endif %}
+
+
+      {% endfor %}
+
+    </tbody>
+  </table>
+
+{% else %}
+  <div class="text-muted">No files uploaded.</div>
+{% endif %}
+
+
+    {# --- Additional Information --- #}
+<h5 class="mt-4 mb-3 border-bottom pb-2">Additional Information</h5>
+
+{% if additional_nodes is defined and additional_nodes|length > 0 %}
+
+  <table class="table table-bordered" style="margin-bottom: 20px;">
+    <thead>
+      <tr>
+        <th style="width: 40%;">Question</th>
+        <th>Response / Details</th>
+      </tr>
+    </thead>
+    <tbody>
+
+      {% for add in additional_nodes %}
+
+        <tr>
+          <td>Have you ever been involved in any malpractice?</td>
+          <td>
+            {{ add.field_admin_malpractice.value|capitalize }}
+            {% if add.field_admin_malpractice.value|lower == 'yes' %}
+              <div style="margin-top:6px; font-size:12px; color:#333;">
+                <strong>Details:</strong><br>
+                {{ add.field_admin_malpractice_details.value|striptags|lower|capitalize|nl2br }}
+              </div>
+            {% endif %}
+          </td>
+        </tr>
+
+        <tr>
+          <td>Have you ever been debarred for unfair means?</td>
+          <td>
+            {{ add.field_debarred_unfair_means.value|capitalize }}
+            {% if add.field_debarred_unfair_means.value|lower == 'yes' %}
+              <div style="margin-top:6px; font-size:12px;">
+                <strong>Details:</strong><br>
+                {{ add.field_debarred_details.value|striptags|lower|capitalize|nl2br }}
+              </div>
+            {% endif %}
+          </td>
+        </tr>
+
+        <tr>
+          <td>Have you ever been discharged from employment?</td>
+          <td>
+            {{ add.field_discharged_employment.value|capitalize }}
+            {% if add.field_discharged_employment.value|lower == 'yes' %}
+              <div style="margin-top:6px; font-size:12px;">
+                <strong>Details:</strong><br>
+                {{ add.field_discharged_employment_d.value|striptags|lower|capitalize|nl2br }}
+              </div>
+            {% endif %}
+          </td>
+        </tr>
+
+        <tr>
+          <td>Have you ever faced disciplinary proceedings?</td>
+          <td>
+            {{ add.field_disciplinary_proceedings.value|capitalize }}
+            {% if add.field_disciplinary_proceedings.value|lower == 'yes' %}
+              <div style="margin-top:6px; font-size:12px;">
+                <strong>Details:</strong><br>
+                {{ add.field_disciplinary_proceedings_d.value|striptags|lower|capitalize|nl2br }}
+              </div>
+            {% endif %}
+          </td>
+        </tr>
+
+   <tr>
+  <td>Any financial irregularity?</td>
+  <td>
+    {{ add.field_financial_irregularity.value|capitalize }}
+
+    {% if add.field_financial_irregularity.value|lower == 'yes' %}
+      <div style="margin-top:6px; font-size:12px;">
+        <strong>Details:</strong><br>
+        {{ add.field_financial_irregularity_d.value
+           |striptags
+           |capitalize
+           |nl2br }}
+      </div>
+    {% endif %}
+  </td>
+</tr>
+
+
+        <tr>
+          <td>Joining Time (days)</td>
+          <td>{{ add.field_joining_time_days.value }}</td>
+        </tr>
+
+        <tr>
+          <td>Significant Contributions</td>
+          <td>{{ add.field_significant_contributions.value|striptags|nl2br }}</td>
+        </tr>
+
+        <tr>
+          <td>Suitability</td>
+          <td>{{ add.field_suitability.value|striptags|nl2br }}</td>
+        </tr>
+
+      {% endfor %}
+
+    </tbody>
+  </table>
+
+{% else %}
+  <div class="text-muted">No additional information provided.</div>
+{% endif %}
+
+
+
+
+{% if signature_base64 is defined %}
+  <div style="margin-top: 8px; text-align: left;">
+    <img src="{{ signature_base64 }}" 
+         style="max-width:150px; height:auto; padding:2px; border-radius:4px;">
+  </div>
+{% endif %}
+<div style="margin-top: 1px; font-size: 13px; line-height: 1.4;">
+  I declare that the statements made in this Application Form are correct and true
+  and also complete to the best of my knowledge and belief. I am aware that if at any
+  stage it is found that the statements made are not true or are incomplete/misleading,
+  my candidature is liable to be cancelled.
+</div>
+    </div>
+  </div>
+</body>
+</html>

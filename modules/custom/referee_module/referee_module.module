@@ -1,8 +1,0 @@
-<?php
-
-/**
- * @file
- * Referee Module - Content type and fields are created via .install file.
- */
-
-// No custom entity or schema needed. All logic is in referee_module.install.

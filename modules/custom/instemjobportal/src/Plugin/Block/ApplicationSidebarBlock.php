@@ -228,7 +228,7 @@ class ApplicationSidebarBlock extends BlockBase {
       'link' => $preview_link,
       'url' => $preview_url,
       'active' => ($current_route === 'instemjobportal.preview_submit'),
-      'status' => ($preview_enabled ? '✅' : '🔒'),
+      'status' => ($preview_enabled ? '🕒' : '🔒'),
     ];
 
     // Add a cache tag specific to this job and user so the block can be

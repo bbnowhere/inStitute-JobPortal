@@ -1,7 +1,0 @@
-name: 'My Custom Employment Fields'
-type: module
-description: 'Adds custom fields to the employment_details Paragraph Type.'
-package: Custom
-core_version_requirement: ^11
-dependencies:
-  - drupal:paragraphs

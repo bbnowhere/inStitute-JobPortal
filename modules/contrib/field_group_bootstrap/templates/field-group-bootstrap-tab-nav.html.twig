@@ -1,0 +1,9 @@
+<nav>
+  <div{{ attributes }}>
+    {% for tab in tabs %}
+      <button{{ tab.attributes }}>
+        {{ tab.label }}
+      </button>
+    {% endfor %}
+  </div>
+</nav>

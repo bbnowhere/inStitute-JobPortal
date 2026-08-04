@@ -1,0 +1,13 @@
+name: 'Field Group bootstrap'
+type: module
+description: 'Render fields with format html bootstrap'
+package: Fields
+core_version_requirement: ^9 || ^10 || ^11 || ^12
+
+dependencies:
+  - field_group:field_group
+
+# Information added by Drupal.org packaging script on 2025-04-23
+version: '3.0.15'
+project: 'field_group_bootstrap'
+datestamp: 1745439981

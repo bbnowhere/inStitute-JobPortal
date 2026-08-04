@@ -1,5 +1,0 @@
-name: Employment Details
-type: module
-description: Provides a content type for storing employment details.
-core_version_requirement: ^10 || ^11
-package: Custom
