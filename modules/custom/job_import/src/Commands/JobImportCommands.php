@@ -26,6 +26,19 @@ final class JobImportCommands extends DrushCommands {
 
     $stats = $this->jobImportService->importAll();
 
+    if (!empty($stats['failed_files'])) {
+      $this->io()->writeln('ERROR');
+      $this->io()->writeln('');
+      foreach ($stats['failed_files'] as $failed_file) {
+        $filename = $failed_file['filename'] ?? 'Unknown';
+        $reason = $failed_file['reason'] ?? 'Unknown error';
+        $this->io()->writeln($filename);
+        $this->io()->writeln('Reason');
+        $this->io()->writeln($reason);
+      }
+      $this->io()->writeln('');
+    }
+
     $this->io()->writeln('==================================');
     $this->io()->writeln('Import Summary');
     $this->io()->writeln('');

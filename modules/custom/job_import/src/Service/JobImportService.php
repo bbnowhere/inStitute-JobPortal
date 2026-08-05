@@ -559,14 +559,32 @@ final class JobImportService {
     }
 
     $directory = sprintf('public://job_import/%s', $job_code);
-    $this->fileSystem->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
-    $destination = sprintf('%s/%s', $directory, $basename);
+    try {
+      $prepared = $this->fileSystem->prepareDirectory($directory, FileSystemInterface::CREATE_DIRECTORY | FileSystemInterface::MODIFY_PERMISSIONS);
+      if ($prepared === FALSE) {
+        throw new RuntimeException(sprintf('Destination directory could not be prepared: %s', $directory));
+      }
 
-    $file = $this->fileRepository->writeData($contents, $destination, FileSystemInterface::EXISTS_REPLACE);
-    if ($file instanceof \Drupal\file\FileInterface) {
-      $file->setPermanent();
-      $file->save();
-      return ['target_id' => $file->id()];
+      $destination = sprintf('%s/%s', $directory, $basename);
+      $file = $this->fileRepository->writeData($contents, $destination, FileSystemInterface::EXISTS_REPLACE);
+      if ($file instanceof \Drupal\file\FileInterface) {
+        $file->setPermanent();
+        $file->save();
+        return ['target_id' => $file->id()];
+      }
+    }
+    catch (\Throwable $exception) {
+      $this->loggerFactory->get('job_import')->error('Job @job_code - Field @field - File write failed. URL: @url Filename: @filename Message: @message File: @file Line: @line Trace: @trace', [
+        '@job_code' => $job_code,
+        '@field' => $field_name,
+        '@url' => $source_uri,
+        '@filename' => $basename,
+        '@message' => $exception->getMessage(),
+        '@file' => $exception->getFile(),
+        '@line' => $exception->getLine(),
+        '@trace' => $exception->getTraceAsString(),
+      ]);
+      return NULL;
     }
 
     return NULL;
