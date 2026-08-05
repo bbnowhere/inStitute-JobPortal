@@ -26,12 +26,28 @@ final class JobImportCommands extends DrushCommands {
 
     $stats = $this->jobImportService->importAll();
 
-    $this->io()->writeln('Created: ' . $stats['created']);
-    $this->io()->writeln('Updated: ' . $stats['updated']);
-    $this->io()->writeln('Skipped: ' . $stats['skipped']);
-    $this->io()->writeln('Errors: ' . $stats['errors']);
+    $this->io()->writeln('==================================');
+    $this->io()->writeln('Import Summary');
+    $this->io()->writeln('');
+    $this->io()->writeln('Created : ' . $stats['created']);
+    $this->io()->writeln('Updated : ' . $stats['updated']);
+    $this->io()->writeln('Skipped : ' . $stats['skipped']);
+    $this->io()->writeln('Errors  : ' . $stats['errors']);
+    $this->io()->writeln('----------------------------------');
 
-    return self::EXIT_SUCCESS;
+    if (!empty($stats['failed_files'])) {
+      $this->io()->writeln('');
+      $this->io()->writeln('Failed Files');
+      foreach ($stats['failed_files'] as $failed_file) {
+        $filename = $failed_file['filename'] ?? 'Unknown';
+        $reason = $failed_file['reason'] ?? 'Unknown error';
+        $this->io()->writeln($filename);
+        $this->io()->writeln('Reason');
+        $this->io()->writeln($reason);
+      }
+    }
+
+    return $stats['errors'] > 0 ? self::EXIT_FAILURE : self::EXIT_SUCCESS;
   }
 
 }

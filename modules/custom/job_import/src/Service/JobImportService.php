@@ -61,13 +61,16 @@ final class JobImportService {
       'updated' => 0,
       'skipped' => 0,
       'errors' => 0,
+      'failed_files' => [],
     ];
 
     $this->loggerFactory->get('job_import')->notice('Import Started');
 
     if (!is_dir(self::SOURCE_DIRECTORY)) {
       $message = sprintf('Import source directory not found: %s', self::SOURCE_DIRECTORY);
-      $this->loggerFactory->get('job_import')->error($message);
+      $this->loggerFactory->get('job_import')->error('Import source directory not found: @path', [
+        '@path' => self::SOURCE_DIRECTORY,
+      ]);
       throw new RuntimeException($message);
     }
 
@@ -85,13 +88,19 @@ final class JobImportService {
         continue;
       }
 
+      $this->loggerFactory->get('job_import')->notice('Reading @file', [
+        '@file' => $filename,
+      ]);
+
       try {
         $result = $this->processJsonFile($file_path);
         if ($result === 'created') {
           $stats['created']++;
+          $this->loggerFactory->get('job_import')->notice('Job Imported Successfully');
         }
         elseif ($result === 'updated') {
           $stats['updated']++;
+          $this->loggerFactory->get('job_import')->notice('Job Imported Successfully');
         }
         else {
           $stats['skipped']++;
@@ -99,23 +108,25 @@ final class JobImportService {
       }
       catch (RuntimeException $exception) {
         $stats['errors']++;
-        $this->loggerFactory->get('job_import')->error('Errors', [
-          'file' => $filename,
-          'message' => $exception->getMessage(),
-        ]);
+        $stats['failed_files'][] = [
+          'filename' => $filename,
+          'reason' => $exception->getMessage(),
+        ];
+        $this->logException($exception, 'Import failed for @file', ['@file' => $filename]);
         continue;
       }
       catch (\Throwable $throwable) {
         $stats['errors']++;
-        $this->loggerFactory->get('job_import')->error('Errors', [
-          'file' => $filename,
-          'message' => $throwable->getMessage(),
-        ]);
+        $stats['failed_files'][] = [
+          'filename' => $filename,
+          'reason' => $throwable->getMessage(),
+        ];
+        $this->logException($throwable, 'Import failed for @file', ['@file' => $filename]);
         continue;
       }
     }
 
-    $this->loggerFactory->get('job_import')->notice('Import Completed', $stats);
+    $this->loggerFactory->get('job_import')->notice('Import completed', $stats);
     return $stats;
   }
 
@@ -124,6 +135,10 @@ final class JobImportService {
    */
   private function processJsonFile(string $file_path): string {
     $filename = basename($file_path);
+    $this->loggerFactory->get('job_import')->debug('Loading JSON @file', [
+      '@file' => $filename,
+    ]);
+
     $contents = file_get_contents($file_path);
     if ($contents === false) {
       throw new RuntimeException(sprintf('Unable to read file: %s', $filename));
@@ -145,27 +160,42 @@ final class JobImportService {
       throw new RuntimeException(sprintf('Missing or empty field_job_code in %s', $filename));
     }
 
+    $this->loggerFactory->get('job_import')->debug('Finding existing node for @job_code', [
+      '@job_code' => $job_code,
+    ]);
     $node = $this->findNodeByJobCode($job_code);
     $node_data = $this->buildNodeData($payload, $job_code);
 
     if ($node === null) {
+      $this->loggerFactory->get('job_import')->debug('Creating node for @job_code', [
+        '@job_code' => $job_code,
+      ]);
       $node = Node::create([
         'type' => self::JOB_TYPE,
         'title' => $node_data['title'],
       ]);
       $node->set(self::JOB_CODE_FIELD, $job_code);
       $this->applyNodeData($node, $node_data);
+      $this->loggerFactory->get('job_import')->debug('Saving node for @job_code', [
+        '@job_code' => $job_code,
+      ]);
       $node->save();
-      $this->loggerFactory->get('job_import')->notice('Job Created', [
+      $this->loggerFactory->get('job_import')->notice('Creating Job', [
         'job_code' => $job_code,
         'nid' => $node->id(),
       ]);
       return 'created';
     }
 
+    $this->loggerFactory->get('job_import')->debug('Updating node for @job_code', [
+      '@job_code' => $job_code,
+    ]);
     $this->applyNodeData($node, $node_data);
+    $this->loggerFactory->get('job_import')->debug('Saving node for @job_code', [
+      '@job_code' => $job_code,
+    ]);
     $node->save();
-    $this->loggerFactory->get('job_import')->notice('Job Updated', [
+    $this->loggerFactory->get('job_import')->notice('Updating Job', [
       'job_code' => $job_code,
       'nid' => $node->id(),
     ]);
@@ -225,7 +255,7 @@ final class JobImportService {
       'field_shortlisted_candidates' => $this->downloadFileField($source['field_upload_shortlisted_candida'] ?? $source['field_shortlisted_candidates'] ?? NULL, $job_code, 'field_shortlisted_candidates'),
       'field_selected_candidate' => $this->downloadFileField($source['field_upload_selected_candidate'] ?? $source['field_selected_candidate'] ?? NULL, $job_code, 'field_selected_candidate'),
       'field_job_status' => $this->normalizeListValue('field_job_status', $source['field_job_status'] ?? ($source['status'] === true ? 'In Process' : NULL)),
-      'status' => $this->boolValue($source['status'] ?? null),
+      'status' => $this->normalizeStatusValue($source['status'] ?? NULL),
     ];
 
     $field_data = array_filter($field_data, static fn ($value): bool => $value !== NULL && $value !== [] && $value !== '');
@@ -244,6 +274,10 @@ final class JobImportService {
         continue;
       }
 
+      if ($field_name === 'status') {
+        continue;
+      }
+
       if (!$node->hasField($field_name)) {
         continue;
       }
@@ -253,6 +287,9 @@ final class JobImportService {
 
     if ($this->shouldPublish($node_data)) {
       $node->setPublished();
+      $this->loggerFactory->get('job_import')->debug('Publishing node for @job_code', [
+        '@job_code' => $node->get(self::JOB_CODE_FIELD)->value ?? NULL,
+      ]);
       $this->loggerFactory->get('job_import')->notice('Job Published', [
         'nid' => $node->id(),
         'job_code' => $node->get(self::JOB_CODE_FIELD)->value ?? NULL,
@@ -260,6 +297,9 @@ final class JobImportService {
     }
     else {
       $node->setUnpublished();
+      $this->loggerFactory->get('job_import')->debug('Unpublishing node for @job_code', [
+        '@job_code' => $node->get(self::JOB_CODE_FIELD)->value ?? NULL,
+      ]);
       $this->loggerFactory->get('job_import')->notice('Job Unpublished', [
         'nid' => $node->id(),
         'job_code' => $node->get(self::JOB_CODE_FIELD)->value ?? NULL,
@@ -273,17 +313,19 @@ final class JobImportService {
    * @param array<string, mixed> $node_data
    */
   private function shouldPublish(array $node_data): bool {
-    $job_status = $node_data['field_job_status'] ?? NULL;
-    if (is_string($job_status) && strcasecmp($job_status, 'in_process') === 0) {
-      return TRUE;
-    }
-
     $status = $node_data['status'] ?? NULL;
-    if (is_bool($status)) {
-      return $status;
+    if (is_string($status)) {
+      $normalized = strtolower(trim($status));
+      if ($normalized === 'active') {
+        return TRUE;
+      }
+      if (in_array($normalized, ['archived', 'closed'], true)) {
+        return FALSE;
+      }
     }
 
-    if (is_string($status) && strcasecmp($status, 'in_process') === 0) {
+    $job_status = $node_data['field_job_status'] ?? NULL;
+    if (is_string($job_status) && strcasecmp($job_status, 'In Process') === 0) {
       return TRUE;
     }
 
@@ -359,6 +401,23 @@ final class JobImportService {
     }
 
     return (bool) $value;
+  }
+
+  /**
+   * Normalizes a status value from the source payload.
+   */
+  private function normalizeStatusValue(mixed $value): ?string {
+    $string_value = $this->stringValue($value);
+    if ($string_value === NULL) {
+      return NULL;
+    }
+
+    $normalized = strtolower(trim($string_value));
+    if (in_array($normalized, ['active', 'archived', 'closed'], true)) {
+      return $normalized;
+    }
+
+    return $string_value;
   }
 
   /**
@@ -463,15 +522,38 @@ final class JobImportService {
       return ['target_id' => $existing_file->id()];
     }
 
+    $this->loggerFactory->get('job_import')->debug('Downloading files for @job_code', [
+      '@job_code' => $job_code,
+    ]);
+
     try {
       $response = $this->httpClient->request('GET', $source_uri, ['timeout' => 30]);
+      $status_code = $response->getStatusCode();
+      if ($status_code < 200 || $status_code >= 300) {
+        $this->loggerFactory->get('job_import')->error('Job @job_code - Field @field - Download failed. URL: @url HTTP @status Filename: @filename', [
+          '@job_code' => $job_code,
+          '@field' => $field_name,
+          '@url' => $source_uri,
+          '@status' => $status_code,
+          '@filename' => $basename,
+        ]);
+        return NULL;
+      }
+
       $contents = (string) $response->getBody();
+      $this->loggerFactory->get('job_import')->notice('Downloading @field PDF', [
+        '@field' => ucfirst(str_replace('_', ' ', $field_name)),
+      ]);
     }
     catch (GuzzleException $exception) {
-      $this->loggerFactory->get('job_import')->error('Errors', [
-        'job_code' => $job_code,
-        'field' => $field_name,
-        'message' => sprintf('Unable to download file %s: %s', $source_uri, $exception->getMessage()),
+      $this->loggerFactory->get('job_import')->error('Job @job_code - Field @field - Unable to download file. URL: @url Message: @message File: @file Line: @line Trace: @trace', [
+        '@job_code' => $job_code,
+        '@field' => $field_name,
+        '@url' => $source_uri,
+        '@message' => $exception->getMessage(),
+        '@file' => $exception->getFile(),
+        '@line' => $exception->getLine(),
+        '@trace' => $exception->getTraceAsString(),
       ]);
       return NULL;
     }
@@ -503,6 +585,18 @@ final class JobImportService {
     }
 
     return reset($files);
+  }
+
+  /**
+   * Logs a throwable with a stack trace and useful metadata.
+   */
+  private function logException(\Throwable $exception, string $message, array $context = []): void {
+    $this->loggerFactory->get('job_import')->error($message, array_merge([
+      '@message' => $exception->getMessage(),
+      '@file' => $exception->getFile(),
+      '@line' => $exception->getLine(),
+      '@trace' => $exception->getTraceAsString(),
+    ], $context));
   }
 
 }
