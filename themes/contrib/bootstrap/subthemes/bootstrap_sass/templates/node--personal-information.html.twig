@@ -25,24 +25,24 @@
     </div>
     <table class="table table-bordered table-striped">
       <tbody>
-        <tr><th>Full Name</th><td>{{ (node.field_full_name.value is iterable ? node.field_full_name.value|join(' ') : node.field_full_name.value)|upper }}</td></tr>
+        <tr><th>Full Name</th><td>{{ full_name_str|upper }}</td></tr>
         <tr><th>Date of Birth</th><td>{{ node.field_date_of_birth.value }}</td></tr>
         <tr><th>Age</th><td>{{ node.field_age.value }}</td></tr>
-        <tr><th>Father/Mother/Spouse Name</th><td>{{ (node.field_father_mother_spouse_name.value is iterable ? node.field_father_mother_spouse_name.value|join(' ') : node.field_father_mother_spouse_name.value)|capitalize }}</td></tr>
+        <tr><th>Father/Mother/Spouse Name</th><td>{{ field_father_mother_spouse_name_str|capitalize }}</td></tr>
         <tr><th>Email</th><td>{{ node.field_email.value }}</td></tr>
-        <tr><th>Gender</th><td>{{ (node.field_gender.value is iterable ? node.field_gender.value|join(' ') : node.field_gender.value)|capitalize }}</td></tr>
-        <tr><th>Category</th><td>{{ (node.field_category.value is iterable ? node.field_category.value|join(' ') : node.field_category.value)|upper }}</td></tr>
-        <tr><th>PWD Category</th><td>{{ (node.field_pwd_category.value is iterable ? node.field_pwd_category.value|join(' ') : node.field_pwd_category.value)|upper }}</td></tr>
-        <tr><th>Category Certificate</th><td>{{ (node.field_category_certificate.value is iterable ? node.field_category_certificate.value|join(' ') : node.field_category_certificate.value)|capitalize }}</td></tr>
+        <tr><th>Gender</th><td>{{ field_gender_str|capitalize }}</td></tr>
+        <tr><th>Category</th><td>{{ field_category_str|upper }}</td></tr>
+        <tr><th>PWD Category</th><td>{{ field_pwd_category_display|upper }}</td></tr>
+        <tr><th>Category Certificate</th><td>{% if category_certificate_name %}{{ category_certificate_name }}{% else %}Not uploaded{% endif %}</td></tr>
         <tr><th>Mobile Number</th><td>{{ node.field_mobile_number.value }}</td></tr>
-        <tr><th>Marital Status</th><td>{{ (node.field_marital_status.value is iterable ? node.field_marital_status.value|join(' ') : node.field_marital_status.value)|upper }}</td></tr>
-        <tr><th>Nationality</th><td>{{ (node.field_nationality.value is iterable ? node.field_nationality.value|join(' ') : node.field_nationality.value)|upper }}</td></tr>
+        <tr><th>Marital Status</th><td>{{ field_marital_status_str|upper }}</td></tr>
+        <tr><th>Nationality</th><td>{{ field_nationality_str|upper }}</td></tr>
         <tr><th>Alternate Phone</th><td>{{ node.field_alternate_phone.value }}</td></tr>
         <tr><th>Permanent Address</th><td>{{ node.field_permanent_address.value }}</td></tr>
         <tr><th>Correspondence Address</th><td>{{ node.field_correspondence_address.value }}</td></tr>
-        <tr><th>Departmental Candidate</th><td>{{ (node.field_departmental_candidate.value is iterable ? node.field_departmental_candidate.value|join(' ') : node.field_departmental_candidate.value)|capitalize }}</td></tr>
-        <tr><th>Brief particulars about departmental candidates i.e. who are all entitled to get the benefits of departmental candidate.</th><td>{{ node.field_departmental_candidate_details.value ?: '-' }}</td></tr>
-        <tr><th>Experience Level</th><td>{{ (node.field_experience_level.value is iterable ? node.field_experience_level.value|join(' ') : node.field_experience_level.value)|upper }}</td></tr>
+        <tr><th>Departmental Candidate</th><td>{{ field_departmental_candidate_str|capitalize }}</td></tr>
+        <tr><th>Brief particulars about departmental candidates i.e. who are all entitled to get the benefits of departmental candidate.</th><td>{{ (node.field_brief_particulars_about_de is defined and node.field_brief_particulars_about_de.value is not empty) ? node.field_brief_particulars_about_de.value : ((node.field_departmental_candidate_details is defined and node.field_departmental_candidate_details.value is not empty) ? node.field_departmental_candidate_details.value : '-') }}</td></tr>
+        <tr><th>Experience Level</th><td>{{ field_experience_level_str|upper }}</td></tr>
       </tbody>
     </table>
   </div>

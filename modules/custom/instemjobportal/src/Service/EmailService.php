@@ -3,9 +3,9 @@
 namespace Drupal\instemjobportal\Service;
 
 use Drupal\Core\Mail\MailManagerInterface;
-use Drupal\Core\Render\Markup;
 use Drupal\Core\StringTranslation\StringTranslationTrait;
 use Drupal\Core\Url;
+use Drupal\user\UserInterface;
 
 /**
  * Service for handling custom email functionality.
@@ -31,14 +31,17 @@ class EmailService {
   }
 
   /**
-   * Sends a registration email to a new user.
+   * Builds registration mail subject/body using the Twig template.
    *
    * @param \Drupal\user\UserInterface $user
    *   The user object.
    * @param string $one_time_login_url
    *   The one-time login URL.
+   *
+   * @return array
+   *   Mail data with subject and message HTML.
    */
-  public function sendRegistrationEmail($user, $one_time_login_url) {
+  public function buildRegistrationEmail(UserInterface $user, string $one_time_login_url): array {
     $site_config = \Drupal::config('system.site');
     $site_name = $site_config->get('name');
     $login_url = Url::fromRoute('user.login')->setAbsolute()->toString();
@@ -72,9 +75,37 @@ class EmailService {
       '@site' => $site_name,
     ]);
 
-    $params['subject'] = $subject;
-    $params['message'] = \Drupal::service('renderer')->render($template);
+    return [
+      'subject' => (string) $subject,
+      'message' => (string) \Drupal::service('renderer')->render($template),
+      'to' => $to,
+      'langcode' => $langcode,
+      'params' => $params,
+    ];
+  }
 
-    $this->mailManager->mail('instemjobportal', 'register', $to, $langcode, $params, NULL, TRUE);
+  /**
+   * Sends a registration email to a new user.
+   *
+   * @param \Drupal\user\UserInterface $user
+   *   The user object.
+   * @param string $one_time_login_url
+   *   The one-time login URL.
+   */
+  public function sendRegistrationEmail(UserInterface $user, string $one_time_login_url): void {
+    $mail_data = $this->buildRegistrationEmail($user, $one_time_login_url);
+    $params = $mail_data['params'];
+    $params['subject'] = $mail_data['subject'];
+    $params['message'] = $mail_data['message'];
+
+    $this->mailManager->mail(
+      'instemjobportal',
+      'register',
+      $mail_data['to'],
+      $mail_data['langcode'],
+      $params,
+      NULL,
+      TRUE
+    );
   }
 }

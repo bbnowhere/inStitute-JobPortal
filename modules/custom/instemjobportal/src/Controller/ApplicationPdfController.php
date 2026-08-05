@@ -53,7 +53,8 @@ class ApplicationPdfController extends ControllerBase {
       ->getViewBuilder('node')
       ->view($node, 'pdf');
 
-    $build['#theme'] = 'node__personal_information__pdf';
+    // Keep the standard node theme pipeline for the 'pdf' view mode so
+    // node preprocess hooks (that prepare photo/signature variables) run.
     $build['#pdf_mode'] = TRUE;
 
     $renderer = \Drupal::service('renderer');
@@ -61,6 +62,8 @@ class ApplicationPdfController extends ControllerBase {
 
     $options = new Options();
     $options->set('isRemoteEnabled', TRUE);
+    // Enable HTML5 parser and improve image handling for embedded data URIs.
+    $options->set('isHtml5ParserEnabled', TRUE);
     $options->set('defaultFont', 'DejaVu Sans');
 
     $dompdf = new Dompdf($options);

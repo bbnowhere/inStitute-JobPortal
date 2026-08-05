@@ -182,21 +182,85 @@ if (in_array($bundle, $application_bundles, TRUE)) {
         if ($job_node && $job_node->hasField('field_job_code') && !$job_node->get('field_job_code')->isEmpty()) {
           $job_code = $job_node->get('field_job_code')->value;
 
-          $query = \Drupal::entityQuery('node')
-            ->condition('type', 'personal_information')
-            ->condition('field_application.target_id', $job_nid)
-            ->accessCheck(TRUE);
-
-          if (!$entity->isNew()) {
-            $query->condition('nid', $entity->id(), '!=');
+          // Do not overwrite an existing application id on updates.
+          if ($entity->hasField('field_application_id') && !$entity->get('field_application_id')->isEmpty()) {
+            // Already set; preserve existing application id.
           }
+          else {
 
-          $nids = $query->execute();
-          $slno = count($nids) + 1;
-          $application_id = $job_code . '-' . $slno;
+          // Use a lock to serialize application id generation per job so
+          // concurrent submissions cannot receive the same serial number.
+          $lock_name = 'instemjobportal_appid_job_' . $job_nid;
+          $lock = \Drupal::lock();
 
-          if ($entity->hasField('field_application_id')) {
-            $entity->set('field_application_id', $application_id);
+          $acquired = FALSE;
+          try {
+            // Try to acquire the lock (default timeout 30s). If acquire
+            // returns FALSE, we proceed without locking as a fallback.
+            $acquired = $lock->acquire($lock_name, 30);
+
+            // Collect existing application serials for this job.
+            $query = \Drupal::entityQuery('node')
+              ->condition('type', 'personal_information')
+              ->condition('field_application.target_id', $job_nid)
+              ->accessCheck(TRUE);
+            if (!$entity->isNew()) {
+              $query->condition('nid', $entity->id(), '!=');
+            }
+            $nids = $query->execute();
+
+            $max_slno = 0;
+            if (!empty($nids)) {
+              $nodes = \Drupal\node\Entity\Node::loadMultiple($nids);
+              foreach ($nodes as $n) {
+                if ($n->hasField('field_application_id') && !$n->get('field_application_id')->isEmpty()) {
+                  $appid = (string) $n->get('field_application_id')->value;
+                  // Parse trailing integer after the last hyphen.
+                  if (preg_match('/-(\d+)$/', $appid, $m)) {
+                    $val = (int) $m[1];
+                    if ($val > $max_slno) {
+                      $max_slno = $val;
+                    }
+                  }
+                }
+              }
+            }
+
+            $slno = $max_slno + 1;
+            $application_id = $job_code . '-' . $slno;
+
+            if ($entity->hasField('field_application_id')) {
+              $entity->set('field_application_id', $application_id);
+            }
+          }
+          catch (\Throwable $e) {
+            // In case of any error, fallback to previous simple count method.
+            \Drupal::logger('instemjobportal')->error('Failed to generate application id with lock: @msg', ['@msg' => $e->getMessage()]);
+            $query = \Drupal::entityQuery('node')
+              ->condition('type', 'personal_information')
+              ->condition('field_application.target_id', $job_nid)
+              ->accessCheck(TRUE);
+            if (!$entity->isNew()) {
+              $query->condition('nid', $entity->id(), '!=');
+            }
+            $nids = $query->execute();
+            $slno = count($nids) + 1;
+            $application_id = $job_code . '-' . $slno;
+            if ($entity->hasField('field_application_id')) {
+              $entity->set('field_application_id', $application_id);
+            }
+          }
+          finally {
+            if ($acquired) {
+              try {
+                $lock->release($lock_name);
+              }
+              catch (\Throwable $e) {
+                // Log and continue; failure to release is non-fatal here.
+                \Drupal::logger('instemjobportal')->warning('Failed to release lock @lock: @msg', ['@lock' => $lock_name, '@msg' => $e->getMessage()]);
+              }
+            }
+          }
           }
         }
       }
@@ -296,36 +360,12 @@ function instemjobportal_user_insert(UserInterface $account) {
     $role = \Drupal\user\Entity\Role::create(['id' => $role_id, 'label' => 'Applicant']);
     $role->save();
   }
-  
-  // Add the role to the user but don't save yet as it will trigger the hook again
-  $account->addRole($role_id);
-  
-  // Send custom registration email only if user is active
-  if ($account->isActive()) {
-    // Generate the one-time login URL
-    $timestamp = \Drupal::time()->getRequestTime();
-    $hash = user_pass_rehash($account, $timestamp);
-    $url_options = [
-      'absolute' => TRUE,
-    ];
-    $one_time_login_url = \Drupal::service('url_generator')->generateFromRoute(
-      'user.reset',
-      [
-        'uid' => $account->id(),
-        'timestamp' => $timestamp,
-        'hash' => $hash,
-      ],
-      $url_options
-    );
-    
-    /** @var \Drupal\instemjobportal\Service\EmailService $email_service */
-    $email_service = \Drupal::service('instemjobportal.email_service');
-    $email_service->sendRegistrationEmail($account, $one_time_login_url);
-  }
 
   // Assign role to new user.
   $account->addRole($role_id);
   $account->save();
+
+  // Email is sent and customized via hook_mail_alter().
 }
 
 /**
@@ -858,6 +898,46 @@ if ($job_node) {
           'field_pwd_categories',
           t('This job is not applicable for your specified PwD category.')
         );
+      }
+    }
+  }
+
+  // 4b. Require category certificate when category is not 'general' or other_category indicates PWD.
+  if ($entity->hasField('field_category_certificate')) {
+    // Applicant category
+    $app_cat_val = NULL;
+    if ($entity->hasField('field_category')) {
+      $app_cat_val = $form_state->getValue('field_category');
+      if (is_array($app_cat_val)) {
+        $app_cat_val = $app_cat_val['value'] ?? ($app_cat_val[0]['value'] ?? ($app_cat_val[0] ?? reset($app_cat_val)));
+      }
+      if (empty($app_cat_val)) {
+        $app_cat_val = $entity->get('field_category')->value ?? '';
+      }
+    }
+    $app_cat_val = strtolower(trim((string) $app_cat_val));
+
+    // Applicant other category
+    $app_other_val = NULL;
+    if ($entity->hasField('field_other_category')) {
+      $app_other_val = $form_state->getValue('field_other_category');
+      if (is_array($app_other_val)) {
+        $app_other_val = $app_other_val['value'] ?? ($app_other_val[0]['value'] ?? ($app_other_val[0] ?? reset($app_other_val)));
+      }
+      if (empty($app_other_val)) {
+        $app_other_val = $entity->get('field_other_category')->value ?? '';
+      }
+    }
+    $app_other_val = strtolower(trim((string) $app_other_val));
+
+    // Consider other_category a PWD indicator if it contains 'pwd'.
+    $other_is_pwd = $app_other_val !== '' && strpos($app_other_val, 'pwd') !== FALSE;
+
+    if ($app_cat_val !== 'general' || $other_is_pwd) {
+      $cert_val = $form_state->getValue('field_category_certificate');
+      $has_cert = !empty($cert_val) || !$entity->get('field_category_certificate')->isEmpty();
+      if (!$has_cert) {
+        $form_state->setErrorByName('field_category_certificate', t('A category certificate is required when your category is not General or you have selected PwD in Other Category.'));
       }
     }
   }
@@ -1495,10 +1575,10 @@ function instemjobportal_mail($key, &$message, $params) {
       $message['headers']['Content-Type'] = 'text/html; charset=UTF-8';
       $message['headers']['MIME-Version'] = '1.0';
       break;
-    
+
     case 'register':
-      $message['subject'] = $params['subject'];
-      $message['body'][] = Markup::create($params['message']);
+      $message['subject'] = $params['subject'] ?? '';
+      $message['body'] = [(string) ($params['message'] ?? '')];
       $message['headers']['Content-Type'] = 'text/html; charset=UTF-8';
       $message['headers']['MIME-Version'] = '1.0';
       break;
@@ -1727,6 +1807,20 @@ function instemjobportal_revalidate_application($uid, $job_nid, FormStateInterfa
         }
       }
 
+        // Require category certificate when category is not 'general' or other_category indicates PwD.
+        if ($node->hasField('field_category_certificate')) {
+          $app_cat_val = strtolower(trim($node->get('field_category')->value ?? ''));
+          $app_other_val = strtolower(trim($node->get('field_other_category')->value ?? ''));
+          $other_is_pwd = $app_other_val !== '' && strpos($app_other_val, 'pwd') !== FALSE;
+          if ($app_cat_val !== '' && $app_cat_val !== 'general' || $other_is_pwd) {
+            $cert_empty = $node->get('field_category_certificate')->isEmpty();
+            if ($cert_empty) {
+              $form_state->setErrorByName('field_category_certificate', t('A category certificate is required when your category is not General or you have selected PwD in Other Category.'));
+              $has_error = TRUE;
+            }
+          }
+        }
+
   
     }
 // ------------------ EMPLOYMENT DETAILS ------------------
@@ -1821,34 +1915,54 @@ function instemjobportal_revalidate_application($uid, $job_nid, FormStateInterfa
  * Implements hook_mail_alter().
  */
 function instemjobportal_mail_alter(&$message) {
-  // Override Drupal's default user registration email
-  if ($message['id'] === 'user.register_no_approval_required') {
-    /** @var \Drupal\user\UserInterface $user */
-    $user = $message['params']['account'];
-    
-    if ($user->isActive()) {
-      // Generate the one-time login URL
-      $timestamp = \Drupal::time()->getRequestTime();
-      $hash = user_pass_rehash($user, $timestamp);
-      $url_options = [
-        'absolute' => TRUE,
-      ];
-      $one_time_login_url = \Drupal::service('url_generator')->generateFromRoute(
-        'user.reset',
-        [
-          'uid' => $user->id(),
-          'timestamp' => $timestamp,
-          'hash' => $hash,
-        ],
-        $url_options
-      );
-      
-      /** @var \Drupal\instemjobportal\Service\EmailService $email_service */
-      $email_service = \Drupal::service('instemjobportal.email_service');
-      $email_service->sendRegistrationEmail($user, $one_time_login_url);
-    }
-    
-    // Prevent the original mail from being sent
-    $message['send'] = FALSE;
+  $registration_mail_ids = [
+    // Drupal MailManager builds IDs as "{module}_{key}".
+    'user_register_no_approval_required',
+    'user_register_admin_created',
+    // Keep dotted variants for compatibility with any custom integrations.
+    'user.register_no_approval_required',
+    'user.register_admin_created',
+  ];
+  if (!in_array($message['id'], $registration_mail_ids, TRUE)) {
+    return;
   }
+
+  $account = $message['params']['account'] ?? NULL;
+  if (!$account instanceof UserInterface) {
+    return;
+  }
+
+  if (empty($account->getEmail())) {
+    return;
+  }
+
+  $timestamp = \Drupal::time()->getRequestTime();
+  $hash = user_pass_rehash($account, $timestamp);
+  $one_time_login_url = \Drupal::service('url_generator')->generateFromRoute(
+    'user.reset',
+    [
+      'uid' => $account->id(),
+      'timestamp' => $timestamp,
+      'hash' => $hash,
+    ],
+    ['absolute' => TRUE]
+  );
+
+  /** @var \Drupal\instemjobportal\Service\EmailService $email_service */
+  $email_service = \Drupal::service('instemjobportal.email_service');
+  $mail_data = $email_service->buildRegistrationEmail($account, $one_time_login_url);
+
+  // Override core registration mail content with custom Twig template output.
+  $message['subject'] = $mail_data['subject'];
+  $message['body'] = [$mail_data['message']];
+  $message['headers']['Content-Type'] = 'text/html; charset=UTF-8';
+  $message['headers']['MIME-Version'] = '1.0';
+
+  \Drupal::logger('instemjobportal')->notice(
+    'Custom registration template applied for @email on @mail_id.',
+    [
+      '@email' => $account->getEmail(),
+      '@mail_id' => $message['id'],
+    ]
+  );
 }

@@ -132,15 +132,15 @@
 </table>
 
 
-      {# --- Education Section (Table) --- #}
-      <h5 class="mt-4 mb-3 border-bottom pb-2">Education</h5>
+      {# --- Educational Details Section (Table) --- #}
+      <h5 class="mt-4 mb-3 border-bottom pb-2">Educational Details</h5>
       {% set edu = education_nodes|first %}
       {% if edu %}
         <div class="table-responsive">
           <table class="table table-bordered table-striped align-middle">
             <thead class="table-light">
               <tr>
-                <th>Level</th>
+                {# <th>Level</th> #}
                 <th>Qualification</th>
                 <th>Specialization</th>
                 <th>University</th>
@@ -153,7 +153,7 @@
             <tbody>
               <tr>
                 <td>10th</td>
-                <td>{{ (edu.field_10th_qualification_name.value is iterable ? edu.field_10th_qualification_name.value|join(' ') : edu.field_10th_qualification_name.value)|upper }}</td>
+                {# <td>{{ (edu.field_10th_qualification_name.value is iterable ? edu.field_10th_qualification_name.value|join(' ') : edu.field_10th_qualification_name.value)|upper }}</td> #}
                 <td>{{ (edu.field_10th_specialization.value is iterable ? edu.field_10th_specialization.value|join(' ') : edu.field_10th_specialization.value)|upper }}</td>
                 <td>{{ (edu.field_10th_university.value is iterable ? edu.field_10th_university.value|join(' ') : edu.field_10th_university.value)|upper }}</td>
                 <td>{{ (edu.field_10th_country.value is iterable ? edu.field_10th_country.value|join(' ') : edu.field_10th_country.value)|upper }}</td>
@@ -163,7 +163,7 @@
               </tr>
               <tr>
                 <td>12th</td>
-                <td>{{ (edu.field_12th_qualification_name.value is iterable ? edu.field_12th_qualification_name.value|join(' ') : edu.field_12th_qualification_name.value)|upper }}</td>
+                {# <td>{{ (edu.field_12th_qualification_name.value is iterable ? edu.field_12th_qualification_name.value|join(' ') : edu.field_12th_qualification_name.value)|upper }}</td> #}
                 <td>{{ (edu.field_12th_specialization.value is iterable ? edu.field_12th_specialization.value|join(' ') : edu.field_12th_specialization.value)|upper }}</td>
                 <td>{{ (edu.field_12th_university.value is iterable ? edu.field_12th_university.value|join(' ') : edu.field_12th_university.value)|upper }}</td>
                 <td>{{ (edu.field_12th_country.value is iterable ? edu.field_12th_country.value|join(' ') : edu.field_12th_country.value)|upper }}</td>
@@ -173,7 +173,7 @@
               </tr>
               <tr>
                 <td>Graduation</td>
-                <td>{{ (edu.field_grad_qual_name.value is iterable ? edu.field_grad_qual_name.value|join(' ') : edu.field_grad_qual_name.value)|upper }}</td>
+                {# <td>{{ (edu.field_grad_qual_name.value is iterable ? edu.field_grad_qual_name.value|join(' ') : edu.field_grad_qual_name.value)|upper }}</td> #}
                 <td>{{ (edu.field_grad_spec.value is iterable ? edu.field_grad_spec.value|join(' ') : edu.field_grad_spec.value)|upper }}</td>
                 <td>{{ (edu.field_grad_univ.value is iterable ? edu.field_grad_univ.value|join(' ') : edu.field_grad_univ.value)|upper }}</td>
                 <td>{{ (edu.field_grad_country.value is iterable ? edu.field_grad_country.value|join(' ') : edu.field_grad_country.value)|upper }}</td>
@@ -183,7 +183,7 @@
               </tr>
               <tr>
                 <td>Post Graduation</td>
-                <td>{{ (edu.field_pg_qual_name.value is iterable ? edu.field_pg_qual_name.value|join(' ') : edu.field_pg_qual_name.value)|upper }}</td>
+                {# <td>{{ (edu.field_pg_qual_name.value is iterable ? edu.field_pg_qual_name.value|join(' ') : edu.field_pg_qual_name.value)|upper }}</td> #}
                 <td>{{ (edu.field_pg_spec.value is iterable ? edu.field_pg_spec.value|join(' ') : edu.field_pg_spec.value)|upper }}</td>
                 <td>{{ (edu.field_pg_univ.value is iterable ? edu.field_pg_univ.value|join(' ') : edu.field_pg_univ.value)|upper }}</td>
                 <td>{{ (edu.field_pg_country.value is iterable ? edu.field_pg_country.value|join(' ') : edu.field_pg_country.value)|upper }}</td>
@@ -193,7 +193,7 @@
               </tr>
               <tr>
                 <td>PhD</td>
-                <td>{{ (edu.field_phd_qual_name.value is iterable ? edu.field_phd_qual_name.value|join(' ') : edu.field_phd_qual_name.value)|upper }}</td>
+                {# <td>{{ (edu.field_phd_qual_name.value is iterable ? edu.field_phd_qual_name.value|join(' ') : edu.field_phd_qual_name.value)|upper }}</td> #}
                 <td>{{ (edu.field_phd_spec.value is iterable ? edu.field_phd_spec.value|join(' ') : edu.field_phd_spec.value)|upper }}</td>
                 <td>{{ (edu.field_phd_univ.value is iterable ? edu.field_phd_univ.value|join(' ') : edu.field_phd_univ.value)|upper }}</td>
                 <td>{{ (edu.field_phd_country.value is iterable ? edu.field_phd_country.value|join(' ') : edu.field_phd_country.value)|upper }}</td>
@@ -203,7 +203,7 @@
               </tr>
               <tr>
                 <td>Other</td>
-                <td>{{ (edu.field_other_qualification_name.value is iterable ? edu.field_other_qualification_name.value|join(' ') : edu.field_other_qualification_name.value)|upper }}</td>
+                  {# <td>{{ (edu.field_other_qualification_name.value is iterable ? edu.field_other_qualification_name.value|join(' ') : edu.field_other_qualification_name.value)|upper }}</td> #}
                 <td>{{ (edu.field_other_spec.value is iterable ? edu.field_other_spec.value|join(' ') : edu.field_other_spec.value)|upper }}</td>
                 <td>{{ (edu.field_other_uni.value is iterable ? edu.field_other_uni.value|join(' ') : edu.field_other_uni.value)|upper }}</td>
                 <td>{{ (edu.field_other_country.value is iterable ? edu.field_other_country.value|join(' ') : edu.field_other_country.value)|upper }}</td>
@@ -215,7 +215,7 @@
           </table>
         </div>
       {% else %}
-        <div class="text-muted">No education details provided.</div>
+        <div class="text-muted">No Educational Details details provided.</div>
       {% endif %}
 
      {# --- Employment Details (Table) --- #}
@@ -232,6 +232,14 @@
             <th style="text-align: left; width: 40%;">SL No</th>
             <td>{{ loop.index }}</td>
           </tr>
+                <tr>
+            <th style="text-align: left;">Employment Type</th>
+            <td>{{ (para.entity.field_employment_type.value is iterable ? para.entity.field_employment_type.value|join(' ') : para.entity.field_employment_type.value)|capitalize }}
+              {% if para.entity.field_employment_type.value == 'Other' and para.entity.field_other_employment_type.value %}
+                ({{ (para.entity.field_other_employment_type.value is iterable ? para.entity.field_other_employment_type.value|join(' ') : para.entity.field_other_employment_type.value)|capitalize }})
+              {% endif %}
+            </td>
+          </tr>
           <tr>
             <th style="text-align: left;">Designation</th>
             <td>{{ (para.entity.field_designation.value is iterable ? para.entity.field_designation.value|join(' ') : para.entity.field_designation.value) }}</td>
@@ -244,14 +252,7 @@
             <th style="text-align: left;">Address</th>
             <td>{{ para.entity.field_job_address.value }}</td>
           </tr>
-          <tr>
-            <th style="text-align: left;">Employment Type</th>
-            <td>{{ (para.entity.field_employment_type.value is iterable ? para.entity.field_employment_type.value|join(' ') : para.entity.field_employment_type.value)|capitalize }}
-              {% if para.entity.field_employment_type.value == 'Other' and para.entity.field_other_employment_type.value %}
-                ({{ (para.entity.field_other_employment_type.value is iterable ? para.entity.field_other_employment_type.value|join(' ') : para.entity.field_other_employment_type.value)|capitalize }})
-              {% endif %}
-            </td>
-          </tr>
+    
           <tr>
             <th style="text-align: left;">Type of Work</th>
             <td>{{ (para.entity.field_type_of_work.value is iterable ? para.entity.field_type_of_work.value|join(' ') : para.entity.field_type_of_work.value)|capitalize }}
@@ -365,7 +366,7 @@
 
       {% for file in file_upload_nodes %}
 
-        {# Education documents (10th/12th/Graduation/etc) #}
+        {# Educational Details documents (10th/12th/Graduation/etc) #}
         {% if education_nodes is defined %}
           {% for edu_doc in education_nodes %}
             {% if edu_doc.field_10th_certificate is defined and edu_doc.field_10th_certificate.entity %}
@@ -492,7 +493,7 @@
             {% if add.field_admin_malpractice.value|lower == 'yes' %}
               <div style="margin-top:6px; font-size:12px; color:#333;">
                 <strong>Details:</strong><br>
-                {{ add.field_admin_malpractice_details.value|striptags|lower|capitalize|nl2br }}
+                {{ (add.field_admin_malpractice_details.value is iterable ? add.field_admin_malpractice_details.value|join(' ') : add.field_admin_malpractice_details.value)|striptags|lower|capitalize|nl2br }}
               </div>
             {% endif %}
           </td>
@@ -505,7 +506,7 @@
             {% if add.field_debarred_unfair_means.value|lower == 'yes' %}
               <div style="margin-top:6px; font-size:12px;">
                 <strong>Details:</strong><br>
-                {{ add.field_debarred_details.value|striptags|lower|capitalize|nl2br }}
+                {{ (add.field_debarred_details.value is iterable ? add.field_debarred_details.value|join(' ') : add.field_debarred_details.value)|striptags|lower|capitalize|nl2br }}
               </div>
             {% endif %}
           </td>
@@ -518,7 +519,7 @@
             {% if add.field_discharged_employment.value|lower == 'yes' %}
               <div style="margin-top:6px; font-size:12px;">
                 <strong>Details:</strong><br>
-                {{ add.field_discharged_employment_d.value|striptags|lower|capitalize|nl2br }}
+                {{ (add.field_discharged_employment_d.value is iterable ? add.field_discharged_employment_d.value|join(' ') : add.field_discharged_employment_d.value)|striptags|lower|capitalize|nl2br }}
               </div>
             {% endif %}
           </td>
@@ -531,7 +532,7 @@
             {% if add.field_disciplinary_proceedings.value|lower == 'yes' %}
               <div style="margin-top:6px; font-size:12px;">
                 <strong>Details:</strong><br>
-                {{ add.field_disciplinary_proceedings_d.value|striptags|lower|capitalize|nl2br }}
+                {{ (add.field_disciplinary_proceedings_d.value is iterable ? add.field_disciplinary_proceedings_d.value|join(' ') : add.field_disciplinary_proceedings_d.value)|striptags|lower|capitalize|nl2br }}
               </div>
             {% endif %}
           </td>
@@ -545,7 +546,7 @@
     {% if add.field_financial_irregularity.value|lower == 'yes' %}
       <div style="margin-top:6px; font-size:12px;">
         <strong>Details:</strong><br>
-        {{ add.field_financial_irregularity_d.value
+        {{ (add.field_financial_irregularity_d.value is iterable ? add.field_financial_irregularity_d.value|join(' ') : add.field_financial_irregularity_d.value)
            |striptags
            |capitalize
            |nl2br }}
@@ -562,12 +563,12 @@
 
         <tr>
           <td>Significant Contributions</td>
-          <td>{{ add.field_significant_contributions.value|striptags|nl2br }}</td>
+          <td>{{ (add.field_significant_contributions.value is iterable ? add.field_significant_contributions.value|join(' ') : add.field_significant_contributions.value)|striptags|nl2br }}</td>
         </tr>
 
         <tr>
           <td>Suitability</td>
-          <td>{{ add.field_suitability.value|striptags|nl2br }}</td>
+          <td>{{ (add.field_suitability.value is iterable ? add.field_suitability.value|join(' ') : add.field_suitability.value)|striptags|nl2br }}</td>
         </tr>
 
       {% endfor %}

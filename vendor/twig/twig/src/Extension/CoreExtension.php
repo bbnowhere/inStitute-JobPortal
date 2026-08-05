@@ -1310,13 +1310,17 @@ final class CoreExtension extends AbstractExtension
     /**
      * Strips HTML and PHP tags from a string.
      *
-     * @param string|null          $string
+     * @param string|array|null    $string
      * @param string[]|string|null $allowable_tags
      *
      * @internal
      */
     public static function striptags($string, $allowable_tags = null): string
     {
+        // Handle array input by converting to string or taking first element
+        if (is_array($string)) {
+            $string = !empty($string) ? (string) reset($string) : '';
+        }
         return strip_tags($string ?? '', $allowable_tags);
     }
 

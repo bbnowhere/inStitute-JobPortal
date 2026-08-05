@@ -42,7 +42,7 @@ class ApplicationSidebarBlock extends BlockBase {
     }
     $sections = !empty($config['sections']) ? $config['sections'] : [
       'personal_information' => $this->t('Personal Information'),
-      'education' => $this->t('Education'),
+      'education' => $this->t('Educational Details'),
       'employment_details' => $this->t('Employment Details'),
       'referee' => $this->t('Referee'),
       'additional_information' => $this->t('Additional Information'),

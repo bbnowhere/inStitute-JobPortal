@@ -23,7 +23,7 @@
           {% set completion = completion|default(0) %}
           <div class="d-flex align-items-start justify-content-between mb-3">
             <div>
-              <h1 class="h4 mb-1">{{ job.label|striptags }}</h1>
+              <h1 class="h4 mb-1">{{ (job.label is iterable ? job.label|join(' ') : job.label)|striptags }}</h1>
               <small class="text-muted">Job ID: {{ job.id is defined ? job.id : (job.nid is defined ? job.nid : '') }}</small>
             </div>
 
@@ -64,9 +64,9 @@
                   <div class="flex-grow-1">
                     <div class="d-flex justify-content-between align-items-start">
                       <div>
-                        <h6 class="mb-1">{{ section.title|striptags }}</h6>
+                        <h6 class="mb-1">{{ (section.title is iterable ? section.title|join(' ') : section.title)|striptags }}</h6>
                         {% if section.description is defined and section.description %}
-                          <div class="small text-muted">{{ section.description|striptags }}</div>
+                          <div class="small text-muted">{{ (section.description is iterable ? section.description|join(' ') : section.description)|striptags }}</div>
                         {% endif %}
                       </div>
                       <div class="text-end">

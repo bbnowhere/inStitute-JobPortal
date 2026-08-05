@@ -1,0 +1,9 @@
+name: Job Import
+type: module
+description: 'Imports recruitment JSON jobs into the Job content type.'
+core_version_requirement: ^10 || ^11
+package: Custom
+dependencies:
+  - drupal:node
+  - drupal:file
+  - drupal:system

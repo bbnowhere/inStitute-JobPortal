@@ -1,0 +1,17 @@
+services:
+  job_import.import_service:
+    class: Drupal\job_import\Service\JobImportService
+    arguments:
+      - '@entity_type.manager'
+      - '@database'
+      - '@logger.factory'
+      - '@file_system'
+      - '@file.repository'
+      - '@http_client'
+
+  job_import.commands:
+    class: Drupal\job_import\Commands\JobImportCommands
+    arguments:
+      - '@job_import.import_service'
+    tags:
+      - { name: drush.command }

@@ -289,7 +289,7 @@ display:
             anonymous: anonymous
             authenticated: authenticated
       cache:
-        type: tag
+        type: none
         options: {  }
       empty: {  }
       sorts:

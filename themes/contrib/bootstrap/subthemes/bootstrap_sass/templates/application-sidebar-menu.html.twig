@@ -24,16 +24,16 @@
                     {% if '<a' in l_lower or '&lt;a' in l_lower %}
                       {{ l|raw }}
                     {% else %}
-                      <a href="{{ l|escape('html_attr') }}" class="sidebar-title fw-semibold text-decoration-none">{{ item.title|striptags }}</a>
+                      <a href="{{ l|escape('html_attr') }}" class="sidebar-title fw-semibold text-decoration-none">{{ (item.title is iterable ? item.title|join(' ') : item.title)|striptags }}</a>
                     {% endif %}
                   {% endif %}
                 {% else %}
-                  <span class="sidebar-title fw-semibold">{{ item.title|striptags }}</span>
+                  <span class="sidebar-title fw-semibold">{{ (item.title is iterable ? item.title|join(' ') : item.title)|striptags }}</span>
                 {% endif %}
                 <span class="small text-muted">{{ sstatus|capitalize }}</span>
               </div>
               {% if item.summary is defined and item.summary %}
-                <div class="small text-muted mt-1">{{ item.summary|striptags }}</div>
+                <div class="small text-muted mt-1">{{ (item.summary is iterable ? item.summary|join(' ') : item.summary)|striptags }}</div>
               {% endif %}
             </div>
           </li>

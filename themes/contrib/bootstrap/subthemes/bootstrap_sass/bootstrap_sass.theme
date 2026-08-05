@@ -273,14 +273,92 @@ function bootstrap_sass_preprocess_node(&$variables) {
     'field_personal_info' => $personal_info_nid,
   ]));
 
+  // Build embeddable image data for PDF and HTML rendering.
+  $build_image_data_uri = function($file): string {
+    if (!$file || !$file->getFileUri()) {
+      return '';
+    }
+
+    $uri = $file->getFileUri();
+    $data = @file_get_contents($uri);
+    if ($data === FALSE || $data === '') {
+      $realpath = \Drupal::service('file_system')->realpath($uri);
+      if ($realpath && is_readable($realpath)) {
+        $data = @file_get_contents($realpath);
+      }
+    }
+    if ($data === FALSE || $data === '') {
+      return '';
+    }
+
+    // Use finfo to detect actual mime from the bytes when possible.
+    $mime = '';
+    if (function_exists('finfo_open')) {
+      $finfo = @finfo_open(FILEINFO_MIME_TYPE);
+      if ($finfo) {
+        $detected = @finfo_buffer($finfo, $data);
+        if (!empty($detected)) {
+          $mime = $detected;
+        }
+        @finfo_close($finfo);
+      }
+    }
+    // Fall back to the file entity mime type when finfo is unavailable.
+    if (empty($mime)) {
+      $mime = (string) $file->getMimeType();
+    }
+
+    // If this is AVIF, WEBP or other non-PNG/JPEG that Dompdf may not support,
+    // try to convert to PNG. Prefer Imagick when available, otherwise try GD
+    // for WEBP via imagecreatefromstring.
+    $lower = strtolower($mime);
+
+    // Handle AVIF with Imagick if possible.
+    if (strpos($lower, 'avif') !== FALSE && class_exists('\\Imagick')) {
+      try {
+        $im = new \Imagick();
+        $im->readImageBlob($data);
+        $im->setImageFormat('png');
+        $png = $im->getImageBlob();
+        $im->clear();
+        $im->destroy();
+        if ($png !== FALSE && $png !== '') {
+          return 'data:image/png;base64,' . base64_encode($png);
+        }
+      }
+      catch (\Exception $e) {
+        // Fall through to other attempts.
+      }
+    }
+
+    // Handle WEBP and other formats via GD if possible.
+    if ((strpos($lower, 'webp') !== FALSE || strpos($lower, 'image/') === 0) && function_exists('imagecreatefromstring') && function_exists('imagepng')) {
+      $img = @imagecreatefromstring($data);
+      if ($img !== FALSE) {
+        ob_start();
+        imagepng($img);
+        $png_data = ob_get_clean();
+        imagedestroy($img);
+        if ($png_data !== FALSE && $png_data !== '') {
+          return 'data:image/png;base64,' . base64_encode($png_data);
+        }
+      }
+    }
+
+    // As a last resort, return the original bytes with the detected mime.
+    if (empty($mime)) {
+      $mime = 'image/jpeg';
+    }
+    return 'data:' . $mime . ';base64,' . base64_encode($data);
+  };
+
   // ---- PHOTO (base64) ----
   if ($node->hasField('field_photo') && !$node->get('field_photo')->isEmpty()) {
     $file = $node->get('field_photo')->entity;
     if ($file) {
-      $realpath = \Drupal::service('file_system')->realpath($file->getFileUri());
-      if ($realpath && file_exists($realpath)) {
-        $data = file_get_contents($realpath);
-        $variables['photo_base64'] = 'data:' . $file->getMimeType() . ';base64,' . base64_encode($data);
+      $data_uri = $build_image_data_uri($file);
+      if (!empty($data_uri)) {
+        $variables['photo_base64'] = $data_uri;
       }
     }
   }
@@ -289,14 +367,63 @@ function bootstrap_sass_preprocess_node(&$variables) {
   if ($node->hasField('field_signature') && !$node->get('field_signature')->isEmpty()) {
     $file2 = $node->get('field_signature')->entity;
     if ($file2) {
-      $realpath2 = \Drupal::service('file_system')->realpath($file2->getFileUri());
-      if ($realpath2 && file_exists($realpath2)) {
-        $data2 = file_get_contents($realpath2);
-        $variables['signature_base64'] = 'data:' . $file2->getMimeType() . ';base64,' . base64_encode($data2);
+      $data_uri2 = $build_image_data_uri($file2);
+      if (!empty($data_uri2)) {
+        $variables['signature_base64'] = $data_uri2;
       }
     }
   }
+
+  // ---- Flatten text fields to simple strings for Twig ----
+  $flatten_value = function($value) {
+    if (is_array($value)) {
+      $result = [];
+      array_walk_recursive($value, function($v) use (&$result) {
+        if (!is_array($v)) {
+          $result[] = (string) $v;
+        }
+      });
+      return implode(' ', $result);
+    }
+    return (string) $value;
+  };
+
+  $text_fields = [
+    'field_full_name',
+    'field_father_mother_spouse_name',
+    'field_gender',
+    'field_category',
+    'field_pwd_category',
+    'field_category_certificate',
+    'field_marital_status',
+    'field_nationality',
+    'field_departmental_candidate',
+    'field_experience_level',
+  ];
+
+  foreach ($text_fields as $field) {
+    if ($node->hasField($field) && !$node->get($field)->isEmpty()) {
+      $item = $node->get($field)->first();
+      $variables[$field . '_str'] = $flatten_value($item->value ?? '');
+    }
+    else {
+      $variables[$field . '_str'] = '';
+    }
+  }
+
+  // Special display handling for pwd category and category certificate.
+  $pwd = trim($variables['field_pwd_category_str'] ?? '');
+  $variables['field_pwd_category_display'] = $pwd !== '' ? $pwd : 'N/A';
+
+  $variables['category_certificate_name'] = '';
+  if ($node->hasField('field_category_certificate') && !$node->get('field_category_certificate')->isEmpty()) {
+    $file = $node->get('field_category_certificate')->entity;
+    if ($file) {
+      $variables['category_certificate_name'] = $file->getFilename();
+    }
+  }
 }
+
 
 if (isset($variables['pdf_mode'])) {
   $variables['pdf_mode'] = TRUE;

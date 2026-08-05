@@ -71,7 +71,7 @@
             <dt class="col-sm-4">Departmental Candidate</dt>
             <dd class="col-sm-8">{{ (node.field_departmental_candidate.value is iterable ? node.field_departmental_candidate.value|join(' ') : node.field_departmental_candidate.value)|capitalize }}</dd>
             <dt class="col-sm-4">Brief particulars about departmental candidates i.e. who are all entitled to get the benefits of departmental candidate.</dt>
-            <dd class="col-sm-8">{{ node.field_departmental_candidate_details.value ?: '-' }}</dd>
+            <dd class="col-sm-8">{{ (node.field_brief_particulars_about_de is defined and node.field_brief_particulars_about_de.value is not empty) ? node.field_brief_particulars_about_de.value : ((node.field_departmental_candidate_details is defined and node.field_departmental_candidate_details.value is not empty) ? node.field_departmental_candidate_details.value : '-') }}</dd>
             <dt class="col-sm-4">Experience Level</dt>
             <dd class="col-sm-8">{{ (node.field_experience_level.value is iterable ? node.field_experience_level.value|join(' ') : node.field_experience_level.value)|upper }}</dd>
           </dl>
@@ -319,28 +319,28 @@
             <dd class="col-sm-6">{{ add.field_debarred_unfair_means.value }}</dd>
             {% if add.field_debarred_unfair_means.value|lower == 'yes' %}
               <dt class="col-sm-6">Debarred Details</dt>
-              <dd class="col-sm-6">{{ add.field_debarred_details.value|striptags|lower|capitalize|nl2br }}</dd>
+              <dd class="col-sm-6">{{ (add.field_debarred_details.value is iterable ? add.field_debarred_details.value|join(' ') : add.field_debarred_details.value)|striptags|lower|capitalize|nl2br }}</dd>
             {% endif %}
 
             <dt class="col-sm-6">Have you ever been discharged from employment?</dt>
             <dd class="col-sm-6">{{ add.field_discharged_employment.value }}</dd>
             {% if add.field_discharged_employment.value|lower == 'yes' %}
               <dt class="col-sm-6">Discharged Employment Details</dt>
-              <dd class="col-sm-6">{{ add.field_discharged_employment_d.value|striptags|lower|capitalize|nl2br }}</dd>
+              <dd class="col-sm-6">{{ (add.field_discharged_employment_d.value is iterable ? add.field_discharged_employment_d.value|join(' ') : add.field_discharged_employment_d.value)|striptags|lower|capitalize|nl2br }}</dd>
             {% endif %}
 
             <dt class="col-sm-6">Have you ever faced disciplinary proceedings?</dt>
             <dd class="col-sm-6">{{ add.field_disciplinary_proceedings.value }}</dd>
             {% if add.field_disciplinary_proceedings.value|lower == 'yes' %}
               <dt class="col-sm-6">Disciplinary Proceedings Details</dt>
-              <dd class="col-sm-6">{{ add.field_disciplinary_proceedings_d.value|striptags|lower|capitalize|nl2br }}</dd>
+              <dd class="col-sm-6">{{ (add.field_disciplinary_proceedings_d.value is iterable ? add.field_disciplinary_proceedings_d.value|join(' ') : add.field_disciplinary_proceedings_d.value)|striptags|lower|capitalize|nl2br }}</dd>
             {% endif %}
 
             <dt class="col-sm-6">Any financial irregularity?</dt>
             <dd class="col-sm-6">{{ add.field_financial_irregularity.value }}</dd>
             {% if add.field_financial_irregularity.value|lower == 'yes' %}
               <dt class="col-sm-6">Financial Irregularity Details</dt>
-              <dd class="col-sm-6">{{ add.field_financial_irregularity_d.value|striptags|lower|capitalize|nl2br }}</dd>
+              <dd class="col-sm-6">{{ (add.field_financial_irregularity_d.value is iterable ? add.field_financial_irregularity_d.value|join(' ') : add.field_financial_irregularity_d.value)|striptags|lower|capitalize|nl2br }}</dd>
             {% endif %}
 
             <dt class="col-sm-6">Joining Time (days)</dt>

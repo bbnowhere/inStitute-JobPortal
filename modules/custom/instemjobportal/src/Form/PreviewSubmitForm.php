@@ -259,7 +259,7 @@ class PreviewSubmitForm extends FormBase {
       ];
     }
 
-    // Education
+    // Educational Details
     $education_node = NULL;
     $education_nids = \Drupal::entityQuery('node')
       ->accessCheck(FALSE)
@@ -275,7 +275,7 @@ class PreviewSubmitForm extends FormBase {
     if ($education_node) {
       $form['preview']['education'] = [
         '#type' => 'details',
-        '#title' => $this->t('Education'),
+        '#title' => $this->t('Educational Details'),
         '#open' => TRUE,
         '#markup' => '
           <table class="table table-bordered table-striped">
@@ -527,7 +527,7 @@ class PreviewSubmitForm extends FormBase {
 
       $markup = '<table class="table table-bordered table-striped"><tbody>';
 
-      // Education certificates first
+      // Educational Details certificates first
       if ($education_node) {
         if ($education_node->hasField('field_10th_certificate') && !$education_node->get('field_10th_certificate')->isEmpty()) {
           $markup .= '<tr><th>10th Document</th><td>' . $this->renderFileField($education_node, 'field_10th_certificate') . '</td></tr>';

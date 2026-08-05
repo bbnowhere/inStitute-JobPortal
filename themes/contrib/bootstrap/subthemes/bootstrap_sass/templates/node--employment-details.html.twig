@@ -6,6 +6,18 @@
     <div class="table table-bordered table-striped">
       {% for item in node.field_employment_details %}
         {% set paragraph = item.entity %}
+        {% set pay_level_raw = paragraph.field_pay_band.value ?? '' %}
+        {% set pay_level = pay_level_raw ? pay_level_raw|replace({'_': ' ', '-': ' '})|title : '-' %}
+        {% set nature_of_work_raw = paragraph.field_nature_of_job.value ?? '' %}
+        {% set nature_of_work = nature_of_work_raw ? nature_of_work_raw|replace({'_': ' ', '-': ' '})|capitalize : '-' %}
+        {% set experience_raw = paragraph.field_experience_calculated.value ?? '' %}
+        {% if experience_raw is not empty and experience_raw matches '/^\\d+(\\.\\d+)?$/' %}
+          {% set experience = experience_raw|number_format(2, '.', '') ~ ' years' %}
+        {% elseif experience_raw is not empty %}
+          {% set experience = experience_raw %}
+        {% else %}
+          {% set experience = '-' %}
+        {% endif %}
         <div class="d-flex flex-wrap border bg-white mb-3">
           <div class="p-2 border-end col-md-3 font-weight-bold bg-light">S.No</div>
           <div class="p-2 col-md-9">{{ loop.index }}</div>
@@ -37,14 +49,14 @@
           <div class="p-2 border-top border-end col-md-3 font-weight-bold bg-light">Other Type of Work</div>
           <div class="p-2 border-top col-md-9">{{ paragraph.field_other_type_of_work.value }}</div>
 
-          <div class="p-2 border-top border-end col-md-3 font-weight-bold bg-light">Pay Level>
-          <div class="p-2 border-top col-md-9">{{ paragraph.field_pay_band.value }}</div>
+          <div class="p-2 border-top border-end col-md-3 font-weight-bold bg-light">Pay Level</div>
+          <div class="p-2 border-top col-md-9">{{ pay_level }}</div>
 
-          <div class="p-2 border-top border-end col-md-3 font-weight-bold bg-light">Nature of Job</div>
-          <div class="p-2 border-top col-md-9">{{ paragraph.field_nature_of_job.value }}</div>
+          <div class="p-2 border-top border-end col-md-3 font-weight-bold bg-light">Nature of Work</div>
+          <div class="p-2 border-top col-md-9">{{ nature_of_work }}</div>
 
           <div class="p-2 border-top border-end col-md-3 font-weight-bold bg-light">Experience</div>
-          <div class="p-2 border-top col-md-9">{{ paragraph.field_experience_calculated.value }}</div>
+          <div class="p-2 border-top col-md-9">{{ experience }}</div>
         </div>
       {% endfor %}
     </div>

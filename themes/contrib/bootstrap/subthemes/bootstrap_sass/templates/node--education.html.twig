@@ -1,6 +1,6 @@
 <div class="card shadow mb-4">
   <div class="card-header bg-primary text-white">
-    Education
+    Educational Details
   </div>
   <div class="card-body">
     {% set education_items = [
@@ -10,8 +10,12 @@
         'University': content.field_10th_university,
         'Country': content.field_10th_country,
         'CGPA/GPA': content.field_10th_gpa,
-        'Marks (%)': content.field_10th_marks_percentage,
-        'Month/Year of Passing': content.field_10th_year_of_passing,
+        'Marks (%)': (content.field_10th_marks_percentage is defined and content.field_10th_marks_percentage is not empty)
+          ? content.field_10th_marks_percentage
+          : node.field_10th_marks_percentage.value,
+        'Month/Year of Passing': (content.field_10th_year_of_passing is defined and content.field_10th_year_of_passing is not empty)
+          ? content.field_10th_year_of_passing
+          : node.field_10th_year_of_passing.value,
         'Certificate': content.field_10th_certificate
       },
       {
@@ -20,8 +24,12 @@
         'University': content.field_12th_university,
         'Country': content.field_12th_country,
         'CGPA/GPA': content.field_12th_gpa,
-        'Marks (%)': content.field_12th_marks_percentage,
-        'Month/Year of Passing': content.field_12th_year_of_passing,
+        'Marks (%)': (content.field_12th_marks_percentage is defined and content.field_12th_marks_percentage is not empty)
+          ? content.field_12th_marks_percentage
+          : node.field_12th_marks_percentage.value,
+        'Month/Year of Passing': (content.field_12th_year_of_passing is defined and content.field_12th_year_of_passing is not empty)
+          ? content.field_12th_year_of_passing
+          : node.field_12th_year_of_passing.value,
         'Certificate': content.field_12th_certificate
       },
       {
@@ -30,8 +38,12 @@
         'University': content.field_grad_univ,
         'Country': content.field_grad_country,
         'CGPA/GPA': content.field_grad_gpa,
-        'Marks (%)': content.field_grad_marks,
-        'Month/Year of Passing': content.field_grad_year,
+        'Marks (%)': (content.field_grad_marks is defined and content.field_grad_marks is not empty)
+          ? content.field_grad_marks
+          : node.field_grad_marks.value,
+        'Month/Year of Passing': (content.field_grad_year is defined and content.field_grad_year is not empty)
+          ? content.field_grad_year
+          : node.field_grad_year.value,
         'Certificate': content.field_grad_cert
       },
       {
@@ -40,8 +52,12 @@
         'University': content.field_pg_univ,
         'Country': content.field_pg_country,
         'CGPA/GPA': content.field_pg_gpa,
-        'Marks (%)': content.field_pg_marks,
-        'Month/Year of Passing': content.field_pg_year,
+        'Marks (%)': (content.field_pg_marks is defined and content.field_pg_marks is not empty)
+          ? content.field_pg_marks
+          : node.field_pg_marks.value,
+        'Month/Year of Passing': (content.field_pg_year is defined and content.field_pg_year is not empty)
+          ? content.field_pg_year
+          : node.field_pg_year.value,
         'Certificate': content.field_pg_cert
       },
       {
@@ -50,8 +66,12 @@
         'University': content.field_phd_univ,
         'Country': content.field_phd_country,
         'CGPA/GPA': content.field_phd_gpa,
-        'Marks (%)': content.field_phd_marks,
-        'Month/Year of Passing': content.field_phd_year,
+        'Marks (%)': (content.field_phd_marks is defined and content.field_phd_marks is not empty)
+          ? content.field_phd_marks
+          : node.field_phd_marks.value,
+        'Month/Year of Passing': (content.field_phd_year is defined and content.field_phd_year is not empty)
+          ? content.field_phd_year
+          : node.field_phd_year.value,
         'Certificate': content.field_phd_cert
       },
       {
@@ -60,8 +80,12 @@
         'University': content.field_other_university,
         'Country': content.field_other_country,
         'CGPA/GPA': content.field_other_gpa,
-        'Marks (%)': content.field_other_marks_percentage,
-        'Month/Year of Passing': content.field_other_year_of_passing,
+        'Marks (%)': (content.field_other_marks_percentage is defined and content.field_other_marks_percentage is not empty)
+          ? content.field_other_marks_percentage
+          : node.field_other_marks_percentage.value,
+        'Month/Year of Passing': (content.field_other_year_of_passing is defined and content.field_other_year_of_passing is not empty)
+          ? content.field_other_year_of_passing
+          : node.field_other_year_of_passing.value,
         'Certificate': content.field_other_certificate
       }
     ] %}
