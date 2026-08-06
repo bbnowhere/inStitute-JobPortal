@@ -31,7 +31,12 @@ final class JobImportService {
   ];
 
   /**
-   * The field names used for business identity.
+   * The field used for business identity in incoming payloads.
+   */
+  private const EXTERNAL_JOB_ID_FIELD = 'field_external_job_id';
+
+  /**
+   * The job code field stored on the node.
    */
   private const JOB_CODE_FIELD = 'field_job_code';
 
@@ -156,19 +161,20 @@ final class JobImportService {
     }
 
     $job_code = $this->extractJobCode($payload);
-    if ($job_code === '') {
-      throw new RuntimeException(sprintf('Missing or empty field_job_code in %s', $filename));
+    $external_job_id = $this->extractExternalJobId($payload);
+    if ($external_job_id === '') {
+      throw new RuntimeException(sprintf('Missing or empty field_external_job_id in %s', $filename));
     }
 
-    $this->loggerFactory->get('job_import')->debug('Finding existing node for @job_code', [
-      '@job_code' => $job_code,
+    $this->loggerFactory->get('job_import')->debug('Finding existing node for @external_job_id', [
+      '@external_job_id' => $external_job_id,
     ]);
-    $node = $this->findNodeByJobCode($job_code);
-    $node_data = $this->buildNodeData($payload, $job_code);
+    $node = $this->findNodeByExternalJobId($external_job_id);
+    $node_data = $this->buildNodeData($payload, $job_code, $external_job_id);
 
     if ($node === null) {
-      $this->loggerFactory->get('job_import')->debug('Creating node for @job_code', [
-        '@job_code' => $job_code,
+      $this->loggerFactory->get('job_import')->debug('Creating node for @external_job_id', [
+        '@external_job_id' => $external_job_id,
       ]);
       $node = Node::create([
         'type' => self::JOB_TYPE,
@@ -187,8 +193,8 @@ final class JobImportService {
       return 'created';
     }
 
-    $this->loggerFactory->get('job_import')->debug('Updating node for @job_code', [
-      '@job_code' => $job_code,
+    $this->loggerFactory->get('job_import')->debug('Updating node for @external_job_id', [
+      '@external_job_id' => $external_job_id,
     ]);
     $this->applyNodeData($node, $node_data);
     $this->loggerFactory->get('job_import')->debug('Saving node for @job_code', [
@@ -203,15 +209,15 @@ final class JobImportService {
   }
 
   /**
-   * Retrieves the Job node with the matching business identifier.
+   * Retrieves the Job node with the matching external job identifier.
    */
-  private function findNodeByJobCode(string $job_code): ?\Drupal\node\NodeInterface {
+  private function findNodeByExternalJobId(string $external_job_id): ?\Drupal\node\NodeInterface {
     $result = $this->entityTypeManager
       ->getStorage('node')
       ->getQuery()
       ->accessCheck(FALSE)
       ->condition('type', self::JOB_TYPE)
-      ->condition(self::JOB_CODE_FIELD, $job_code)
+      ->condition(self::EXTERNAL_JOB_ID_FIELD, $external_job_id)
       ->range(0, 1)
       ->execute();
 
@@ -228,12 +234,13 @@ final class JobImportService {
    *
    * @return array<string, mixed>
    */
-  private function buildNodeData(array $payload, string $job_code): array {
+  private function buildNodeData(array $payload, string $job_code, string $external_job_id = ''): array {
     $source = is_array($payload['fields'] ?? NULL) ? array_merge($payload, $payload['fields']) : $payload;
     $title = trim((string) ($source['title'] ?? $job_code));
     $field_data = [
       'title' => $title === '' ? $job_code : $title,
       self::JOB_CODE_FIELD => $job_code,
+      self::EXTERNAL_JOB_ID_FIELD => $this->stringValue($external_job_id !== '' ? $external_job_id : ($source[self::EXTERNAL_JOB_ID_FIELD] ?? NULL)),
       'field_department' => $this->stringValue($source['field_department'] ?? NULL),
       'field_employment_recruitment' => $this->normalizeListValue('field_employment_recruitment', $source['field_employment_type_recruitmen'] ?? $source['field_employment_recruitment'] ?? NULL),
       'field_application_type' => $this->normalizeListValue('field_application_type', $source['field_application_type'] ?? NULL),
@@ -254,7 +261,7 @@ final class JobImportService {
       'field_result_upload' => $this->downloadFileField($source['field_result_upload'] ?? NULL, $job_code, 'field_result_upload'),
       'field_shortlisted_candidates' => $this->downloadFileField($source['field_upload_shortlisted_candida'] ?? $source['field_shortlisted_candidates'] ?? NULL, $job_code, 'field_shortlisted_candidates'),
       'field_selected_candidate' => $this->downloadFileField($source['field_upload_selected_candidate'] ?? $source['field_selected_candidate'] ?? NULL, $job_code, 'field_selected_candidate'),
-      'field_job_status' => $this->normalizeListValue('field_job_status', $source['field_job_status'] ?? ($source['status'] === true ? 'In Process' : NULL)),
+      'field_job_status' => $this->normalizeListValue('field_job_status', $source['field_job_status'] ?? ((($source['status'] ?? NULL) === true) ? 'In Process' : NULL)),
       'status' => $this->normalizeStatusValue($source['status'] ?? NULL),
     ];
 
@@ -338,6 +345,15 @@ final class JobImportService {
   private function extractJobCode(array $payload): string {
     $source = is_array($payload['fields'] ?? NULL) ? array_merge($payload, $payload['fields']) : $payload;
     $value = $source[self::JOB_CODE_FIELD] ?? $source['job_code'] ?? NULL;
+    return trim((string) $value);
+  }
+
+  /**
+   * Extracts the external job identifier from a payload.
+   */
+  private function extractExternalJobId(array $payload): string {
+    $source = is_array($payload['fields'] ?? NULL) ? array_merge($payload, $payload['fields']) : $payload;
+    $value = $source[self::EXTERNAL_JOB_ID_FIELD] ?? $source['external_job_id'] ?? $source[self::JOB_CODE_FIELD] ?? $source['job_code'] ?? NULL;
     return trim((string) $value);
   }
 
